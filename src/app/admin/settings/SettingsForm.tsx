@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Save, Phone, X, Plus } from "lucide-react";
 import { updateSetting } from "@/app/actions/settings";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { GlassCard } from "@/components/ui/GlassCard";
 
 interface SettingsFormProps {
   initialWaNumber: string;
@@ -86,52 +87,70 @@ export default function SettingsForm({ initialWaNumber }: SettingsFormProps) {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm space-y-6">
-        <div className="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-gray-700">
-          <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-            <Phone className="h-5 w-5 text-green-600 dark:text-green-400" />
+      <GlassCard className="p-8 border-none shadow-xl shadow-gray-200/50 dark:shadow-none space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex items-center gap-4 pb-6 border-b border-gray-100 dark:border-gray-800/50">
+          <div className="p-3.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl">
+            <Phone className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Bantuan Lupa Password</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Atur daftar nomor WhatsApp admin bantuan</p>
+            <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Bantuan WhatsApp</h3>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Konfigurasi nomor darurat untuk bantuan akses akun.</p>
           </div>
         </div>
 
         {successMsg && (
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-sm font-bold border border-emerald-100 dark:border-emerald-800/50">
-             {successMsg}
+          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 rounded-2xl text-sm font-bold border border-emerald-100/50 dark:border-emerald-800/20 animate-in zoom-in-95 duration-300">
+             <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                {successMsg}
+             </div>
           </div>
         )}
 
-        <div className="space-y-4">
-          <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
-            Daftar Nomor WhatsApp Admin
-          </label>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">
+              Daftar Kontak Admin
+            </label>
+            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">
+              {waNumbers.length} Kontak
+            </span>
+          </div>
 
           <div className="space-y-4">
             {waNumbers.map((num, idx) => (
-              <div key={idx} className="space-y-1">
-                <div className="flex gap-2">
+              <div key={idx} className="group space-y-2 animate-in slide-in-from-right-4 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
+                <div className="flex gap-3">
                   <div className="relative flex-1">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase">WA {idx + 1}</span>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                      <span className="text-[9px] font-black text-gray-300 dark:text-gray-600 uppercase tracking-tighter">WA {idx + 1}</span>
+                      <div className="w-px h-3 bg-gray-100 dark:bg-gray-800" />
+                    </div>
                     <input
                       type="tel"
                       value={num}
                       onChange={(e) => handleNumberChange(idx, e.target.value)}
-                      placeholder="Contoh: 081388058331"
-                      className={`w-full rounded-xl border ${errors[idx] ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700 pl-14 pr-4 py-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                      placeholder="8123456789"
+                      className={`w-full rounded-2xl border-2 transition-all pl-16 pr-4 py-4 text-sm font-bold tracking-wide shadow-sm ${
+                        errors[idx] 
+                          ? "border-rose-100 bg-rose-50/30 text-rose-600 focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10" 
+                          : "border-gray-50 dark:border-gray-800 bg-white dark:bg-[#13111C] text-gray-900 dark:text-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      }`}
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveNumber(idx)}
-                    className="p-3 rounded-xl border border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    className="p-4 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-900/10 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-all active:scale-95 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-rose-500/5"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
                 {errors[idx] && (
-                  <p className="text-[10px] font-bold text-red-500 px-2 italic">*{errors[idx]}</p>
+                  <p className="text-[10px] font-black text-rose-500 px-4 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-1">
+                    <span className="w-1 h-1 bg-rose-500 rounded-full" />
+                    {errors[idx]}
+                  </p>
                 )}
               </div>
             ))}
@@ -140,25 +159,25 @@ export default function SettingsForm({ initialWaNumber }: SettingsFormProps) {
           <button
             type="button"
             onClick={handleAddNumber}
-            className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline px-2 py-1"
+            className="flex items-center gap-2 text-[11px] font-black text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 px-5 py-3 rounded-xl transition-all active:scale-95 w-fit"
           >
             <Plus className="h-4 w-4" />
-            Tambah Nomor Lainnya
+            TAMBAH NOMOR BARU
           </button>
         </div>
 
-        <div className="pt-4 flex justify-end">
+        <div className="pt-6 border-t border-gray-50 dark:border-gray-800/50">
           <button
             type="button"
             onClick={() => setShowConfirm(true)}
             disabled={isLoading}
-            className="flex items-center justify-center gap-2 rounded-xl bg-green-600 hover:bg-green-700 px-6 py-3 text-sm font-bold text-white disabled:opacity-50 transition-all shadow-md w-full md:w-auto"
+            className="group relative flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 px-8 py-4 text-sm font-black text-white disabled:opacity-50 transition-all shadow-xl shadow-emerald-500/20 w-full active:scale-[0.98]"
           >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Simpan Perubahan
+            {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 h-5 group-hover:scale-110 transition-transform" />}
+            SIMPAN PENGATURAN GLOBAL
           </button>
         </div>
-      </div>
+      </GlassCard>
 
       <ConfirmDialog
         isOpen={showConfirm}

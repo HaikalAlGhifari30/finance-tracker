@@ -145,44 +145,6 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
               <ErrMsg field="name" />
             </div>
 
-            {!isSystemAdmin && (
-              <>
-                {/* NIK / NPWP */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase px-1">NIK / NPWP</label>
-                  <input
-                    type="tel"
-                    name="npwp"
-                    defaultValue={initialData?.npwp}
-                    className={inputClass("npwp")}
-                    placeholder="Masukkan NIK atau NPWP (Opsional)"
-                    onInput={(e) => {
-                      const input = e.currentTarget;
-                      input.value = input.value.replace(/\D/g, "");
-                    }}
-                  />
-                  <ErrMsg field="npwp" />
-                </div>
-
-                {/* Nomor Telepon */}
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase px-1">Nomor Telepon</label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    defaultValue={initialData?.phoneNumber}
-                    className={inputClass("phoneNumber")}
-                    placeholder="cth: 08123456789 (Opsional)"
-                    onInput={(e) => {
-                      const input = e.currentTarget;
-                      input.value = input.value.replace(/\D/g, "");
-                    }}
-                  />
-                  <ErrMsg field="phoneNumber" />
-                </div>
-              </>
-            )}
-
             {/* Alamat Email */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase px-1">Alamat Email<Req /></label>
@@ -252,7 +214,7 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
 
             {/* Role */}
             {isSystemAdmin ? (
-              <div className="rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 px-5 py-4 text-[11px] text-indigo-700 dark:text-indigo-300 font-bold leading-relaxed">
+              <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50 px-5 py-4 text-[11px] text-emerald-700 dark:text-emerald-300 font-bold leading-relaxed">
                 🛡️ PERAN <strong className="uppercase">Super Admin</strong> BERSIFAT PERMANEN UNTUK KEAMANAN SISTEM.
                 <input type="hidden" name="role" value="SUPERADMIN" />
               </div>
@@ -269,9 +231,6 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
                      <option value="USER">User Reguler</option>
                      <option value="SUPERADMIN">System Administrator</option>
                    </select>
-                   <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                      <Loader2 className="h-4 w-4 text-gray-400 hidden animate-spin" />
-                   </div>
                 </div>
                 <ErrMsg field="role" />
               </div>
@@ -289,7 +248,7 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex-[1.5] flex items-center justify-center rounded-2xl bg-gradient-to-r from-[#4f2b7f] to-[#7f40a3] hover:opacity-90 px-4 py-3.5 text-sm font-bold text-white disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-[#4f2b7f] focus:ring-offset-2 transition-all shadow-md"
+                className="flex-[1.5] flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-90 px-4 py-3.5 text-sm font-bold text-white disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all shadow-md active:scale-95"
               >
                 {isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (mode === "create" ? "Buat Pengguna" : "Simpan Perubahan")}
               </button>

@@ -56,7 +56,7 @@ export async function createUser(formData: FormData) {
         id: accountId,
         userId: userId,
         accountId: email,
-        providerId: "credential",
+        providerId: "email-password",
         password: hashed,
         createdAt: now,
         updatedAt: now,
