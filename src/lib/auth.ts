@@ -35,8 +35,5 @@ export const auth = betterAuth({
         "http://localhost:3001",
         process.env.BETTER_AUTH_URL || ""
     ].filter(Boolean),
-    advanced: {
-        trustHost: true
-    },
     debug: process.env.NODE_ENV !== "production"
 });
