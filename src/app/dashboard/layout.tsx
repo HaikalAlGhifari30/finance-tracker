@@ -16,7 +16,7 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  if (session.user.role === "SUPERADMIN") {
+  if ((session?.user as any)?.role === "SUPERADMIN") {
     redirect("/admin");
   }
 

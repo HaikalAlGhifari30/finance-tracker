@@ -23,7 +23,9 @@ export async function updateSetting(key: string, value: string) {
       headers: await headers(),
     });
 
-    if (!session || session.user.role !== "SUPERADMIN") {
+    // Cast user to any to bypass the missing 'role' property type error during build
+    const user = session?.user as any;
+    if (!session || user?.role !== "SUPERADMIN") {
       return { success: false, error: "Unauthorized" };
     }
 

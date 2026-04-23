@@ -12,7 +12,7 @@ export default async function AdminLayout({
     headers: await headers(),
   });
 
-  if (!session || session.user.role !== "SUPERADMIN") {
+  if (!session || (session.user as any).role !== "SUPERADMIN") {
     redirect("/login");
   }
 

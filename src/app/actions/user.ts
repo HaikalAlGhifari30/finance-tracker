@@ -22,7 +22,7 @@ export async function createUser(formData: FormData) {
   }
 
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session?.user?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
+  if ((session?.user as any)?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
 
   try {
     // 1. Check if email already exists
@@ -75,7 +75,7 @@ export async function deleteUser(id: string) {
   if (!id) return { error: "ID tidak valid" };
 
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session?.user?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
+  if ((session?.user as any)?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
 
   // Prevent deleting self
   if (session.user.id === id) return { error: "Anda tidak bisa menghapus akun Anda sendiri." };
@@ -99,7 +99,7 @@ export async function updateUser(id: string, formData: FormData) {
   if (!id || !name || !email || !role) return { error: "Semua kolom wajib diisi" };
 
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session?.user?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
+  if ((session?.user as any)?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
 
   try {
     await db
@@ -118,7 +118,7 @@ export async function resetUserPassword(userId: string, newPassword: string) {
   if (newPassword.length < 6) return { error: "Password minimal 6 karakter" };
 
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session?.user?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
+  if ((session?.user as any)?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
 
   try {
     const hashed = await hashPassword(newPassword);
