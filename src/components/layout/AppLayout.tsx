@@ -15,10 +15,18 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
   const [isClient, setIsClient] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleLogout = async () => {
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
+    await authClient.signOut();
+    router.push("/login");
+  };
 
   const role = user?.role || "USER";
 
@@ -104,7 +112,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
           <div className="flex items-center gap-2 bg-gray-100 dark:bg-[#1E1E2D] p-1 rounded-full shadow-inner border border-gray-200 dark:border-gray-800">
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`w-14 h-7 rounded-full relative flex items-center transition-colors ${theme === 'dark' ? 'bg-emerald-600' : 'bg-gray-300'}`}
+              className="w-14 h-7 rounded-full relative flex items-center transition-colors bg-gray-300 dark:bg-emerald-600"
             >
                <div className={`w-5 h-5 bg-white dark:bg-[#1E1E2D] rounded-full absolute top-1 shadow-sm transition-transform duration-300 flex items-center justify-center ${theme === 'dark' ? 'translate-x-[30px]' : 'translate-x-1'}`}>
                   {theme === 'dark' ? <Moon className="w-3 h-3 text-emerald-600" /> : <Sun className="w-3 h-3 text-gray-500" />}
@@ -113,8 +121,8 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
           </div>
 
           <div className="relative">
-             <Link 
-               href="/dashboard/profile"
+             <button 
+               onClick={() => setShowUserMenu(!showUserMenu)}
                className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 shadow-md text-white font-bold flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none overflow-hidden"
              >
                {user?.image ? (
@@ -122,8 +130,45 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                ) : (
                  <span>{user?.name ? user.name.charAt(0).toUpperCase() : (role === "SUPERADMIN" ? "A" : "U")}</span>
                )}
-             </Link>
+             </button>
+
+             {showUserMenu && (
+               <>
+                 <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
+                 <div className="absolute top-full right-0 mt-3 w-56 bg-white dark:bg-[#1E1E2D] rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-5 py-3 border-b border-gray-50 dark:border-gray-800/50 mb-2">
+                       <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-0.5">Akun Saya</p>
+                       <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
+                    </div>
+                    <Link 
+                      href="/dashboard/profile" 
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
+                    >
+                       <CreditCard className="w-4 h-4" /> Edit Profil
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setShowLogoutConfirm(true);
+                      }}
+                      className="w-full flex items-center gap-3 px-5 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
+                    >
+                       <LogOut className="w-4 h-4" /> Keluar
+                    </button>
+                 </div>
+               </>
+             )}
           </div>
+
+          <ConfirmDialog 
+            isOpen={showLogoutConfirm}
+            onCancel={() => setShowLogoutConfirm(false)}
+            onConfirm={handleLogout}
+            title="Konfirmasi Keluar"
+            message="Apakah Anda yakin ingin keluar? Sesi Anda akan diakhiri dan tema akan dikembalikan ke mode terang."
+            confirmLabel="Ya, Keluar"
+          />
 
         </header>
 

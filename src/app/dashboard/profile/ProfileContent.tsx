@@ -48,6 +48,8 @@ export default function ProfileContent({ user }: { user: any }) {
   };
 
   const handleLogout = async () => {
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
     await authClient.signOut();
     router.push("/login");
   };
@@ -225,29 +227,12 @@ export default function ProfileContent({ user }: { user: any }) {
         </button>
       </GlassCard>
 
-      <button 
-        onClick={() => setShowLogout(true)}
-        className="w-full mt-4 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-950/20 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900/30 font-bold py-4 rounded-2xl transition-all border border-rose-100 dark:border-rose-900/30"
-      >
-        <LogOut className="w-5 h-5" />
-        Keluar dari Aplikasi
-      </button>
-
       {/* Hidden Inputs */}
       <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
       <input type="file" ref={cameraInputRef} onChange={handleFileChange} accept="image/*" capture="environment" className="hidden" />
 
       {/* Portals */}
       {showEditModal && createPortal(editModalContent, document.body)}
-      
-      <ConfirmDialog 
-        isOpen={showLogout}
-        onCancel={() => setShowLogout(false)}
-        onConfirm={handleLogout}
-        title="Konfirmasi Keluar"
-        message="Apakah Anda yakin ingin keluar dari sistem? Sesi Anda akan diakhiri."
-        confirmLabel="Ya, Keluar"
-      />
     </div>
   );
 }

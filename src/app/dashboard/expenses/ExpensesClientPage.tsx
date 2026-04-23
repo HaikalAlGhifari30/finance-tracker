@@ -42,9 +42,9 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
     return initialExpenses.filter(item => {
       const itemDate = typeof item.date === 'string' ? parseISO(item.date) : new Date(item.date);
       const matchesSearch = (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesPeriod = viewMode === "monthly" 
+        (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesPeriod = viewMode === "monthly"
         ? isSameMonth(itemDate, currentDate) && isSameYear(itemDate, currentDate)
         : isSameYear(itemDate, currentDate);
 
@@ -150,55 +150,29 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center mt-8">
-        <div className="lg:col-span-8 flex flex-wrap items-center gap-4">
-          <div className="flex p-1.5 bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <button
-              onClick={() => setViewMode("monthly")}
-              className={`text-[10px] px-5 py-2.5 rounded-xl font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-lg' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Bulanan
-            </button>
-            <button
-              onClick={() => setViewMode("yearly")}
-              className={`text-[10px] px-5 py-2.5 rounded-xl font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-lg' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Tahunan
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <button onClick={() => changePeriod(-1)} className="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 shadow-sm"><ChevronLeft className="w-5 h-5 text-gray-600" /></button>
-            <div className="px-6 py-2 min-w-[160px] text-center">
-              <h4 className="font-bold text-lg text-gray-900 dark:text-white tracking-tight uppercase">
-                {viewMode === "monthly" ? format(currentDate, "MMMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
-              </h4>
-            </div>
-            <button onClick={() => changePeriod(1)} className="p-2.5 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 shadow-sm"><ChevronRight className="w-5 h-5 text-gray-600" /></button>
-          </div>
-        </div>
-
-        <GlassCard className="lg:col-span-4 p-6 bg-gradient-to-br from-orange-500 to-amber-600 text-white border-none shadow-2xl shadow-orange-500/20 flex flex-col justify-between relative overflow-hidden">
+      <div className="mt-8 flex justify-end">
+        <GlassCard className="w-full max-w-sm p-6 bg-gradient-to-br from-orange-500 to-amber-600 text-white border-none shadow-2xl shadow-orange-500/20 flex flex-col relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <CreditCard className="w-24 h-24 rotate-12" />
           </div>
-          <div>
-            <p className="text-orange-100 text-[11px] font-black uppercase tracking-widest mb-1 opacity-90">Total Terpakai</p>
-            <h3 className="text-4xl font-black">Rp {totalFilteredAmount.toLocaleString("id-ID")}</h3>
+          <div className="relative z-10">
+            <p className="text-orange-100 text-[10px] font-black uppercase tracking-widest mb-1 opacity-90">Total Terpakai</p>
+            <h3 className="text-3xl font-black tracking-tighter">Rp {totalFilteredAmount.toLocaleString("id-ID")}</h3>
           </div>
-          <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-orange-100/60">
-              <Calendar className="w-3 h-3" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">
-                {viewMode === 'monthly' ? format(currentDate, 'MMMM yyyy', { locale: id }) : 'Tahun ' + format(currentDate, 'yyyy')}
+          <div className="relative z-10 mt-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-inner w-fit">
+            <Calendar className="w-4 h-4 text-orange-100" />
+            <div className="flex flex-col">
+              <span className="text-[8px] font-black uppercase tracking-widest text-orange-200">Periode</span>
+              <span className="text-xs font-bold text-white uppercase">
+                {viewMode === 'monthly' ? format(currentDate, 'MMMM yyyy', { locale: id }) : format(currentDate, 'yyyy')}
               </span>
             </div>
           </div>
         </GlassCard>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="flex items-center gap-3 w-full max-w-lg">
+      <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+        <div className="flex items-center gap-3 w-full lg:max-w-md">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -209,9 +183,9 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
               className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium shadow-sm"
             />
           </div>
-          
+
           <div className="relative">
-            <button 
+            <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
               className={`p-3.5 bg-white dark:bg-[#1E1E2D] border ${isFilterDropdownOpen || selectedCategory !== 'all' ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : 'border-gray-100 dark:border-gray-800'} rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm flex items-center justify-center relative`}
             >
@@ -220,11 +194,11 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-[#1E1E2D]"></span>
               )}
             </button>
-            
+
             {isFilterDropdownOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-40" 
+                <div
+                  className="fixed inset-0 z-40"
                   onClick={() => setIsFilterDropdownOpen(false)}
                 ></div>
                 <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 animate-in fade-in zoom-in duration-200">
@@ -252,7 +226,34 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-center justify-center gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800">
+          <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
+            <button
+              onClick={() => setViewMode("monthly")}
+              className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+            >
+              Bln
+            </button>
+            <button
+              onClick={() => setViewMode("yearly")}
+              className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+            >
+              Thn
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button onClick={() => changePeriod(-1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-4 h-4 text-gray-600" /></button>
+            <div className="px-2 min-w-[120px] text-center">
+              <span className="font-bold text-xs text-gray-900 dark:text-white tracking-tight uppercase">
+                {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
+              </span>
+            </div>
+            <button onClick={() => changePeriod(1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-4 h-4 text-gray-600" /></button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 w-full lg:w-auto">
           <button
             onClick={() => setIsCategoryModalOpen(true)}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 text-sm font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all shadow-sm active:scale-95"

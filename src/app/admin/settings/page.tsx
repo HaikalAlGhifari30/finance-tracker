@@ -6,10 +6,10 @@ export default async function SettingsPage() {
   const initialWaNumber = waResult.value || "081388058331";
 
   return (
-    <div className="space-y-6 animate-fade-in fade-in">
+    <div className="space-y-10 animate-fade-in text-left">
       <div>
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 uppercase">PENGATURAN SISTEM</h2>
-        <p className="text-gray-500 text-sm mt-1">Kelola konfigurasi global aplikasi keuangan</p>
+        <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Pengaturan Sistem</h2>
+        <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Kelola konfigurasi global dan parameter operasional aplikasi.</p>
       </div>
 
       <SettingsForm initialWaNumber={initialWaNumber} />

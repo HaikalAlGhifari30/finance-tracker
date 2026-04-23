@@ -18,7 +18,7 @@ export default async function CategoriesPage() {
     .select()
     .from(categories)
     .where(eq(categories.userId, session.user.id))
-    .orderBy(categories.createdAt);
+    .orderBy(categories.name);
 
   return (
     <div className="space-y-6 animate-fade-in fade-in">

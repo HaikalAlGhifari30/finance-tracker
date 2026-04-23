@@ -65,36 +65,32 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
   }, [filtered, currentPage]);
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-10 animate-fade-in text-left">
       {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-black text-gray-900 dark:text-gray-100 uppercase tracking-tighter">Manajemen Pengguna</h1>
-          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest opacity-70">Kelola akun dan hak akses seluruh pengguna sistem finance</p>
-        </div>
+      <div>
+        <h2 className="text-4xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Manajemen Pengguna</h2>
+        <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Kelola akun dan hak akses seluruh pengguna sistem finance.</p>
       </div>
 
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div className="relative flex-[3] group">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-500" />
-            </div>
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex items-center gap-3 w-full max-w-lg">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="Cari nama atau email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3 bg-[#1E1E2D]/50 dark:bg-[#1E1E2D] border border-gray-200 dark:border-gray-800 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium shadow-sm"
             />
           </div>
 
-          <div className="relative flex-1 min-w-[180px]">
+          <div className="relative">
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="appearance-none block w-full pl-4 pr-10 py-3 bg-[#1E1E2D]/50 dark:bg-[#1E1E2D] border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer"
+              className="appearance-none pl-5 pr-10 py-3.5 bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 rounded-2xl text-sm font-bold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer shadow-sm min-w-[160px]"
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>
@@ -102,79 +98,81 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
                 </option>
               ))}
             </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <ChevronDown className="h-4 w-4 text-gray-500" />
-            </div>
+            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="flex items-center justify-center px-6 py-3 bg-[#3B82F6] hover:bg-blue-600 text-white text-sm font-bold rounded-xl shadow-sm transition-all whitespace-nowrap"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
         >
-          <Plus className="mr-2 h-5 w-5" />
-          Tambah Pengguna Baru
+          <Plus className="w-5 h-5" />
+          <span>Tambah Pengguna</span>
         </button>
       </div>
 
-      <div className="bg-[#1E1E2D]/20 dark:bg-[#1E1E2D]/10 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 rounded-[32px] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-100 dark:divide-gray-800/50">
-            <thead className="bg-[#1A1A2E] dark:bg-[#0F0F1A]">
-              <tr>
-                <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nama Pengguna</th>
-                <th className="hidden lg:table-cell px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">NIK / NPWP</th>
-                <th className="hidden md:table-cell px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">No. Telp</th>
-                <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alamat Email</th>
-                <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hak Akses</th>
-                <th className="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Kelola</th>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-gray-50 dark:border-gray-800/50">
+                <th className="px-8 py-6 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Data Pengguna</th>
+                <th className="px-8 py-6 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Alamat Email</th>
+                <th className="px-8 py-6 text-left text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Hak Akses</th>
+                <th className="px-8 py-6 text-right text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Kelola</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800/30">
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-20 text-center text-gray-400">
-                    Tidak ada data ditemukan.
+                  <td colSpan={4} className="px-8 py-20 text-center">
+                    <p className="text-gray-400 font-medium italic">Tidak ada data pengguna ditemukan.</p>
                   </td>
                 </tr>
               ) : (
                 paginated.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-[#252538] transition-colors group">
-                    <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-800 dark:text-gray-100">{user.name}</div>
-                      <div className="text-[10px] text-gray-400 mt-0.5">{format(new Date(user.createdAt), "dd MMM yyyy")}</div>
+                  <tr key={user.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors">
+                          {user.name}
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
+                          Bergabung: {format(new Date(user.createdAt), "dd MMM yyyy")}
+                        </span>
+                      </div>
                     </td>
-                    <td className="hidden lg:table-cell px-6 py-5 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 font-mono italic">
-                      {user.npwp || "-"}
+                    <td className="px-8 py-5">
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {user.email}
+                      </span>
                     </td>
-                    <td className="hidden md:table-cell px-6 py-5 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
-                      {user.phoneNumber || "-"}
-                    </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{user.email}</td>
-                    <td className="px-6 py-5 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${
+                    <td className="px-8 py-5">
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${
                         user.role === "SUPERADMIN"
-                          ? "bg-white text-black shadow-sm"
-                          : "bg-emerald-900/40 text-emerald-400 border border-emerald-800/50"
+                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50"
+                          : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50"
                       }`}>
                         {user.role === "SUPERADMIN" ? "Super Admin" : "User Reguler"}
                       </span>
                     </td>
-                    <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-3">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(user)}
-                          className="text-blue-500 hover:text-blue-600 transition-colors"
-                          title="Edit"
+                          className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all"
+                          title="Edit Pengguna"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         {user.email !== "admin@combiphar.com" ? (
                           <DeleteUserButton
                             id={user.id}
-                            onSuccess={() => showToast("Dihapus", "success")}
+                            onSuccess={() => showToast("Pengguna berhasil dihapus", "success")}
                           />
-                        ) : null}
+                        ) : (
+                          <div className="w-9 h-9" /> // Spacer for the root admin
+                        )}
                       </div>
                     </td>
                   </tr>
