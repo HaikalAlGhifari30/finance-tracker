@@ -78,7 +78,7 @@ export async function deleteUser(id: string) {
   if ((session?.user as any)?.role !== "SUPERADMIN") return { error: "Tidak memiliki otoritas" };
 
   // Prevent deleting self
-  if (session.user.id === id) return { error: "Anda tidak bisa menghapus akun Anda sendiri." };
+  if (session?.user?.id === id) return { error: "Anda tidak bisa menghapus akun Anda sendiri." };
 
   try {
     await db.delete(user).where(eq(user.id, id));
