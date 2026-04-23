@@ -61,7 +61,8 @@ export const goals = pgTable("goals", {
 	name: text("name").notNull(),
 	targetAmount: decimal("targetAmount", { precision: 15, scale: 2 }).notNull(),
 	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
-	createdAt: timestamp("createdAt").notNull()
+	createdAt: timestamp("createdAt").notNull(),
+	isMain: boolean("isMain").default(false).notNull()
 });
 
 export const expenses = pgTable("expenses", {

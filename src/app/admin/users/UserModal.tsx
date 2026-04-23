@@ -108,7 +108,7 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
     `w-full rounded-xl border px-4 py-3 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 transition-all placeholder-gray-400 dark:placeholder-gray-500 ${
       fieldErrors[field]
         ? "border-red-400 focus:ring-red-400/20 bg-red-50 dark:bg-red-900/20"
-        : "border-gray-200 dark:border-gray-700 focus:border-[#4f2b7f] focus:ring-[#4f2b7f]/20"
+        : "border-gray-200 dark:border-gray-700 focus:border-sky-400 focus:ring-sky-400/20"
     }`;
 
   const Req = () => <span className="text-red-500 ml-0.5">*</span>;
@@ -248,7 +248,7 @@ export default function UserModal({ isOpen, onClose, mode, initialData, onSucces
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex-[1.5] flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-90 px-4 py-3.5 text-sm font-bold text-white disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all shadow-md active:scale-95"
+                className="flex-[1.5] flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-400 to-blue-500 hover:opacity-90 px-4 py-3.5 text-sm font-bold text-white disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 transition-all shadow-md active:scale-95"
               >
                 {isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (mode === "create" ? "Buat Pengguna" : "Simpan Perubahan")}
               </button>

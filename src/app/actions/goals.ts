@@ -44,6 +44,67 @@ export async function addGoal(name: string, targetAmount: number) {
   }
 }
 
+export async function updateGoal(id: string, name: string, targetAmount: number) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session?.user) return { error: "Unauthorized" };
+
+  try {
+    await db.update(goals)
+      .set({
+        name,
+        targetAmount: targetAmount.toString()
+      })
+      .where(
+        and(
+          eq(goals.id, id),
+          eq(goals.userId, session.user.id)
+        )
+      );
+    
+    revalidatePath("/dashboard/savings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update goal" };
+  }
+}
+
+export async function setMainGoal(id: string | null) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session?.user) return { error: "Unauthorized" };
+
+  try {
+    // 1. Reset all main goals for this user
+    await db.update(goals)
+      .set({ isMain: false })
+      .where(eq(goals.userId, session.user.id));
+
+    // 2. If an id is provided, set it as main
+    if (id) {
+      await db.update(goals)
+        .set({ isMain: true })
+        .where(
+          and(
+            eq(goals.id, id),
+            eq(goals.userId, session.user.id)
+          )
+        );
+    }
+    
+    revalidatePath("/dashboard/savings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to set main goal" };
+  }
+}
+
 export async function deleteGoal(id: string) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -61,6 +122,7 @@ export async function deleteGoal(id: string) {
     
     revalidatePath("/dashboard/savings");
     revalidatePath("/dashboard/expenses");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
     return { error: "Failed to delete goal" };

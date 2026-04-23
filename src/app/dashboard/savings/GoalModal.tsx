@@ -2,19 +2,31 @@
 
 import { useState, useTransition } from "react";
 import { X, Loader2, Target, DollarSign, Trophy } from "lucide-react";
-import { addGoal } from "@/app/actions/goals";
+import { addGoal, updateGoal } from "@/app/actions/goals";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: any;
 }
 
-export default function GoalModal({ isOpen, onClose }: Props) {
+export default function GoalModal({ isOpen, onClose, initialData }: Props) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setTargetAmount(Number(initialData.targetAmount).toLocaleString("id-ID"));
+    } else {
+      setName("");
+      setTargetAmount("");
+    }
+  }, [initialData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -27,13 +39,16 @@ export default function GoalModal({ isOpen, onClose }: Props) {
     }
 
     startTransition(async () => {
-      const res = await addGoal(name, cleanAmount);
+      const res = initialData 
+        ? await updateGoal(initialData.id, name, cleanAmount)
+        : await addGoal(name, cleanAmount);
+        
       if (res.error) {
         toast.error(res.error);
       } else {
         setName("");
         setTargetAmount("");
-        toast.success("Goal baru berhasil ditambahkan!");
+        toast.success(initialData ? "Goal berhasil diperbarui!" : "Goal baru berhasil ditambahkan!");
         onClose();
       }
     });
@@ -59,8 +74,8 @@ export default function GoalModal({ isOpen, onClose }: Props) {
               <Trophy className="w-6 h-6" />
             </div>
             <div>
-                <h3 className="font-black text-xl text-gray-900 dark:text-gray-100 tracking-tight">Tambah Goal</h3>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Tentukan Target Finansial Anda</p>
+                <h3 className="font-black text-xl text-gray-900 dark:text-gray-100 tracking-tight">{initialData ? 'Edit Goal' : 'Tambah Goal'}</h3>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{initialData ? 'Perbarui Target Finansial Anda' : 'Tentukan Target Finansial Anda'}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">
@@ -115,7 +130,7 @@ export default function GoalModal({ isOpen, onClose }: Props) {
               disabled={isPending}
               className="flex-[1.5] bg-amber-500 hover:bg-amber-600 text-white font-black py-5 rounded-[24px] shadow-xl shadow-amber-500/20 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[11px] uppercase tracking-widest"
             >
-              {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Simpan Goal"}
+              {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (initialData ? "Simpan Perubahan" : "Simpan Goal")}
             </button>
           </div>
         </form>

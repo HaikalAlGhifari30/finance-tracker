@@ -19,7 +19,7 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  
+
   const { toast, show: showToast, hide: hideToast } = useToast();
 
   useEffect(() => {
@@ -32,15 +32,15 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
 
   const filtered = useMemo(() => {
     let result = users;
-    
+
     if (filterRole !== "SEMUA") {
       result = result.filter((u) => u.role === filterRole);
     }
-    
+
     if (searchTerm.trim()) {
       const search = searchTerm.toLowerCase();
-      result = result.filter((u) => 
-        u.name.toLowerCase().includes(search) || 
+      result = result.filter((u) =>
+        u.name.toLowerCase().includes(search) ||
         u.email.toLowerCase().includes(search)
       );
     }
@@ -50,7 +50,7 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
       if (b.email === "admin@combiphar.com") return -1;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-    
+
     return result;
   }, [users, filterRole, searchTerm]);
 
@@ -104,7 +104,7 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
 
         <button
           onClick={openCreateModal}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white text-sm font-black rounded-2xl shadow-lg shadow-blue-400/20 transition-all active:scale-95"
         >
           <Plus className="w-5 h-5" />
           <span>Tambah Pengguna</span>
@@ -148,11 +148,10 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
                       </span>
                     </td>
                     <td className="px-8 py-5">
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${
-                        user.role === "SUPERADMIN"
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider ${user.role === "SUPERADMIN"
                           ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50"
                           : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50"
-                      }`}>
+                        }`}>
                         {user.role === "SUPERADMIN" ? "Super Admin" : "User Reguler"}
                       </span>
                     </td>
@@ -182,13 +181,13 @@ export default function UsersClientPage({ users: initialUsers }: { users: any[] 
           </table>
         </div>
 
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={Math.ceil(filtered.length / itemsPerPage)}
           totalItems={filtered.length}
           pageSize={itemsPerPage}
           onPageChange={setCurrentPage}
-          onPageSizeChange={() => {}} // User management currently has fixed size, can add state if needed
+          onPageSizeChange={() => { }} // User management currently has fixed size, can add state if needed
         />
       </div>
 

@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Plus, Target, TrendingUp, History, CreditCard, ChevronRight, Trophy, Star, Wallet } from "lucide-react";
+import { Plus, Target, TrendingUp, History, CreditCard, ChevronRight, Trophy, Star, Wallet, Edit2 } from "lucide-react";
 import GoalModal from "./GoalModal";
 import { Pagination } from "@/components/ui/Pagination";
 import { useMemo, useEffect } from "react";
+import { setMainGoal } from "@/app/actions/goals";
+import { toast } from "sonner";
+import GoalActionMenu from "./GoalActionMenu";
 
 export default function SavingsClientPage({ totalSavingsPool, goals, history }: { totalSavingsPool: number, goals: any[], history: any[] }) {
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<any>(null);
+  const [isPending, startTransition] = useTransition();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -62,12 +66,25 @@ export default function SavingsClientPage({ totalSavingsPool, goals, history }: 
 
         {/* Goals List */}
         <div className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between px-2">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
                 <h3 className="font-black text-xl text-gray-900 dark:text-white flex items-center gap-3">
                     <Target className="w-6 h-6 text-amber-500" />
                     Tujuan Tabungan
                 </h3>
-                <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{goals.length} Goals Aktif</span>
+                <div className="flex items-center gap-4">
+                    <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl">
+                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                        <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Klik bintang untuk set Utama</span>
+                    </div>
+                    <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{goals.length} Goals Aktif</span>
+                </div>
+            </div>
+
+            <div className="md:hidden px-2 mb-4">
+                <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl">
+                    <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                    <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Tip: Klik bintang pada goal untuk ditampilkan di Dashboard Utama</span>
+                </div>
             </div>
 
             {goals.length === 0 ? (
@@ -83,16 +100,50 @@ export default function SavingsClientPage({ totalSavingsPool, goals, history }: 
                     {goals.map((goal) => {
                         const progress = Math.min((totalSavingsPool / Number(goal.targetAmount)) * 100, 100);
                         const actualProgress = (totalSavingsPool / Number(goal.targetAmount)) * 100;
+                        const isMain = goal.isMain;
                         
                         return (
-                            <GlassCard key={goal.id} className="p-8 hover:border-amber-500/50 transition-all group cursor-pointer" onClick={() => setSelectedGoal(goal)}>
+                            <GlassCard key={goal.id} className={`p-8 hover:border-amber-500/50 transition-all group relative overflow-hidden ${isMain ? 'border-amber-500 ring-2 ring-amber-500/20 shadow-xl shadow-amber-500/10' : ''}`}>
+                                {isMain && (
+                                    <div className="absolute top-0 right-0">
+                                        <div className="bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl shadow-lg flex items-center gap-1">
+                                            <Star className="w-2 h-2 fill-white" />
+                                            Goals Utama
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="space-y-1">
-                                        <h4 className="font-black text-xl text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors">{goal.name}</h4>
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="font-black text-xl text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors">{goal.name}</h4>
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    startTransition(async () => {
+                                                        const res = await setMainGoal(isMain ? null : goal.id);
+                                                        if (res.error) toast.error(res.error);
+                                                        else toast.success(isMain ? "Berhasil menghapus goals utama" : `"${goal.name}" dipilih sebagai goals utama!`);
+                                                    });
+                                                }}
+                                                className={`p-2 rounded-xl transition-all ${isMain ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/30' : 'text-gray-300 hover:text-amber-500 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent hover:border-amber-100 dark:hover:border-amber-900/50'}`}
+                                                title={isMain ? "Hapus dari Utama" : "Set sebagai Utama"}
+                                            >
+                                                <Star className={`w-4 h-4 ${isMain ? 'fill-amber-500' : ''}`} />
+                                            </button>
+                                        </div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Target: Rp {Number(goal.targetAmount).toLocaleString("id-ID")}</p>
                                     </div>
-                                    <div className={`p-3 rounded-2xl transition-all ${progress >= 100 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
-                                        <Trophy className="w-5 h-5" />
+                                    <div className="flex gap-2">
+                                        <div className={`p-3 rounded-2xl transition-all ${progress >= 100 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
+                                            <Trophy className="w-5 h-5" />
+                                        </div>
+                                        <GoalActionMenu 
+                                            goal={goal} 
+                                            onEdit={(g) => {
+                                                setSelectedGoal(g);
+                                                setIsGoalModalOpen(true);
+                                            }} 
+                                        />
                                     </div>
                                 </div>
 
@@ -184,7 +235,11 @@ export default function SavingsClientPage({ totalSavingsPool, goals, history }: 
 
       <GoalModal 
         isOpen={isGoalModalOpen} 
-        onClose={() => setIsGoalModalOpen(false)} 
+        onClose={() => {
+            setIsGoalModalOpen(false);
+            setSelectedGoal(null);
+        }} 
+        initialData={selectedGoal}
       />
     </div>
   );

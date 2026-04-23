@@ -1,6 +1,6 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { db } from "@/db";
-import { expenses, income, categories } from "@/db/schema";
+import { expenses, income, categories, goals } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -106,10 +106,21 @@ export default async function DashboardPage() {
   const combinedActivities = [...recentExpenses, ...recentIncomes]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  const [mainGoal] = await db
+    .select()
+    .from(goals)
+    .where(and(eq(goals.userId, userId), eq(goals.isMain, true)))
+    .limit(1)
+    .execute();
+
   return (
     <DashboardClientPage 
       initialActivities={combinedActivities} 
       user={session.user} 
+      mainBalance={mainBalance}
+      totalSavings={totalSavings}
+      totalAssets={totalAssets}
+      mainGoal={mainGoal}
     />
   );
 }

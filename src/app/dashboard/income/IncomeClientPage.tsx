@@ -140,27 +140,6 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
         </div>
       </div>
 
-      <div className="mt-8 flex justify-end">
-        <GlassCard className="w-full max-w-sm p-6 bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-none shadow-2xl shadow-blue-500/20 flex flex-col relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <CreditCard className="w-24 h-24 rotate-12" />
-          </div>
-          <div className="relative z-10">
-            <p className="text-blue-100 text-[10px] font-black uppercase tracking-widest mb-1 opacity-90">Total Pemasukan</p>
-            <h3 className="text-3xl font-black tracking-tighter">Rp {totalFilteredAmount.toLocaleString("id-ID")}</h3>
-          </div>
-          <div className="relative z-10 mt-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 shadow-inner w-fit">
-            <Calendar className="w-4 h-4 text-blue-100" />
-            <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase tracking-widest text-blue-200">Periode</span>
-              <span className="text-xs font-bold text-white uppercase">
-                {viewMode === 'monthly' ? format(currentDate, 'MMMM yyyy', { locale: id }) : format(currentDate, 'yyyy')}
-              </span>
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-
       <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
         <div className="flex items-center gap-3 w-full lg:max-w-md">
           <div className="relative flex-1">
@@ -170,18 +149,18 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
               placeholder="Cari deskripsi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium shadow-sm"
+              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium shadow-sm"
             />
           </div>
 
           <div className="relative">
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className={`p-3.5 bg-white dark:bg-[#1E1E2D] border ${isFilterDropdownOpen || selectedCategory !== 'all' ? 'border-emerald-500 shadow-lg shadow-emerald-500/10' : 'border-gray-100 dark:border-gray-800'} rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm flex items-center justify-center relative`}
+              className={`p-3.5 bg-white dark:bg-[#1E1E2D] border ${isFilterDropdownOpen || selectedCategory !== 'all' ? 'border-blue-500 shadow-lg shadow-blue-500/10' : 'border-gray-100 dark:border-gray-800'} rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm flex items-center justify-center relative`}
             >
-              <Filter className={`w-5 h-5 ${selectedCategory !== 'all' ? 'text-emerald-500' : 'text-gray-400'}`} />
+              <Filter className={`w-5 h-5 ${selectedCategory !== 'all' ? 'text-blue-500' : 'text-gray-400'}`} />
               {selectedCategory !== 'all' && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-[#1E1E2D]"></span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white dark:border-[#1E1E2D]"></span>
               )}
             </button>
 
@@ -197,7 +176,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
                   </div>
                   <button
                     onClick={() => { setSelectedCategory("all"); setIsFilterDropdownOpen(false); }}
-                    className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === 'all' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                    className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                   >
                     Semua Kategori
                   </button>
@@ -205,7 +184,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
                     <button
                       key={cat.id}
                       onClick={() => { setSelectedCategory(cat.id); setIsFilterDropdownOpen(false); }}
-                      className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === cat.id ? 'bg-emerald-50 text-emerald-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                      className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === cat.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                     >
                       {cat.name}
                     </button>
@@ -345,15 +324,6 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-gray-50/80 dark:bg-gray-900/40">
-                  <tr>
-                    <td colSpan={3} className="px-6 py-6 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">Total Pemasukan Periode Ini</td>
-                    <td className="px-6 py-6 text-right text-2xl font-black text-blue-600">
-                      Rp {totalFilteredAmount.toLocaleString("id-ID")}
-                    </td>
-                    <td></td>
-                  </tr>
-                </tfoot>
               </table>
             </div>
             <Pagination
@@ -367,6 +337,35 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
           </>
         )}
       </GlassCard>
+
+      {/* Summary Card at Bottom */}
+      {filteredIncome.length > 0 && (
+        <div className="flex justify-end">
+          <GlassCard className="w-full max-w-md p-8 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 text-white border-none shadow-2xl shadow-blue-500/30 flex flex-col relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
+            <div className="absolute -top-10 -right-10 p-4 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
+              <CreditCard className="w-40 h-40" />
+            </div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md border border-white/30">
+                  <Plus className="w-4 h-4 text-white" />
+                </div>
+                <p className="text-blue-100 text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Pemasukan Periode Ini</p>
+              </div>
+              <h3 className="text-4xl font-black tracking-tighter">Rp {totalFilteredAmount.toLocaleString("id-ID")}</h3>
+            </div>
+            <div className="relative z-10 mt-8 flex items-center gap-4 px-5 py-4 rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/20 shadow-inner w-fit">
+              <Calendar className="w-5 h-5 text-blue-100" />
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-200/70">Periode Aktif</span>
+                <span className="text-sm font-black text-white uppercase tracking-tight">
+                  {viewMode === 'monthly' ? format(currentDate, 'MMMM yyyy', { locale: id }) : format(currentDate, 'yyyy')}
+                </span>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      )}
 
       <IncomeModal
         isOpen={isIncomeModalOpen}
