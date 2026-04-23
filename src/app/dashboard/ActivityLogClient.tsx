@@ -1,0 +1,93 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { TrendingUp, TrendingDown, Calendar, List } from "lucide-react";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { Pagination } from "@/components/ui/Pagination";
+
+export default function ActivityLogClient({ activities }: { activities: any[] }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const paginatedActivities = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return activities.slice(start, start + pageSize);
+  }, [activities, currentPage, pageSize]);
+
+  if (activities.length === 0) {
+    return (
+      <div className="p-20 text-center text-gray-400 italic font-bold bg-white dark:bg-[#1E1E2D]/20 rounded-2xl border border-gray-100 dark:border-gray-800">
+        Belum ada aktivitas keuangan tercatat.
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="divide-y divide-gray-50 dark:divide-gray-800">
+        {paginatedActivities.map((tx) => (
+          <div key={tx.id} className="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+            <div className="flex items-center gap-5">
+              <div className={`p-3 rounded-2xl transition-all ${
+                  tx.type === 'INCOME' 
+                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600' 
+                  : tx.source === 'SAVINGS' 
+                  ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600' 
+                  : 'bg-orange-100 dark:bg-orange-900/20 text-orange-600'
+              }`}>
+                {tx.type === 'INCOME' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-black text-gray-900 dark:text-gray-100">{tx.description || tx.categoryName}</p>
+                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+                        tx.type === 'INCOME' 
+                        ? 'bg-blue-100 text-blue-600' 
+                        : tx.source === 'SAVINGS' 
+                        ? 'bg-amber-100 text-amber-600'
+                        : 'bg-orange-100 text-orange-600'
+                    }`}>
+                        {tx.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}
+                    </span>
+                </div>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-widest">
+                    <Calendar className="w-3 h-3" />
+                    {format(new Date(tx.date), "dd MMM yyyy")}
+                  </p>
+                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    {tx.categoryName}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className={`text-base font-black tracking-tight ${
+                  tx.type === 'INCOME' ? 'text-blue-600' : 'text-orange-600'
+              }`}>
+                {tx.type === 'INCOME' ? '+' : '-'} Rp {Number(tx.amount).toLocaleString("id-ID")}
+              </p>
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5 opacity-60">
+                {tx.source === 'SAVINGS' ? 'Tabungan' : 'Saldo Utama'}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-auto">
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={Math.ceil(activities.length / pageSize)}
+          totalItems={activities.length}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+        />
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,35 @@
+import { GlassCard } from "@/components/ui/GlassCard";
+import { db } from "@/db";
+import { categories } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { CategoryManager } from "./CategoryManager";
+
+export default async function CategoriesPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) redirect("/login");
+
+  const userCats = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.userId, session.user.id))
+    .orderBy(categories.createdAt);
+
+  return (
+    <div className="space-y-6 animate-fade-in fade-in">
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800">Manajemen Kategori</h2>
+        <p className="text-gray-600">Buat kategori spesifik seperti Makan, Minum, Bensin, dll.</p>
+      </div>
+
+      <GlassCard className="p-6 md:p-8">
+        <CategoryManager initialCategories={userCats} />
+      </GlassCard>
+    </div>
+  );
+}
