@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { format, parseISO, isSameMonth, isSameYear, getDaysInMonth } from "date-fns";
+import { format, parseISO, isSameMonth, isSameYear } from "date-fns";
 import { id } from "date-fns/locale";
-import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, Wallet, ChevronDown, Filter, TrendingDown } from "lucide-react";
+import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, ChevronDown, Filter, Wallet } from "lucide-react";
 import ExpenseModal from "./ExpenseModal";
 import CategoryModal from "./CategoryModal";
 import DeleteExpenseButton from "./DeleteExpenseButton";
@@ -15,9 +15,7 @@ import autoTable from "jspdf-autotable";
 import { useEffect } from "react";
 import { Pagination } from "@/components/ui/Pagination";
 
-const isSaving = (name?: string) => name?.toLowerCase() === "tabungan";
-
-export default function ExpensesClientPage({ initialExpenses, categories, goals }: { initialExpenses: any[], categories: any[], goals: any[] }) {
+export default function ExpensesClientPage({ initialExpenses, categories, goals, accounts, totalSavings }: { initialExpenses: any[], categories: any[], goals: any[], accounts: any[], totalSavings: number }) {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -40,7 +38,8 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
     return initialExpenses.filter(item => {
       const itemDate = typeof item.date === 'string' ? parseISO(item.date) : new Date(item.date);
       const matchesSearch = (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase());
+        (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.accountName || "").toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesPeriod = viewMode === "monthly"
         ? isSameMonth(itemDate, currentDate) && isSameYear(itemDate, currentDate)
@@ -66,8 +65,8 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
     }
     const dataToExport = filteredExpenses.map(item => ({
       Tanggal: format(new Date(item.date), "dd/MM/yyyy"),
-      Sumber: item.source === "SAVINGS" ? "Tabungan" : "Saldo Utama",
-      Kategori: item.categoryName,
+      Kategori: item.categoryName || "-",
+      Rekening: item.accountName || "-",
       Deskripsi: item.description || "-",
       Nominal: Number(item.amount)
     }));
@@ -85,7 +84,6 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
       toast.error("Tidak ada data yang dapat diexport");
       return;
     }
-
     const doc = new jsPDF();
     const periodText = viewMode === 'monthly'
       ? format(currentDate, 'MMMM yyyy', { locale: id })
@@ -99,19 +97,19 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
 
     const tableData = filteredExpenses.map(item => [
       format(new Date(item.date), "dd/MM/yyyy"),
-      item.source === "SAVINGS" ? "Tabungan" : "Utama",
-      item.categoryName,
+      item.categoryName || "-",
+      item.accountName || "-",
       item.description || "-",
       `Rp ${Number(item.amount).toLocaleString("id-ID")}`
     ]);
 
     autoTable(doc, {
       startY: 35,
-      head: [['Tanggal', 'Sumber', 'Kategori', 'Deskripsi', 'Nominal']],
+      head: [['Tanggal', 'Kategori', 'Rekening', 'Deskripsi', 'Nominal']],
       body: tableData,
-      foot: [['', '', '', 'TOTAL', `Rp ${totalFilteredAmount.toLocaleString("id-ID")}`]],
+      foot: [['', '', '', 'TOTAL PENGELUARAN', `Rp ${totalFilteredAmount.toLocaleString("id-ID")}`]],
       theme: 'grid',
-      headStyles: { fillColor: [249, 115, 22], halign: 'center' },
+      headStyles: { fillColor: [220, 38, 38], halign: 'center' },
       footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
       columnStyles: { 4: { halign: 'right' } }
     });
@@ -141,7 +139,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
       <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Manajemen Pengeluaran</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Pantau dan kelola pengeluaran Anda dengan sistem terpusat.</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Pantau dan kelola pengeluaran Anda secara detail.</p>
         </div>
       </div>
 
@@ -151,21 +149,21 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari deskripsi..."
+              placeholder="Cari deskripsi atau rekening..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium shadow-sm"
+              className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all font-medium shadow-sm"
             />
           </div>
 
           <div className="relative">
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className={`p-3.5 bg-white dark:bg-[#1E1E2D] border ${isFilterDropdownOpen || selectedCategory !== 'all' ? 'border-blue-500 shadow-lg shadow-blue-500/10' : 'border-gray-100 dark:border-gray-800'} rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm flex items-center justify-center relative`}
+              className={`p-3.5 bg-white dark:bg-[#1E1E2D] border ${isFilterDropdownOpen || selectedCategory !== 'all' ? 'border-rose-500 shadow-lg shadow-rose-500/10' : 'border-gray-100 dark:border-gray-800'} rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all shadow-sm flex items-center justify-center relative`}
             >
-              <Filter className={`w-5 h-5 ${selectedCategory !== 'all' ? 'text-blue-500' : 'text-gray-400'}`} />
+              <Filter className={`w-5 h-5 ${selectedCategory !== 'all' ? 'text-rose-500' : 'text-gray-400'}`} />
               {selectedCategory !== 'all' && (
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white dark:border-[#1E1E2D]"></span>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white dark:border-[#1E1E2D]"></span>
               )}
             </button>
 
@@ -181,7 +179,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
                   </div>
                   <button
                     onClick={() => { setSelectedCategory("all"); setIsFilterDropdownOpen(false); }}
-                    className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === 'all' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                    className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === 'all' ? 'bg-rose-50 text-rose-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                   >
                     Semua Kategori
                   </button>
@@ -189,7 +187,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
                     <button
                       key={cat.id}
                       onClick={() => { setSelectedCategory(cat.id); setIsFilterDropdownOpen(false); }}
-                      className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === cat.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                      className={`w-full text-left px-5 py-3 text-xs font-bold transition-colors ${selectedCategory === cat.id ? 'bg-rose-50 text-rose-600' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                     >
                       {cat.name}
                     </button>
@@ -230,7 +228,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
         <div className="flex items-center gap-3 w-full lg:w-auto">
           <button
             onClick={() => setIsCategoryModalOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 text-sm font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all shadow-sm active:scale-95"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-[#1E1E2D] border border-emerald-100 dark:border-emerald-800 text-sm font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all shadow-sm active:scale-95"
           >
             <ListPlus className="w-5 h-5" />
             <span>Kategori</span>
@@ -283,7 +281,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
               <CreditCard className="w-10 h-10 text-gray-300" />
             </div>
             <p className="text-gray-500 dark:text-gray-400 font-black text-lg">Data Kosong</p>
-            <p className="text-sm text-gray-400 mt-1 italic">Sesuaikan filter atau tambahkan data baru.</p>
+            <p className="text-sm text-gray-400 mt-1 italic">Belum ada catatan pengeluaran pada periode ini.</p>
           </div>
         ) : (
           <>
@@ -292,8 +290,8 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
                 <thead>
                   <tr className="bg-gray-100/70 dark:bg-gray-800/50">
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Tanggal</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Sumber</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Kategori</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Sumber</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Deskripsi</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-center">Nominal</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-right">Aksi</th>
@@ -306,24 +304,23 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
                         {format(new Date(item.date), "dd/MM/yyyy")}
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <Wallet className={`w-3 h-3 ${item.source === 'SAVINGS' ? 'text-amber-500' : 'text-gray-400'}`} />
-                          <span className="text-[10px] font-black uppercase tracking-tighter text-gray-500">{item.source === 'SAVINGS' ? 'Tabungan' : 'Utama'}</span>
-                        </div>
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-800/50">
+                          {item.categoryName || "Umum"}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
-                        <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${isSaving(item.categoryName)
-                          ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-                          : 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-100/50 dark:border-orange-800/50'
-                          }`}>
-                          {item.categoryName}
-                        </span>
+                        <div className="flex items-center gap-2">
+                           <Wallet className="w-3 h-3 text-gray-400" />
+                           <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                             {item.accountName || "Utama"}
+                           </span>
+                        </div>
                       </td>
                       <td className="px-6 py-5 text-sm text-gray-600 dark:text-gray-400 max-w-[300px] truncate font-medium">
                         {item.description || "-"}
                       </td>
                       <td className="px-6 py-5 text-sm font-black text-rose-600 text-center whitespace-nowrap">
-                        Rp {Number(item.amount).toLocaleString("id-ID")}
+                        - Rp {Number(item.amount).toLocaleString("id-ID")}
                       </td>
                       <td className="px-6 py-5 text-right">
                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -356,23 +353,23 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
       {/* Summary Card at Bottom */}
       {filteredExpenses.length > 0 && (
         <div className="flex justify-end">
-          <GlassCard className="w-full max-w-md p-8 bg-gradient-to-br from-orange-500 via-amber-600 to-orange-600 text-white border-none shadow-2xl shadow-orange-500/30 flex flex-col relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
+          <GlassCard className="w-full max-w-md p-8 bg-gradient-to-br from-rose-600 via-pink-600 to-rose-700 text-white border-none shadow-2xl shadow-rose-500/30 flex flex-col relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
             <div className="absolute -top-10 -right-10 p-4 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
               <CreditCard className="w-40 h-40" />
             </div>
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md border border-white/30">
-                  <TrendingDown className="w-4 h-4 text-white" />
+                  <Plus className="w-4 h-4 text-white rotate-45" />
                 </div>
-                <p className="text-orange-50 text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Terpakai Periode Ini</p>
+                <p className="text-rose-100 text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Pengeluaran Periode Ini</p>
               </div>
               <h3 className="text-4xl font-black tracking-tighter">Rp {totalFilteredAmount.toLocaleString("id-ID")}</h3>
             </div>
             <div className="relative z-10 mt-8 flex items-center gap-4 px-5 py-4 rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/20 shadow-inner w-fit">
-              <Calendar className="w-5 h-5 text-orange-50" />
+              <Calendar className="w-5 h-5 text-rose-100" />
               <div className="flex flex-col">
-                <span className="text-[9px] font-black uppercase tracking-widest text-orange-100/70">Periode Aktif</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-rose-200/70">Periode Aktif</span>
                 <span className="text-sm font-black text-white uppercase tracking-tight">
                   {viewMode === 'monthly' ? format(currentDate, 'MMMM yyyy', { locale: id }) : format(currentDate, 'yyyy')}
                 </span>
@@ -389,6 +386,8 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals 
         initialData={selectedExpense}
         categories={categories}
         goals={goals}
+        accounts={accounts}
+        totalSavings={totalSavings}
       />
 
       <CategoryModal

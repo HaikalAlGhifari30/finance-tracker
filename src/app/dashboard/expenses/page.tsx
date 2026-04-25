@@ -1,10 +1,11 @@
 import { db } from "@/db";
-import { categories, expenses, goals } from "@/db/schema";
+import { categories, transactions, goals, accounts } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import ExpensesClientPage from "./ExpensesClientPage";
+import { getAccounts } from "@/app/actions/accounts";
 
 export default async function ExpensesListPage() {
   const session = await auth.api.getSession({
@@ -17,19 +18,21 @@ export default async function ExpensesListPage() {
 
   const list = await db
     .select({
-      id: expenses.id,
-      amount: expenses.amount,
-      description: expenses.description,
-      date: expenses.date,
-      categoryId: expenses.categoryId,
+      id: transactions.id,
+      amount: transactions.amount,
+      description: transactions.description,
+      date: transactions.date,
+      categoryId: transactions.categoryId,
       categoryName: categories.name,
-      source: expenses.source,
-      goalId: expenses.goalId
+      accountId: transactions.accountId,
+      accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
+      // destinationAccountId: transactions.destinationAccountId, // Not needed for simple expense list
     })
-    .from(expenses)
-    .innerJoin(categories, eq(expenses.categoryId, categories.id))
-    .where(and(eq(expenses.userId, userId), eq(categories.type, "EXPENSE")))
-    .orderBy(desc(expenses.date))
+    .from(transactions)
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+    .where(and(eq(transactions.userId, userId), eq(transactions.type, "EXPENSE")))
+    .orderBy(desc(transactions.date))
     .execute();
 
   let userCategories = await db
@@ -43,6 +46,8 @@ export default async function ExpensesListPage() {
     .from(goals)
     .where(eq(goals.userId, userId))
     .execute();
+
+  const userAccounts = await getAccounts();
 
   // Seed default categories if none exist for this type
   if (userCategories.length === 0) {
@@ -67,11 +72,35 @@ export default async function ExpensesListPage() {
       .execute();
   }
 
+  // Calculate total savings pool
+  const allSavingsRelated = await db
+    .select({
+      type: transactions.type,
+      amount: transactions.amount,
+      accountId: transactions.accountId
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        sql`${transactions.type} IN ('SAVING', 'WITHDRAWAL') OR (${transactions.type} = 'EXPENSE' AND ${transactions.accountId} IS NULL)`
+      )
+    )
+    .execute();
+
+  const totalSavings = allSavingsRelated.reduce((acc, t) => {
+    const amt = Number(t.amount);
+    if (t.type === 'SAVING') return acc + amt;
+    return acc - amt; // WITHDRAWAL or EXPENSE from savings
+  }, 0);
+
   return (
     <ExpensesClientPage 
       initialExpenses={list} 
       categories={userCategories} 
       goals={userGoals}
+      accounts={userAccounts}
+      totalSavings={totalSavings}
     />
   );
 }

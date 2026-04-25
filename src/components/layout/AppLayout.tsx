@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Home, Users, List, PlusCircle, CreditCard, Moon, Sun, Settings, ChevronLeft, ChevronRight, TrendingUp, Trophy, TrendingDown } from "lucide-react";
+import { LogOut, Home, Users, List, PlusCircle, CreditCard, Moon, Sun, Settings, ChevronLeft, ChevronRight, TrendingUp, Trophy, TrendingDown, Wallet } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -38,6 +38,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     { label: "Dashboard", href: "/dashboard", icon: Home },
     { label: "Pemasukan", href: "/dashboard/income", icon: TrendingUp },
     { label: "Pengeluaran", href: "/dashboard/expenses", icon: TrendingDown },
+    { label: "Rekening & Transfer", href: "/dashboard/accounts", icon: Wallet },
     { label: "Tabungan", href: "/dashboard/savings", icon: Trophy },
   ];
 

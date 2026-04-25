@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { addCategory, deleteCategory } from "@/app/actions/categories";
 import { Loader2, Plus, Trash2 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export function CategoryManager({ initialCategories }: { initialCategories: any[] }) {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +26,16 @@ export function CategoryManager({ initialCategories }: { initialCategories: any[
     setLoading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus kategori ini? Data pengeluaran terkait mungkin terpengaruh.")) return;
-    await deleteCategory(id);
+  const handleDelete = (id: string) => {
+    setCategoryToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+    await deleteCategory(categoryToDelete);
+    setIsDeleteDialogOpen(false);
+    setCategoryToDelete(null);
   };
 
   return (
@@ -83,6 +93,14 @@ export function CategoryManager({ initialCategories }: { initialCategories: any[
           </div>
         )}
       </div>
+      <ConfirmDialog 
+        isOpen={isDeleteDialogOpen}
+        title="Hapus Kategori"
+        message="Hapus kategori ini? Data pengeluaran terkait mungkin terpengaruh."
+        confirmLabel="Hapus Sekarang"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+      />
     </div>
   );
 }

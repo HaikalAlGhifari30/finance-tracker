@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "sonner";
-import Script from "next/script";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,18 +12,18 @@ export const metadata: Metadata = {
   description: "Kelola keuangan Anda dengan mudah dan efisien",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value || "system";
+  const isDark = theme === "dark";
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+    <html lang="en" className={isDark ? "dark" : ""} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <Script id="theme-detector" strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem('theme')||'system';var d=document.documentElement;var m=window.matchMedia('(prefers-color-scheme: dark)');var isDark=t==='dark'||(t==='system'&&m.matches);d.classList.toggle('dark',isDark)}catch(e){}})()`}
-        </Script>
         <ThemeProvider>
           {children}
           <Toaster position="top-right" richColors closeButton />

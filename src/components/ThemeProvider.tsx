@@ -43,6 +43,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     d.classList.toggle('dark', isDark);
     localStorage.setItem('theme', t);
+    // Set cookie for server-side theme detection
+    document.cookie = `theme=${t}; path=/; max-age=31536000; SameSite=Lax`;
     setThemeState(t);
   };
 

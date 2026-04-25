@@ -19,6 +19,8 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
   const [targetAmount, setTargetAmount] = useState("");
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (initialData) {
       setName(initialData.name);
       setTargetAmount(Number(initialData.targetAmount).toLocaleString("id-ID"));
@@ -26,7 +28,8 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
       setName("");
       setTargetAmount("");
     }
-  }, [initialData, isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 

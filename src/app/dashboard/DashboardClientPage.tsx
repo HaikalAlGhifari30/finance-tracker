@@ -1,26 +1,27 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { format, isSameMonth, isSameYear, parseISO, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
+import { format, isSameMonth, isSameYear, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight, Trophy, Sparkles,
-  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star
+  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote
 } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
 import ActivityLogClient from "./ActivityLogClient";
+import { ACCOUNT_ICONS } from "@/lib/constants";
 
 interface DashboardClientPageProps {
   initialActivities: any[];
   user: { name: string | null };
   mainGoal?: any;
-  mainBalance: number;
-  totalSavings: number;
   totalAssets: number;
+  totalSavingsPool: number;
+  accounts: any[];
 }
 
-export default function DashboardClientPage({ initialActivities, user, mainGoal, mainBalance: overallMainBalance, totalSavings: overallTotalSavings, totalAssets: overallTotalAssets }: DashboardClientPageProps) {
+export default function DashboardClientPage({ initialActivities, user, mainGoal, totalAssets: overallTotalAssets, totalSavingsPool, accounts }: DashboardClientPageProps) {
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -48,41 +49,27 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   // Calculate all stats for the selected period
   const stats = useMemo(() => {
     let periodIncome = 0;
-    let periodExpenseMain = 0;
-    let periodExpenseSavings = 0;
-    let periodSavingsInflow = 0;
+    let periodExpense = 0;
 
     filteredActivities.forEach((act) => {
       const amount = Number(act.amount);
       if (act.type === "INCOME") {
         periodIncome += amount;
-      } else {
-        if (act.source === "MAIN") {
-          periodExpenseMain += amount;
-          if (act.categoryName?.toLowerCase() === "tabungan") {
-            periodSavingsInflow += amount;
-          }
-        } else {
-          periodExpenseSavings += amount;
-        }
+      } else if (act.type === "EXPENSE") {
+        periodExpense += amount;
       }
     });
 
-    const mainBalance = periodIncome - periodExpenseMain;
-    const totalSavings = periodSavingsInflow - periodExpenseSavings;
-    const totalAssets = mainBalance + totalSavings;
-
     return {
       income: periodIncome,
-      expense: periodExpenseMain,
-      mainBalance,
-      totalSavings,
-      totalAssets,
+      expense: periodExpense,
+      net: periodIncome - periodExpense
     };
   }, [filteredActivities]);
 
-  // Overall stats (not period based) for the main goal
-  const overallSavingsPool = overallTotalSavings;
+  const getAccountIcon = (name: string, type: string) => {
+    return ACCOUNT_ICONS[name.toUpperCase()] || ACCOUNT_ICONS[type] || ACCOUNT_ICONS.DEFAULT;
+  };
 
   return (
     <div className="space-y-12 animate-fade-in text-left">
@@ -90,7 +77,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         <div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Halo, {user.name}! 👋</h1>
           <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
-            Pantau perkembangan aset dan tabungan Anda <span className="text-slate-900 dark:text-slate-200 font-bold">
+            Pantau perkembangan aset dan rekening Anda <span className="text-slate-900 dark:text-slate-200 font-bold">
               {viewMode === "monthly" ? format(currentDate, "MMMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
             </span>.
           </p>
@@ -102,7 +89,6 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             {format(new Date(), "EEEE, dd MMMM yyyy", { locale: id })}
           </div>
 
-          {/* Period Filter Component */}
           <div className="flex flex-wrap items-center gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm">
             <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
               <button
@@ -134,53 +120,49 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
 
       {/* Main Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Aset */}
+        {/* Total Saldo */}
         <GlassCard className="lg:col-span-2 p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-800 shadow-sm relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-500">
             <Sparkles className="w-32 h-32" />
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between gap-10">
             <div>
-              <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset Keseluruhan</p>
+              <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset (Rekening + Tabungan)</p>
               <h3 className={`text-5xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
                 Rp {overallTotalAssets.toLocaleString("id-ID")}
               </h3>
+              <div className="flex items-center gap-4 mt-3">
+                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Saldo Liquid: Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
+                <div className="w-1 h-1 bg-slate-700 rounded-full" />
+                <p className="text-amber-500/80 text-[9px] font-black uppercase tracking-widest">Tabungan: Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 bg-slate-800/50 px-5 py-4 rounded-2xl border border-slate-700/50">
-                <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Saldo Utama</p>
-                <p className={`font-bold text-sm ${overallMainBalance < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                  Rp {overallMainBalance.toLocaleString("id-ID")}
-                </p>
-              </div>
-              <div className="flex-1 bg-slate-800/50 px-5 py-4 rounded-2xl border border-slate-700/50">
-                <p className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Tabungan</p>
-                <p className={`font-bold text-sm ${overallTotalSavings < 0 ? 'text-rose-400' : 'text-amber-400'}`}>
-                  Rp {overallTotalSavings.toLocaleString("id-ID")}
-                </p>
-              </div>
+            <div className="flex items-center gap-2">
+               <Link href="/dashboard/accounts" className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 transition-all font-black text-[10px] uppercase tracking-widest text-white shadow-xl backdrop-blur-md">
+                 Rekening & Transfer <ArrowRight className="w-3 h-3" />
+               </Link>
             </div>
           </div>
         </GlassCard>
 
         {/* Total Pemasukan - BLUE */}
         <Link href="/dashboard/income" className="block">
-          <GlassCard className="h-full p-8 bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+          <GlassCard className="h-full p-8 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/20 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
               <TrendingUp className="w-6 h-6 text-blue-600" />
             </div>
-            <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Pemasukan ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
+            <p className="text-blue-900/40 dark:text-blue-400/40 text-[10px] font-black uppercase tracking-widest mb-1">Pemasukan ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
             <h3 className="text-2xl font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
           </GlassCard>
         </Link>
 
         {/* Total Pengeluaran - ORANGE */}
         <Link href="/dashboard/expenses" className="block">
-          <GlassCard className="h-full p-8 bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+          <GlassCard className="h-full p-8 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100/50 dark:border-orange-800/20 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+            <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
               <TrendingDown className="w-6 h-6 text-orange-600" />
             </div>
-            <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">Pengeluaran ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
+            <p className="text-orange-900/40 dark:text-orange-400/40 text-[10px] font-black uppercase tracking-widest mb-1">Pengeluaran ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
             <h3 className="text-2xl font-black text-orange-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
           </GlassCard>
         </Link>
@@ -188,147 +170,97 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
 
       {/* Secondary Stats Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Total Tabungan - GOLD or MAIN GOAL */}
-        <Link href="/dashboard/savings" className="lg:col-span-2">
-            {mainGoal ? (
-                (() => {
-                    const progress = (overallSavingsPool / Number(mainGoal.targetAmount)) * 100;
-                    const isCompleted = progress >= 100;
-                    
-                    return (
-                        <GlassCard className={`h-full p-8 transition-all cursor-pointer relative overflow-hidden group hover:scale-[1.01] border ${
-                            isCompleted 
-                            ? 'bg-gradient-to-br from-[#B45309] via-[#F59E0B] to-[#B45309] border-amber-400 shadow-2xl shadow-amber-500/20' 
-                            : 'bg-gradient-to-br from-[#1E1B4B] via-[#312E81] to-[#1E1B4B] border-indigo-500/20 shadow-2xl shadow-indigo-500/10'
-                        }`}>
-                            {/* Decorative Background Elements */}
-                            <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl transition-all duration-700 ${
-                                isCompleted ? 'bg-white/20 group-hover:bg-white/30' : 'bg-indigo-500/10 group-hover:bg-indigo-500/20'
-                            }`} />
-                            <div className={`absolute -bottom-24 -left-24 w-64 h-64 rounded-full blur-3xl ${
-                                isCompleted ? 'bg-amber-400/20' : 'bg-violet-500/5'
-                            }`} />
-                            
-                            <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700">
-                                <Trophy className={`w-24 h-24 ${isCompleted ? 'text-white' : 'text-indigo-400'}`} />
-                            </div>
-
-                            <div className="relative z-10 flex flex-col h-full justify-between">
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-1.5 rounded-lg border ${
-                                            isCompleted ? 'bg-white/20 border-white/30' : 'bg-indigo-500/20 border-indigo-500/30'
-                                        }`}>
-                                            <Star className={`w-3.5 h-3.5 ${isCompleted ? 'text-white fill-white' : 'text-indigo-400 fill-indigo-400'}`} />
-                                        </div>
-                                        <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${isCompleted ? 'text-amber-50' : 'text-indigo-300'}`}>
-                                            {isCompleted ? 'Goal Tercapai' : 'Target Prioritas'}
-                                        </p>
-                                    </div>
-                                    <h3 className="text-3xl font-black text-white tracking-tight leading-none">{mainGoal.name}</h3>
-                                </div>
-                                
-                                <div className="mt-8 space-y-4">
-                                    <div className="flex justify-between items-end">
-                                        <div className="space-y-1">
-                                            <span className={`text-[9px] font-black uppercase tracking-widest block ${isCompleted ? 'text-amber-50/70' : 'text-indigo-300/50'}`}>Progress</span>
-                                            <span className="text-3xl font-black text-white leading-none tracking-tighter">
-                                                {Math.min(progress, 100).toFixed(1)}<span className={`text-lg ${isCompleted ? 'text-white' : 'text-indigo-400'}`}>%</span>
-                                            </span>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
-                                                isCompleted 
-                                                ? 'bg-white/20 text-white border-white/30' 
-                                                : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
-                                            }`}>
-                                                {isCompleted ? 'Selesai' : 'Aktif'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="relative">
-                                        <div className={`h-2 rounded-full overflow-hidden border ${isCompleted ? 'bg-white/20 border-white/10' : 'bg-black/20 border-white/5'}`}>
-                                            <div 
-                                                className={`h-full rounded-full transition-all duration-1000 relative ${
-                                                    isCompleted 
-                                                    ? 'bg-gradient-to-r from-amber-200 via-white to-amber-200 shadow-[0_0_20px_rgba(255,255,255,0.6)]' 
-                                                    : 'bg-gradient-to-r from-indigo-600 via-violet-500 to-fuchsia-400 shadow-[0_0_20px_rgba(99,102,241,0.4)]'
-                                                }`}
-                                                style={{ width: `${Math.min(progress, 100)}%` }}
-                                            >
-                                                <div className="absolute top-0 right-0 w-8 h-full bg-white/20 skew-x-12 animate-pulse" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className={`p-3 rounded-xl border transition-colors backdrop-blur-sm ${
-                                            isCompleted ? 'bg-white/10 border-white/10' : 'bg-white/5 border-white/5'
-                                        }`}>
-                                            <span className={`text-[8px] font-black uppercase tracking-widest block mb-0.5 ${isCompleted ? 'text-amber-50/60' : 'text-indigo-200/40'}`}>Terkumpul</span>
-                                            <span className="text-sm font-black text-white tracking-tight">Rp {overallSavingsPool.toLocaleString("id-ID")}</span>
-                                        </div>
-                                        <div className={`p-3 rounded-xl border transition-colors backdrop-blur-sm ${
-                                            isCompleted ? 'bg-white/10 border-white/10' : 'bg-white/5 border-white/5'
-                                        }`}>
-                                            <span className={`text-[8px] font-black uppercase tracking-widest block mb-0.5 ${isCompleted ? 'text-amber-50/60' : 'text-indigo-200/40'}`}>Target</span>
-                                            <span className="text-sm font-black text-white tracking-tight">Rp {Number(mainGoal.targetAmount).toLocaleString("id-ID")}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </GlassCard>
-                    );
-                })()
-            ) : (
-                <GlassCard className={`h-full p-6 border-none shadow-xl transition-all cursor-pointer relative overflow-hidden group ${
-                    stats.totalSavings < 0 
-                    ? 'bg-gradient-to-br from-rose-600 to-rose-800 shadow-rose-500/20' 
-                    : 'bg-gradient-to-br from-amber-500 to-yellow-600 shadow-amber-500/20'
-                } hover:scale-[1.01]`}>
-                    <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-                        <Trophy className="w-20 h-20" />
-                    </div>
-                    <div className="relative z-10">
-                        <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${stats.totalSavings < 0 ? 'text-rose-100' : 'text-amber-100'}`}>
-                            {stats.totalSavings < 0 ? 'Defisit Tabungan' : 'Dana Tabungan Terkumpul'}
-                        </p>
-                        <h3 className={`text-3xl font-black ${stats.totalSavings < 0 ? 'text-white' : 'text-white'}`}>
-                            Rp {stats.totalSavings.toLocaleString("id-ID")}
-                        </h3>
-                        <div className="mt-4 flex items-center gap-2 text-[9px] font-black bg-white/20 w-fit px-4 py-2 rounded-xl backdrop-blur-md text-white">
-                            {stats.totalSavings < 0 ? 'Periksa Pengeluaran' : 'Lihat Progres'} <ArrowRight className="w-3 h-3" />
-                        </div>
-                    </div>
-                </GlassCard>
-            )}
-        </Link>
-
-        {/* Financial Health - GREEN */}
-        <GlassCard className="p-6 bg-[#064E3B] border border-emerald-800 shadow-xl shadow-emerald-900/20 group hover:scale-[1.02] transition-all duration-300 relative overflow-hidden">
-            <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <Sparkles className="w-24 h-24 text-emerald-400" />
-            </div>
-            
-            <div className="relative z-10 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
-                        <Sparkles className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <h3 className="font-black text-lg text-white tracking-tight">Kesehatan Keuangan</h3>
+        {/* Daftar Saldo Rekening */}
+        <GlassCard className="lg:col-span-2 p-8 bg-emerald-50/40 dark:bg-emerald-900/10 border border-emerald-100/50 dark:border-emerald-800/20 shadow-lg shadow-emerald-500/5 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-500">
+           <div className="flex items-center justify-between mb-8">
+              <h3 className="font-black text-xl text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-3">
+                <Wallet className="w-6 h-6 text-emerald-500" />
+                Daftar Saldo Rekening
+              </h3>
+              <Link href="/dashboard/accounts" className="text-xs font-black text-emerald-600 hover:underline uppercase tracking-widest">
+                Detail
+              </Link>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {accounts.length === 0 ? (
+                <div className="col-span-2 py-8 text-center bg-gray-50 dark:bg-gray-900 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
+                   <p className="text-sm font-bold text-gray-400">Belum ada rekening terdaftar</p>
                 </div>
-                
-                <p className="text-emerald-100/60 text-[11px] leading-relaxed font-medium mb-6 flex-grow">
-                    Porsi ideal tabungan adalah <span className="text-emerald-400 font-bold">20%</span> dari pemasukan. Pantau terus stabilitas Anda.
-                </p>
-                
-                <Link href="/dashboard/expenses" className="flex items-center justify-between group/btn bg-emerald-500 hover:bg-emerald-400 transition-all text-white text-[9px] font-black px-5 py-3 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest mt-auto">
-                    <span>Catat Transaksi</span>
-                    <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
-                </Link>
-            </div>
+              ) : (
+                accounts.slice(0, 4).map((acc) => {
+                  const config = getAccountIcon(acc.name, acc.type);
+                  const Icon = config.icon;
+                  return (
+                    <div key={acc.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800/50 hover:border-emerald-500/30 transition-all group">
+                       <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
+                          <Icon className="w-6 h-6" style={{ color: config.color }} />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{acc.name}</p>
+                          <p className="text-lg font-black text-gray-800 dark:text-gray-100 tracking-tight truncate">
+                             Rp {acc.balance.toLocaleString('id-ID')}
+                          </p>
+                       </div>
+                    </div>
+                  )
+                })
+              )}
+           </div>
         </GlassCard>
+
+        {/* Goal Card or Health Card */}
+        {mainGoal ? (
+          <Link href="/dashboard/savings">
+            <GlassCard className="h-full p-8 bg-gradient-to-br from-indigo-600 to-violet-700 text-white border-none shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-all">
+                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-120 transition-all">
+                    <Trophy className="w-32 h-32" />
+                </div>
+                <div className="relative z-10 flex flex-col h-full justify-between">
+                   <div>
+                      <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mb-1">Target Prioritas</p>
+                      <h3 className="text-2xl font-black text-white tracking-tight">{mainGoal.name}</h3>
+                   </div>
+                   <div className="mt-8">
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-2">
+                         <span>Progres</span>
+                         <span>{Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100).toFixed(0)}%</span>
+                      </div>
+                      <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                         <div 
+                           className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000"
+                           style={{ width: `${Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100)}%` }}
+                         />
+                      </div>
+                   </div>
+                </div>
+            </GlassCard>
+          </Link>
+        ) : (
+          <GlassCard className="p-6 bg-[#064E3B] border border-emerald-800 shadow-xl shadow-emerald-900/20 group hover:scale-[1.02] transition-all duration-300 relative overflow-hidden text-left">
+              <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                  <Sparkles className="w-24 h-24 text-emerald-400" />
+              </div>
+              
+              <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
+                          <Sparkles className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <h3 className="font-black text-lg text-white tracking-tight">Kesehatan Keuangan</h3>
+                  </div>
+                  
+                  <p className="text-emerald-100/60 text-[11px] leading-relaxed font-medium mb-6 flex-grow">
+                      Porsi ideal tabungan adalah <span className="text-emerald-400 font-bold">20%</span> dari pemasukan. Pantau terus stabilitas Anda.
+                  </p>
+                  
+                  <Link href="/dashboard/expenses" className="flex items-center justify-between group/btn bg-emerald-500 hover:bg-emerald-400 transition-all text-white text-[9px] font-black px-5 py-3 rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest mt-auto">
+                      <span>Catat Transaksi</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+              </div>
+          </GlassCard>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-8">

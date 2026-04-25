@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { income, categories } from "@/db/schema";
+import { transactions, categories, accounts } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import IncomeClientPage from "./IncomeClientPage";
@@ -15,30 +15,22 @@ export default async function IncomePage() {
 
   const userId = session.user.id;
 
-  // Fixed Query: Avoid filtering on the right side of a left join in the WHERE clause.
-  // This prevents records from being excluded if they have no category or an invalid type.
   const incomeList = await db
     .select({
-      id: income.id,
-      amount: income.amount,
-      description: income.description,
-      date: income.date,
-      categoryId: income.categoryId,
+      id: transactions.id,
+      amount: transactions.amount,
+      description: transactions.description,
+      date: transactions.date,
+      categoryId: transactions.categoryId,
       categoryName: categories.name,
+      accountId: transactions.accountId,
+      accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
     })
-    .from(income)
-    .leftJoin(
-      categories, 
-      and(
-        eq(income.categoryId, categories.id),
-        // Scoping the join to only include INCOME categories
-        // We handle the potential missing column error gracefully if needed, 
-        // but physically the DB needs this column for the logic to be 100% correct.
-        eq(categories.type, "INCOME") 
-      )
-    )
-    .where(eq(income.userId, userId))
-    .orderBy(desc(income.date))
+    .from(transactions)
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
+    .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+    .where(and(eq(transactions.userId, userId), eq(transactions.type, "INCOME")))
+    .orderBy(desc(transactions.date))
     .execute();
 
   let userCategories = await db
@@ -67,10 +59,17 @@ export default async function IncomePage() {
       .execute();
   }
 
+  const userAccounts = await db
+    .select()
+    .from(accounts)
+    .where(eq(accounts.userId, userId))
+    .execute();
+
   return (
     <IncomeClientPage 
       initialIncome={incomeList} 
       categories={userCategories} 
+      accounts={userAccounts}
     />
   );
 }

@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
-import { deleteIncome } from "@/app/actions/income";
+import { deleteTransaction } from "@/app/actions/transactions";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function DeleteIncomeButton({ id }: { id: string }) {
@@ -12,7 +12,7 @@ export default function DeleteIncomeButton({ id }: { id: string }) {
   const handleDelete = () => {
     setShowConfirm(false);
     startTransition(async () => {
-      await deleteIncome(id);
+      await deleteTransaction(id);
     });
   };
 

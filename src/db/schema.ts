@@ -90,3 +90,26 @@ export const settings = pgTable("settings", {
 	key: text("key").primaryKey(),
 	value: text("value").notNull()
 });
+
+export const accounts = pgTable("accounts", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	type: text("type").notNull(), // BANK / EWALLET / CASH
+	accountNumber: text("accountNumber"),
+	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	createdAt: timestamp("createdAt").notNull(),
+});
+
+export const transactions = pgTable("transactions", {
+	id: text("id").primaryKey(),
+	amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+	description: text("description"),
+	date: timestamp("date").notNull(),
+	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	type: text("type").notNull(), // INCOME / EXPENSE / TRANSFER
+	categoryId: text("categoryId").references(() => categories.id, { onDelete: "set null" }),
+	accountId: text("accountId").references(() => accounts.id, { onDelete: "set null" }),
+	destinationAccountId: text("destinationAccountId").references(() => accounts.id, { onDelete: "set null" }), // for transfers
+	goalId: text("goalId").references(() => goals.id, { onDelete: "set null" }),
+	createdAt: timestamp("createdAt").notNull(),
+});

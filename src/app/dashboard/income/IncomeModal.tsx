@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { X, Loader2, CreditCard, Calendar, Tag, FileText, Banknote, ShieldCheck, ChevronDown } from "lucide-react";
-import { updateIncome, addIncome } from "@/app/actions/income";
+import { X, Loader2, CreditCard, Calendar, Tag, FileText, Banknote, ShieldCheck, ChevronDown, Wallet } from "lucide-react";
+import { addTransaction, updateTransaction } from "@/app/actions/transactions";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
+import { formatRupiah, unformatRupiah } from "@/lib/format";
 
 interface Props {
     isOpen: boolean;
@@ -12,13 +13,15 @@ interface Props {
     mode: "create" | "edit";
     initialData?: any;
     categories: any[];
+    accounts: any[];
 }
 
-export default function IncomeModal({ isOpen, onClose, mode, initialData, categories }: Props) {
+export default function IncomeModal({ isOpen, onClose, mode, initialData, categories, accounts }: Props) {
     const [isPending, startTransition] = useTransition();
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
     const [categoryId, setCategoryId] = useState("");
+    const [accountId, setAccountId] = useState("");
     const [date, setDate] = useState(() => {
         const now = new Date();
         const offset = now.getTimezoneOffset();
@@ -28,37 +31,53 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
 
     useEffect(() => {
         setMounted(true);
-        if (isOpen) {
-            if (mode === "edit" && initialData) {
-                setAmount(initialData.amount.toLocaleString("id-ID"));
-                setDescription(initialData.description || "");
-                setCategoryId(initialData.categoryId || "");
-                setDate(new Date(initialData.date).toISOString().split('T')[0]);
-            } else {
-                setAmount("");
-                setDescription("");
-                setCategoryId(categories[0]?.id || "");
-                const now = new Date();
-                const offset = now.getTimezoneOffset();
-                setDate(new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0]);
-            }
+        if (!isOpen) return;
+
+        if (mode === "edit" && initialData) {
+            setAmount(formatRupiah(initialData.amount));
+            setDescription(initialData.description || "");
+            setCategoryId(initialData.categoryId || "");
+            setAccountId(initialData.accountId || accounts[0]?.id || "");
+            setDate(new Date(initialData.date).toISOString().split('T')[0]);
+        } else {
+            setAmount("");
+            setDescription("");
+            setCategoryId(categories[0]?.id || "");
+            setAccountId(accounts[0]?.id || "");
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            setDate(new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0]);
         }
-    }, [isOpen, mode, initialData, categories]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     if (!isOpen || !mounted) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const cleanAmount = Number(amount.replace(/\D/g, ""));
+        const cleanAmount = Number(unformatRupiah(amount));
         if (!cleanAmount || isNaN(cleanAmount)) {
             toast.error("Jumlah nominal tidak valid");
             return;
         }
+        if (!accountId) {
+            toast.error("Harap pilih rekening tujuan");
+            return;
+        }
 
         startTransition(async () => {
+            const data = {
+                amount: cleanAmount,
+                categoryId,
+                description,
+                date,
+                type: 'INCOME' as const,
+                accountId
+            };
+
             const res = mode === "create"
-                ? await addIncome(cleanAmount, categoryId, description, date)
-                : await updateIncome(initialData.id, cleanAmount, categoryId, description, date);
+                ? await addTransaction(data)
+                : await updateTransaction(initialData.id, data);
 
             if (res.error) {
                 toast.error(res.error);
@@ -70,12 +89,7 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
     };
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value.replace(/\D/g, "");
-        if (val) {
-            setAmount(parseInt(val, 10).toLocaleString("id-ID"));
-        } else {
-            setAmount("");
-        }
+        setAmount(formatRupiah(e.target.value));
     };
 
     const content = (
@@ -105,6 +119,10 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
                         <div className="space-y-3">
                             <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
                             <div className="relative group">
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
+                                    <Banknote className="w-7 h-7 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                                    <span className="font-black text-2xl text-blue-600/30 group-focus-within:text-blue-600 transition-colors">Rp</span>
+                                </div>
                                 <input
                                     type="text"
                                     required
@@ -112,9 +130,27 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
                                     value={amount}
                                     onChange={handleAmountChange}
                                     placeholder="0"
-                                    className="w-full pl-16 pr-8 py-6 rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all font-black text-3xl text-blue-600 shadow-inner group-hover:border-blue-200 dark:group-hover:border-blue-800"
+                                    className="w-full pl-24 pr-8 py-6 rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all font-black text-3xl text-blue-600 shadow-inner group-hover:border-blue-200 dark:group-hover:border-blue-800 no-spinner"
                                 />
-                                <Banknote className="absolute left-6 top-1/2 -translate-y-1/2 w-7 h-7 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Masuk ke rekening</label>
+                            <div className="relative group">
+                                <select
+                                    value={accountId}
+                                    required
+                                    onChange={(e) => setAccountId(e.target.value)}
+                                    className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-blue-200 dark:group-hover:border-blue-800"
+                                >
+                                    <option value="" disabled>Pilih Rekening</option>
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>{acc.name}</option>
+                                    ))}
+                                </select>
+                                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
                         </div>
 

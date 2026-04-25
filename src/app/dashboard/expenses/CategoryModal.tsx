@@ -5,6 +5,7 @@ import { X, Loader2, ListPlus, Trash2, Award } from "lucide-react";
 import { addCategory, deleteCategory } from "@/app/actions/categories";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +19,8 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -38,14 +41,21 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
     });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus kategori ini? Pengeluaran dengan kategori ini akan tetap ada namun tanpa nama kategori.")) return;
-    const res = await deleteCategory(id);
+  const handleDelete = (id: string) => {
+    setCategoryToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+    const res = await deleteCategory(categoryToDelete);
     if (res?.error) {
       toast.error(res.error);
     } else {
       toast.success("Kategori berhasil dihapus");
     }
+    setIsDeleteDialogOpen(false);
+    setCategoryToDelete(null);
   };
 
   const content = (
@@ -131,6 +141,14 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
           </div>
         </div>
       </div>
+      <ConfirmDialog 
+        isOpen={isDeleteDialogOpen}
+        title="Hapus Kategori"
+        message="Hapus kategori ini? Pengeluaran dengan kategori ini akan tetap ada namun tanpa nama kategori."
+        confirmLabel="Hapus Sekarang"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+      />
     </div>
   );
 

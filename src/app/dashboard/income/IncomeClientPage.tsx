@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { format, parseISO, isSameMonth, isSameYear } from "date-fns";
 import { id } from "date-fns/locale";
-import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, ChevronDown, Filter } from "lucide-react";
+import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, ChevronDown, Filter, Wallet } from "lucide-react";
 import IncomeModal from "./IncomeModal";
 import CategoryModal from "./CategoryModal";
 import DeleteIncomeButton from "./DeleteIncomeButton";
@@ -15,7 +15,7 @@ import autoTable from "jspdf-autotable";
 import { useEffect } from "react";
 import { Pagination } from "@/components/ui/Pagination";
 
-export default function IncomeClientPage({ initialIncome, categories }: { initialIncome: any[], categories: any[] }) {
+export default function IncomeClientPage({ initialIncome, categories, accounts }: { initialIncome: any[], categories: any[], accounts: any[] }) {
   const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -38,7 +38,8 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
     return initialIncome.filter(item => {
       const itemDate = typeof item.date === 'string' ? parseISO(item.date) : new Date(item.date);
       const matchesSearch = (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase());
+        (item.categoryName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.accountName || "").toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesPeriod = viewMode === "monthly"
         ? isSameMonth(itemDate, currentDate) && isSameYear(itemDate, currentDate)
@@ -65,6 +66,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
     const dataToExport = filteredIncome.map(item => ({
       Tanggal: format(new Date(item.date), "dd/MM/yyyy"),
       Kategori: item.categoryName || "-",
+      Rekening: item.accountName || "-",
       Deskripsi: item.description || "-",
       Nominal: Number(item.amount)
     }));
@@ -96,19 +98,20 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
     const tableData = filteredIncome.map(item => [
       format(new Date(item.date), "dd/MM/yyyy"),
       item.categoryName || "-",
+      item.accountName || "-",
       item.description || "-",
       `Rp ${Number(item.amount).toLocaleString("id-ID")}`
     ]);
 
     autoTable(doc, {
       startY: 35,
-      head: [['Tanggal', 'Kategori', 'Deskripsi', 'Nominal']],
+      head: [['Tanggal', 'Kategori', 'Rekening', 'Deskripsi', 'Nominal']],
       body: tableData,
-      foot: [['', '', 'TOTAL PEMASUKAN', `Rp ${totalFilteredAmount.toLocaleString("id-ID")}`]],
+      foot: [['', '', '', 'TOTAL PEMASUKAN', `Rp ${totalFilteredAmount.toLocaleString("id-ID")}`]],
       theme: 'grid',
       headStyles: { fillColor: [37, 99, 235], halign: 'center' },
       footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-      columnStyles: { 3: { halign: 'right' } }
+      columnStyles: { 4: { halign: 'right' } }
     });
 
     doc.save(`Pemasukan_${periodText}.pdf`);
@@ -146,7 +149,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari deskripsi..."
+              placeholder="Cari deskripsi atau rekening..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium shadow-sm"
@@ -288,6 +291,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
                   <tr className="bg-gray-100/70 dark:bg-gray-800/50">
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Tanggal</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Kategori</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Rekening</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Deskripsi</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-center">Nominal</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-right">Aksi</th>
@@ -303,6 +307,14 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
                         <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50">
                           {item.categoryName || "Umum"}
                         </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                           <Wallet className="w-3 h-3 text-gray-400" />
+                           <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                             {item.accountName || "Utama"}
+                           </span>
+                        </div>
                       </td>
                       <td className="px-6 py-5 text-sm text-gray-600 dark:text-gray-400 max-w-[300px] truncate font-medium">
                         {item.description || "-"}
@@ -373,6 +385,7 @@ export default function IncomeClientPage({ initialIncome, categories }: { initia
         mode={modalMode}
         initialData={selectedIncome}
         categories={categories}
+        accounts={accounts}
       />
 
       <CategoryModal

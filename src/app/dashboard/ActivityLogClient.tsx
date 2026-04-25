@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { TrendingUp, TrendingDown, Calendar, List } from "lucide-react";
+import { TrendingUp, TrendingDown, Calendar, List, ArrowRightLeft, Wallet } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -33,23 +33,39 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
               <div className={`p-3 rounded-2xl transition-all ${
                   tx.type === 'INCOME' 
                   ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600' 
-                  : tx.source === 'SAVINGS' 
-                  ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600' 
+                  : tx.type === 'TRANSFER'
+                  ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600'
+                  : tx.type === 'SAVING'
+                  ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600'
+                  : tx.type === 'WITHDRAWAL'
+                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600'
                   : 'bg-orange-100 dark:bg-orange-900/20 text-orange-600'
               }`}>
-                {tx.type === 'INCOME' ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+                {tx.type === 'INCOME' ? <TrendingUp className="w-5 h-5" /> : 
+                 tx.type === 'TRANSFER' ? <ArrowRightLeft className="w-5 h-5" /> : 
+                 tx.type === 'SAVING' ? <TrendingUp className="w-5 h-5" /> :
+                 tx.type === 'WITHDRAWAL' ? <TrendingDown className="w-5 h-5" /> :
+                 <TrendingDown className="w-5 h-5" />}
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                    <p className="text-sm font-black text-gray-900 dark:text-gray-100">{tx.description || tx.categoryName}</p>
+                <div className="flex items-center gap-2 text-left">
+                    <p className="text-sm font-black text-gray-900 dark:text-gray-100">{tx.description || tx.categoryName || (tx.type === 'SAVING' ? 'Menabung' : tx.type === 'WITHDRAWAL' ? 'Tarik Tabungan' : 'Umum')}</p>
                     <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
                         tx.type === 'INCOME' 
                         ? 'bg-blue-100 text-blue-600' 
-                        : tx.source === 'SAVINGS' 
+                        : tx.type === 'TRANSFER'
+                        ? 'bg-purple-100 text-purple-600'
+                        : tx.type === 'SAVING'
                         ? 'bg-amber-100 text-amber-600'
+                        : tx.type === 'WITHDRAWAL'
+                        ? 'bg-blue-100 text-blue-600'
                         : 'bg-orange-100 text-orange-600'
                     }`}>
-                        {tx.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}
+                        {tx.type === 'INCOME' ? 'Pemasukan' : 
+                         tx.type === 'TRANSFER' ? 'Transfer' : 
+                         tx.type === 'SAVING' ? 'Tabungan' :
+                         tx.type === 'WITHDRAWAL' ? 'Penarikan' :
+                         'Pengeluaran'}
                     </span>
                 </div>
                 <div className="flex items-center gap-3 mt-1">
@@ -58,20 +74,31 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                     {format(new Date(tx.date), "dd MMM yyyy")}
                   </p>
                   <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    {tx.categoryName}
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                    <Wallet className="w-3 h-3" />
+                    {tx.accountName}
                   </p>
                 </div>
               </div>
             </div>
             <div className="text-right">
               <p className={`text-base font-black tracking-tight ${
-                  tx.type === 'INCOME' ? 'text-blue-600' : 'text-orange-600'
+                  tx.type === 'INCOME' ? 'text-blue-600' : 
+                  tx.type === 'TRANSFER' ? 'text-purple-600' : 
+                  tx.type === 'SAVING' ? 'text-amber-600' :
+                  tx.type === 'WITHDRAWAL' ? 'text-blue-600' :
+                  'text-orange-600'
               }`}>
-                {tx.type === 'INCOME' ? '+' : '-'} Rp {Number(tx.amount).toLocaleString("id-ID")}
+                {tx.type === 'INCOME' ? '+' : 
+                 tx.type === 'SAVING' ? '-' : 
+                 tx.type === 'WITHDRAWAL' ? '+' :
+                 tx.type === 'TRANSFER' ? '' : '-'} Rp {Number(tx.amount).toLocaleString("id-ID")}
               </p>
               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5 opacity-60">
-                {tx.source === 'SAVINGS' ? 'Tabungan' : 'Saldo Utama'}
+                {tx.type === 'TRANSFER' ? 'Internal' : 
+                 tx.type === 'SAVING' ? 'Deposit' :
+                 tx.type === 'WITHDRAWAL' ? 'Withdrawal' :
+                 tx.categoryName || 'Umum'}
               </p>
             </div>
           </div>
