@@ -111,5 +111,21 @@ export const transactions = pgTable("transactions", {
 	accountId: text("accountId").references(() => accounts.id, { onDelete: "set null" }),
 	destinationAccountId: text("destinationAccountId").references(() => accounts.id, { onDelete: "set null" }), // for transfers
 	goalId: text("goalId").references(() => goals.id, { onDelete: "set null" }),
+	destinationGoalId: text("destinationGoalId").references(() => goals.id, { onDelete: "set null" }),
 	createdAt: timestamp("createdAt").notNull(),
+});
+
+export const budgetPeriods = pgTable("budget_periods", {
+	id: text("id").primaryKey(),
+	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	month: text("month").notNull(), // "1" to "12"
+	year: text("year").notNull(), // e.g., "2026"
+	createdAt: timestamp("createdAt").notNull(),
+});
+
+export const budgetItems = pgTable("budget_items", {
+	id: text("id").primaryKey(),
+	periodId: text("periodId").notNull().references(() => budgetPeriods.id, { onDelete: "cascade" }),
+	categoryId: text("categoryId").notNull().references(() => categories.id, { onDelete: "cascade" }),
+	amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
 });

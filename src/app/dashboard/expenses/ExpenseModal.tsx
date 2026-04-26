@@ -6,6 +6,7 @@ import { addTransaction, updateTransaction } from "@/app/actions/transactions";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { formatRupiah, unformatRupiah } from "@/lib/format";
+import { getBudgetPeriod, getCategoryExpensesForPeriod } from "@/app/actions/budget";
 
 interface Props {
   isOpen: boolean;
@@ -32,12 +33,32 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
     return new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
   });
   const [mounted, setMounted] = useState(false);
+  const [budgetItems, setBudgetItems] = useState<any[]>([]);
+  const [categoryExpenses, setCategoryExpenses] = useState<Record<string, number>>({});
 
   // Filter out 'Tabungan' category to prevent conflicts with new logic
   const filteredCategories = useMemo(() => 
     categories.filter(c => c.name.toLowerCase() !== "tabungan"),
     [categories]
   );
+
+  const fetchBudgetData = async (selectedDate: string) => {
+    try {
+      const d = new Date(selectedDate);
+      const month = (d.getMonth() + 1).toString();
+      const year = d.getFullYear().toString();
+      
+      const [period, expenses] = await Promise.all([
+        getBudgetPeriod(month, year),
+        getCategoryExpensesForPeriod(month, year)
+      ]);
+
+      setBudgetItems(period?.items || []);
+      setCategoryExpenses(expenses || {});
+    } catch (error) {
+      console.error("Error fetching budget data:", error);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -57,11 +78,19 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       setAccountId(accounts[0]?.id || "");
       const now = new Date();
       const offset = now.getTimezoneOffset();
-      setDate(new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0]);
+      const initialDate = new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
+      setDate(initialDate);
+      fetchBudgetData(initialDate);
     }
     // We only want to run this when the modal opens or data changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]); 
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchBudgetData(date);
+    }
+  }, [date]);
 
   if (!isOpen || !mounted) return null;
 
@@ -202,6 +231,37 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                   <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
+                
+                {/* Budget Info Display */}
+                {categoryId && budgetItems.length > 0 && (
+                  <div className="mt-2 px-2 flex items-center justify-between">
+                    {(() => {
+                      const budget = budgetItems.find(item => item.categoryId === categoryId);
+                      if (!budget) return <span className="text-[10px] text-gray-400 font-bold italic">Belum ada alokasi dana</span>;
+                      
+                      const spent = categoryExpenses[categoryId] || 0;
+                      const remaining = budget.amount - spent;
+                      const isOver = remaining < 0;
+                      
+                      return (
+                        <div className="flex flex-col gap-0.5 w-full">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sisa Alokasi:</span>
+                            <span className={`text-[10px] font-black tracking-tight ${isOver ? 'text-rose-500' : 'text-emerald-500'}`}>
+                              Rp {remaining.toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                          <div className="w-full h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden mt-1">
+                            <div 
+                              className={`h-full transition-all duration-500 ${isOver ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${Math.min(100, (spent / budget.amount) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-3">

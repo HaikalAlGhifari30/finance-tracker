@@ -72,11 +72,21 @@ export default async function DashboardPage() {
   let mainGoal = null;
   if (goalData) {
     const goalBalance = allUserTransactions
-      .filter(t => t.goalId === goalData.id)
+      .filter(t => t.goalId === goalData.id || t.destinationGoalId === goalData.id)
       .reduce((sum, t) => {
         const amount = Number(t.amount);
-        if (t.type === 'SAVING') return sum + amount;
-        if (t.type === 'WITHDRAWAL') return sum - amount;
+        
+        if (t.destinationGoalId === goalData.id) return sum + amount;
+        
+        if (t.goalId === goalData.id) {
+          if (t.type === 'SAVING' || t.type === 'TRANSFER') return sum + amount;
+          if (t.type === 'WITHDRAWAL') return sum - amount;
+          if (t.type === 'EXPENSE' && !t.accountId) return sum - amount;
+          if (t.type === 'ALLOCATION') {
+            if (t.destinationGoalId) return sum - amount;
+            return sum + amount; 
+          }
+        }
         return sum;
       }, 0);
 

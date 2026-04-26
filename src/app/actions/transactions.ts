@@ -16,6 +16,7 @@ export async function addTransaction(data: {
   accountId?: string;
   destinationAccountId?: string;
   goalId?: string;
+  destinationGoalId?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -35,6 +36,7 @@ export async function addTransaction(data: {
       accountId: data.accountId || null,
       destinationAccountId: data.destinationAccountId || null,
       goalId: data.goalId || null,
+      destinationGoalId: data.destinationGoalId || null,
       createdAt: new Date(),
     });
     
@@ -44,9 +46,9 @@ export async function addTransaction(data: {
     revalidatePath("/dashboard/accounts");
     revalidatePath("/dashboard/savings");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to add transaction:", error);
-    return { error: error.message || "Failed to add transaction" };
+    return { error: error instanceof Error ? error.message : "Failed to add transaction" };
   }
 }
 
@@ -86,6 +88,7 @@ export async function updateTransaction(id: string, data: {
   accountId?: string;
   destinationAccountId?: string;
   goalId?: string;
+  destinationGoalId?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -104,6 +107,7 @@ export async function updateTransaction(id: string, data: {
         accountId: data.accountId || null,
         destinationAccountId: data.destinationAccountId || null,
         goalId: data.goalId || null,
+        destinationGoalId: data.destinationGoalId || null,
       })
       .where(
         and(

@@ -196,14 +196,14 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-gray-800 dark:text-white tracking-tight">Rekening & Transfer</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-medium">Atur sumber dana dan pantau saldo Anda secara real-time.</p>
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div className="text-center lg:text-left">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-tight">Rekening & Transfer</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Atur sumber dana dan pantau saldo Anda secara real-time.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto">
           <button 
             onClick={() => {
               setFromAccount("");
@@ -212,9 +212,9 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               setTransferDesc("");
               setShowTransferModal(true);
             }}
-            className="flex items-center gap-2 px-5 py-3 bg-white dark:bg-[#1E1E2D] text-emerald-600 dark:text-emerald-400 font-bold rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-white dark:bg-[#1E1E2D] text-emerald-600 dark:text-emerald-400 text-xs md:text-sm font-bold rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all whitespace-nowrap active:scale-95"
           >
-            <ArrowRightLeft className="w-4 h-4" /> Transfer
+            <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5" /> <span>Transfer</span>
           </button>
           <button 
             onClick={() => {
@@ -224,45 +224,45 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               setAccountNumber("");
               setShowAddModal(true);
             }}
-            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:opacity-90 transition-all"
+            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs md:text-sm font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:opacity-90 transition-all whitespace-nowrap active:scale-95"
           >
-            <Plus className="w-4 h-4" /> Tambah Rekening
+            <Plus className="w-4 h-4 md:w-5 md:h-5" /> <span>Tambah</span>
           </button>
         </div>
       </div>
 
       {/* Summary Card */}
-      <GlassCard className="p-8 bg-gradient-to-br from-emerald-600 to-teal-600 border-none relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-10">
-          <Wallet className="w-32 h-32 text-white" />
+      <GlassCard className="p-6 md:p-8 bg-gradient-to-br from-emerald-600 to-teal-600 border-none relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
+        <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
+          <Wallet className="w-24 md:w-40 h-24 md:h-40 text-white" />
         </div>
-        <div className="relative z-10">
-          <p className="text-emerald-50/80 font-bold uppercase tracking-widest text-xs mb-2">Total Seluruh Saldo</p>
-          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+        <div className="relative z-10 text-center md:text-left">
+          <p className="text-emerald-50/80 font-black uppercase tracking-[0.2em] text-[9px] md:text-xs mb-1 md:mb-2">Total Seluruh Saldo</p>
+          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter">
             Rp {totalBalance.toLocaleString('id-ID')}
           </h2>
-          <div className="mt-6 flex items-center gap-4">
+          <div className="mt-4 md:mt-6 flex items-center justify-center md:justify-start gap-4">
             <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-              <p className="text-xs text-emerald-50/70 font-medium">Jumlah Rekening</p>
-              <p className="text-white font-bold">{accounts.length} Akun</p>
+              <p className="text-[10px] text-emerald-50/70 font-black uppercase tracking-widest">Jumlah Rekening</p>
+              <p className="text-white font-bold text-sm md:text-base">{accounts.length} Akun</p>
             </div>
           </div>
         </div>
       </GlassCard>
 
       {/* Accounts List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {accounts.map((acc) => {
           const config = getIcon(acc.name, acc.type);
           const Icon = config.icon;
           
           return (
-            <GlassCard key={acc.id} className="p-6 hover:shadow-xl transition-all group relative border-gray-100 dark:border-gray-800/50">
-              <div className="flex items-start justify-between mb-6">
-                <div className={`w-14 h-14 rounded-2xl ${config.bgColor} flex items-center justify-center shadow-inner`}>
-                  <Icon className="w-7 h-7" style={{ color: config.color }} />
+            <GlassCard key={acc.id} className="p-5 md:p-6 hover:shadow-xl transition-all group relative border-gray-100 dark:border-gray-800/50 hover:translate-y-[-4px]">
+              <div className="flex items-start justify-between mb-4 md:mb-6">
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${config.bgColor} flex items-center justify-center shadow-inner`}>
+                  <Icon className="w-6 h-6 md:w-7 md:h-7" style={{ color: config.color }} />
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                    <button 
                      onClick={() => {
                         setEditingAccount(acc);
@@ -271,76 +271,75 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                         setAccountNumber(acc.accountNumber || "");
                         setShowAddModal(true);
                      }}
-                     className="p-2 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                     className="p-2 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors bg-gray-50 dark:bg-gray-800/50 rounded-xl"
                    >
-                     <Pencil className="w-4 h-4" />
+                     <Pencil className="w-3.5 h-3.5 md:w-4 h-4" />
                    </button>
                    <button 
                      onClick={() => handleDelete(acc.id)}
-                     className="p-2 text-gray-400 hover:text-rose-600 transition-colors"
+                     className="p-2 text-gray-400 hover:text-rose-600 transition-colors bg-gray-50 dark:bg-gray-800/50 rounded-xl"
                    >
-                     <Trash2 className="w-4 h-4" />
+                     <Trash2 className="w-3.5 h-3.5 md:w-4 h-4" />
                    </button>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{acc.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-4">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 truncate">{acc.name}</h3>
+                <p className="text-[11px] md:text-sm text-gray-500 dark:text-gray-400 font-medium mb-3 md:mb-4">
                   {acc.type === 'BANK' ? 'Rekening Bank' : acc.type === 'EWALLET' ? 'E-Wallet' : 'Tunai'}
                   {acc.accountNumber && ` • ${acc.accountNumber}`}
                 </p>
                 
-                <div className="h-px bg-gray-50 dark:bg-gray-800/50 mb-4" />
+                <div className="h-px bg-gray-50 dark:bg-gray-800/50 mb-3 md:mb-4" />
                 
-                <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mb-1">Saldo Saat Ini</p>
-                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+                <p className="text-[9px] md:text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-[0.15em] mb-1">Saldo Saat Ini</p>
+                <p className="text-xl md:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
                   Rp {acc.balance.toLocaleString('id-ID')}
                 </p>
               </div>
             </GlassCard>
           );
         })}
-
       </div>
       
       {/* Riwayat Transfer Section */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      <div className="space-y-4 md:space-y-6 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 md:gap-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20">
-              <ArrowRightLeft className="w-5 h-5 text-blue-600" />
+            <div className="p-2 md:p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20">
+              <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
             </div>
-            <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight">Riwayat Transfer</h2>
+            <h2 className="text-xl md:text-2xl font-black text-gray-800 dark:text-white tracking-tight">Riwayat Transfer</h2>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-900/50 p-1.5 rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm">
-            <div className="flex p-1 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-2 md:gap-3 bg-white dark:bg-[#1E1E2D] p-1 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto overflow-hidden">
+            <div className="flex p-0.5 md:p-1 bg-gray-50 dark:bg-gray-800/50 rounded-lg md:rounded-xl border border-gray-100/50 dark:border-gray-700/50">
               <button
                 onClick={() => { setTransferViewMode("monthly"); setTransferPage(1); }}
-                className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
               >
                 Bln
               </button>
               <button
                 onClick={() => { setTransferViewMode("yearly"); setTransferPage(1); }}
-                className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
               >
                 Thn
               </button>
             </div>
 
-            <div className="flex items-center gap-1 pr-2">
-              <button onClick={() => changeTransferPeriod(-1)} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
-                <ChevronLeft className="w-4 h-4" />
+            <div className="flex items-center gap-0.5 md:gap-1 flex-1 sm:flex-none justify-center">
+              <button onClick={() => changeTransferPeriod(-1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
+                <ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4" />
               </button>
-              <div className="px-2 min-w-[100px] text-center">
-                <span className="font-bold text-[10px] text-gray-900 dark:text-white tracking-widest uppercase">
+              <div className="px-1 md:px-2 min-w-[80px] md:min-w-[100px] text-center">
+                <span className="font-bold text-[9px] md:text-[10px] text-gray-900 dark:text-white tracking-widest uppercase">
                   {transferViewMode === "monthly" ? format(transferDate, "MMM yyyy", { locale: id }) : format(transferDate, "yyyy", { locale: id })}
                 </span>
               </div>
-              <button onClick={() => changeTransferPeriod(1)} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
-                <ChevronRight className="w-4 h-4" />
+              <button onClick={() => changeTransferPeriod(1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
+                <ChevronRight className="w-3.5 h-3.5 md:w-4 h-4" />
               </button>
             </div>
           </div>
@@ -348,43 +347,43 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
         <GlassCard className={`p-0 overflow-hidden border-gray-100 dark:border-gray-800 shadow-sm transition-opacity duration-300 ${isLoadingTransfers ? 'opacity-50' : 'opacity-100'}`}>
           {transferHistory.length === 0 ? (
-            <div className="p-16 text-center">
-              <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-gray-700">
-                <ArrowRightLeft className="w-8 h-8 text-gray-300" />
+            <div className="p-10 md:p-16 text-center">
+              <div className="w-12 md:w-16 h-12 md:h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-gray-700">
+                <ArrowRightLeft className="w-6 md:w-8 h-6 md:h-8 text-gray-300" />
               </div>
-              <p className="text-sm font-bold text-gray-400">Belum ada aktivitas transfer di periode ini</p>
+              <p className="text-[11px] md:text-sm font-bold text-gray-400">Belum ada aktivitas transfer di periode ini</p>
             </div>
           ) : (
             <>
               <div className="divide-y divide-gray-50 dark:divide-gray-800">
                 {transferHistory.map((transfer) => (
-                  <div key={transfer.id} className="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
-                    <div className="flex items-center gap-6">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Aktivitas</span>
-                        <div className="flex items-center gap-3">
-                          <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100/50 dark:border-blue-800/50">
+                  <div key={transfer.id} className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group gap-4">
+                    <div className="flex flex-wrap items-center gap-4 md:gap-8 flex-1">
+                      <div className="flex flex-col min-w-[100px]">
+                        <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 md:mb-2">Aktivitas</span>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="px-2 md:px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100/50 dark:border-blue-800/50 whitespace-nowrap">
                             Transfer
                           </span>
-                          <span className="text-xs font-bold text-gray-400">
+                          <span className="text-[10px] md:text-xs font-bold text-gray-400 whitespace-nowrap">
                             {format(new Date(transfer.date), "dd MMM yyyy", { locale: id })}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Perpindahan</span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-black text-gray-700 dark:text-gray-200">{transfer.fromAccountName}</span>
-                          <ChevronRight className="w-4 h-4 text-gray-300" />
-                          <span className="text-sm font-black text-gray-700 dark:text-gray-200">{transfer.toAccountName}</span>
+                      <div className="flex flex-col flex-1">
+                        <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 md:mb-2">Perpindahan Dana</span>
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.fromAccountName}</span>
+                          <ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-300 shrink-0" />
+                          <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.toAccountName}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] block mb-2">Nominal</span>
-                      <span className="text-lg font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                    <div className="sm:text-right border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-50 dark:border-gray-800 flex sm:flex-col items-center sm:items-end justify-between sm:justify-start">
+                      <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Nominal</span>
+                      <span className="text-base md:text-lg font-black text-blue-600 dark:text-blue-400 tracking-tight">
                         Rp {Number(transfer.amount).toLocaleString('id-ID')}
                       </span>
                     </div>
@@ -393,18 +392,18 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </div>
 
               {/* Pagination UI */}
-              <div className="px-6 py-4 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              <div className="px-4 md:px-6 py-4 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest text-center md:text-left order-2 md:order-1">
                   Menampilkan {Math.min((transferPage - 1) * transferLimit + 1, totalTransfers)}–{Math.min(transferPage * transferLimit, totalTransfers)} dari {totalTransfers}
                 </p>
                 
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 mr-4">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mr-2">Per Halaman:</span>
+                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 order-1 md:order-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Per Halaman:</span>
                     <select 
                       value={transferLimit}
                       onChange={(e) => { setTransferLimit(Number(e.target.value)); setTransferPage(1); }}
-                      className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-[10px] font-bold px-2 py-1 outline-none"
+                      className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] md:text-[10px] font-bold px-2 py-1 outline-none"
                     >
                       <option value={10}>10</option>
                       <option value={25}>25</option>
@@ -412,33 +411,39 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                     </select>
                   </div>
 
-                  <button 
-                    disabled={transferPage <= 1 || isLoadingTransfers}
-                    onClick={() => setTransferPage(p => p - 1)}
-                    className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30"
-                  >
-                    <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
-                  
-                  <div className="flex items-center gap-1">
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => setTransferPage(i + 1)}
-                        className={`w-8 h-8 rounded-xl text-[10px] font-black transition-all ${transferPage === i + 1 ? 'bg-slate-800 text-white shadow-lg' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
+                  <div className="flex items-center gap-1.5 md:gap-2">
+                    <button 
+                      disabled={transferPage <= 1 || isLoadingTransfers}
+                      onClick={() => setTransferPage(p => p - 1)}
+                      className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                    
+                    <div className="hidden sm:flex items-center gap-1">
+                      {[...Array(totalPages)].map((_, i) => (
+                        <button
+                          key={i + 1}
+                          onClick={() => setTransferPage(i + 1)}
+                          className={`w-7 h-7 md:w-8 md:h-8 rounded-xl text-[9px] md:text-[10px] font-black transition-all ${transferPage === i + 1 ? 'bg-slate-800 text-white shadow-lg' : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
 
-                  <button 
-                    disabled={transferPage >= totalPages || isLoadingTransfers}
-                    onClick={() => setTransferPage(p => p + 1)}
-                    className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30"
-                  >
-                    <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
+                    <div className="sm:hidden px-3 py-1 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 text-[10px] font-black">
+                       {transferPage} / {totalPages}
+                    </div>
+  
+                    <button 
+                      disabled={transferPage >= totalPages || isLoadingTransfers}
+                      onClick={() => setTransferPage(p => p + 1)}
+                      className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </>

@@ -30,8 +30,8 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-sm rounded-[3rem] border border-gray-200/50 bg-white backdrop-blur-md p-8 sm:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="w-20 h-20 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-             <span className="text-white font-bold text-2xl">Keu</span>
+          <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-4 overflow-hidden">
+             <img src="/logo.png" alt="FinTrack Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Sistem Keuangan</h1>
           <p className="text-sm font-medium text-gray-500 mt-1">Lacak dan kelola pengeluaran Anda</p>

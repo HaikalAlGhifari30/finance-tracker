@@ -28,9 +28,9 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
     <div className="flex flex-col h-full">
       <div className="divide-y divide-gray-50 dark:divide-gray-800">
         {paginatedActivities.map((tx) => (
-          <div key={tx.id} className="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
-            <div className="flex items-center gap-5">
-              <div className={`p-3 rounded-2xl transition-all ${
+          <div key={tx.id} className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group gap-4">
+            <div className="flex items-center gap-4 md:gap-5">
+              <div className={`p-2.5 md:p-3 rounded-2xl transition-all ${
                   tx.type === 'INCOME' 
                   ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600' 
                   : tx.type === 'TRANSFER'
@@ -41,16 +41,16 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                   ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600'
                   : 'bg-orange-100 dark:bg-orange-900/20 text-orange-600'
               }`}>
-                {tx.type === 'INCOME' ? <TrendingUp className="w-5 h-5" /> : 
-                 tx.type === 'TRANSFER' ? <ArrowRightLeft className="w-5 h-5" /> : 
-                 tx.type === 'SAVING' ? <TrendingUp className="w-5 h-5" /> :
-                 tx.type === 'WITHDRAWAL' ? <TrendingDown className="w-5 h-5" /> :
-                 <TrendingDown className="w-5 h-5" />}
+                {tx.type === 'INCOME' ? <TrendingUp className="w-4 h-4 md:w-5 md:h-5" /> : 
+                 tx.type === 'TRANSFER' ? <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5" /> : 
+                 tx.type === 'SAVING' ? <TrendingUp className="w-4 h-4 md:w-5 md:h-5" /> :
+                 tx.type === 'WITHDRAWAL' ? <TrendingDown className="w-4 h-4 md:w-5 md:h-5" /> :
+                 <TrendingDown className="w-4 h-4 md:w-5 md:h-5" />}
               </div>
-              <div>
-                <div className="flex items-center gap-2 text-left">
-                    <p className="text-sm font-black text-gray-900 dark:text-gray-100">{tx.description || tx.categoryName || (tx.type === 'SAVING' ? 'Menabung' : tx.type === 'WITHDRAWAL' ? 'Tarik Tabungan' : 'Umum')}</p>
-                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2 text-left">
+                    <p className="text-sm font-black text-gray-900 dark:text-gray-100 truncate max-w-[150px] sm:max-w-none">{tx.description || tx.categoryName || (tx.type === 'SAVING' ? 'Menabung' : tx.type === 'WITHDRAWAL' ? 'Tarik Tabungan' : 'Umum')}</p>
+                    <span className={`text-[7px] md:text-[8px] font-black px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-tighter ${
                         tx.type === 'INCOME' 
                         ? 'bg-blue-100 text-blue-600' 
                         : tx.type === 'TRANSFER'
@@ -68,21 +68,21 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                          'Pengeluaran'}
                     </span>
                 </div>
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="text-[10px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-widest">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                  <p className="text-[9px] md:text-[10px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-widest whitespace-nowrap">
                     <Calendar className="w-3 h-3" />
                     {format(new Date(tx.date), "dd MMM yyyy")}
                   </p>
-                  <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                  <span className="hidden sm:block w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                  <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 whitespace-nowrap">
                     <Wallet className="w-3 h-3" />
                     {tx.accountName}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="text-right">
-              <p className={`text-base font-black tracking-tight ${
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center pl-12 sm:pl-0">
+              <p className={`text-sm md:text-base font-black tracking-tight ${
                   tx.type === 'INCOME' ? 'text-blue-600' : 
                   tx.type === 'TRANSFER' ? 'text-purple-600' : 
                   tx.type === 'SAVING' ? 'text-amber-600' :
@@ -94,7 +94,7 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                  tx.type === 'WITHDRAWAL' ? '+' :
                  tx.type === 'TRANSFER' ? '' : '-'} Rp {Number(tx.amount).toLocaleString("id-ID")}
               </p>
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5 opacity-60">
+              <p className="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mt-0.5 opacity-60">
                 {tx.type === 'TRANSFER' ? 'Internal' : 
                  tx.type === 'SAVING' ? 'Deposit' :
                  tx.type === 'WITHDRAWAL' ? 'Withdrawal' :

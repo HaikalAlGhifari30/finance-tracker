@@ -7,7 +7,6 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { eq, and, sql } from "drizzle-orm";
 import crypto from "crypto";
-import { addTransaction } from "@/app/actions/transactions";
 
 export async function addGoal(name: string, targetAmount: number) {
   const session = await auth.api.getSession({
@@ -69,7 +68,7 @@ export async function updateGoal(id: string, name: string, targetAmount: number)
     revalidatePath("/dashboard/savings");
     revalidatePath("/dashboard");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to update goal" };
   }
 }
@@ -102,7 +101,7 @@ export async function setMainGoal(id: string | null) {
     revalidatePath("/dashboard/savings");
     revalidatePath("/dashboard");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to set main goal" };
   }
 }
@@ -126,11 +125,11 @@ export async function deleteGoal(id: string) {
     revalidatePath("/dashboard/expenses");
     revalidatePath("/dashboard");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to delete goal" };
   }
 }
-export async function allocateSavings(amount: number, goalId: string, description?: string, dateStr?: string) {
+export async function allocateSavings(amount: number, toGoalId: string, fromGoalId?: string, description?: string, dateStr?: string) {
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -142,34 +141,41 @@ export async function allocateSavings(amount: number, goalId: string, descriptio
   try {
     const userId = session.user.id;
 
-    // 0. Validate Goal exists and belongs to user
-    const targetGoal = await db.select()
-      .from(goals)
-      .where(
-        and(
-          eq(goals.id, goalId),
-          eq(goals.userId, userId)
-        )
-      )
-      .limit(1)
-      .execute();
+    let sourceGoalName = "Tabungan Umum";
+    let targetGoalName = "Tabungan Umum";
 
-    if (targetGoal.length === 0) {
-      return { error: "Goal tujuan tidak ditemukan atau tidak valid untuk user ini." };
+    // 1. Validate Target Goal
+    if (toGoalId) {
+      const targetGoal = await db.select()
+        .from(goals)
+        .where(and(eq(goals.id, toGoalId), eq(goals.userId, userId)))
+        .limit(1).execute();
+
+      if (targetGoal.length === 0) return { error: "Goal tujuan tidak ditemukan." };
+      targetGoalName = targetGoal[0].name;
     }
 
-    const goalName = targetGoal[0].name;
+    // 2. Validate Source Goal (if any)
+    if (fromGoalId) {
+      const sourceGoal = await db.select()
+        .from(goals)
+        .where(and(eq(goals.id, fromGoalId), eq(goals.userId, userId)))
+        .limit(1).execute();
+      
+      if (sourceGoal.length === 0) return { error: "Goal asal tidak ditemukan." };
+      sourceGoalName = sourceGoal[0].name;
+    }
 
-    // Direct insertion using the most standard Drizzle pattern
-    // We omit nullable fields that are not needed for ALLOCATION
+    // 3. Create the transaction
     await db.insert(transactions).values({
       id: crypto.randomUUID(),
       amount: amount.toString(),
-      description: description || `Alokasi dana ke goal: ${goalName}`,
+      description: description || `Alokasi dana dari ${sourceGoalName} ke ${targetGoalName}`,
       date: date,
       userId: userId,
       type: 'ALLOCATION',
-      goalId: goalId,
+      goalId: fromGoalId || null, // Source
+      destinationGoalId: toGoalId || null, // Destination
       createdAt: new Date(),
     });
 
@@ -177,8 +183,8 @@ export async function allocateSavings(amount: number, goalId: string, descriptio
     revalidatePath("/dashboard");
     
     return { success: true };
-  } catch (error: any) {
-    console.error("Allocation Error Details:", error);
-    return { error: error.message || "Terjadi kesalahan saat mengalokasikan tabungan. Silakan coba lagi." };
+  } catch (error: unknown) {
+    console.error("Allocation Error:", error);
+    return { error: error instanceof Error ? error.message : "Gagal mengalokasikan dana." };
   }
 }

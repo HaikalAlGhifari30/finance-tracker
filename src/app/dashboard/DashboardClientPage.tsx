@@ -72,73 +72,73 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   };
 
   return (
-    <div className="space-y-12 animate-fade-in text-left">
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Halo, {user.name}! 👋</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">
+    <div className="space-y-8 md:space-y-12 animate-fade-in text-left pb-10">
+      <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
+        <div className="text-center xl:text-left">
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Halo, {user.name}! 👋</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-sm md:text-base">
             Pantau perkembangan aset dan rekening Anda <span className="text-slate-900 dark:text-slate-200 font-bold">
               {viewMode === "monthly" ? format(currentDate, "MMMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
             </span>.
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-3">
-          <div className="text-[11px] font-black text-gray-400 bg-white dark:bg-[#1E1E2D] px-6 py-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 uppercase tracking-widest flex items-center gap-3">
-            <Calendar className="w-4 h-4 text-emerald-500" />
+        <div className="flex flex-col items-center xl:items-end gap-3">
+          <div className="text-[10px] md:text-[11px] font-black text-gray-400 bg-white dark:bg-[#1E1E2D] px-4 md:px-6 py-2.5 md:py-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 uppercase tracking-widest flex items-center gap-3">
+            <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
             {format(new Date(), "EEEE, dd MMMM yyyy", { locale: id })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex flex-wrap items-center justify-center gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full md:w-auto">
             <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
               <button
                 onClick={() => setViewMode("monthly")}
-                className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
               >
                 Bln
               </button>
               <button
                 onClick={() => setViewMode("yearly")}
-                className={`text-[9px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
               >
                 Thn
               </button>
             </div>
 
-            <div className="flex items-center gap-1 pr-2">
-              <button onClick={() => changePeriod(-1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-4 h-4 text-gray-600" /></button>
-              <div className="px-2 min-w-[120px] text-center">
-                <span className="font-bold text-xs text-gray-900 dark:text-white tracking-tight uppercase">
+            <div className="flex items-center gap-1 pr-1 md:pr-2">
+              <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600" /></button>
+              <div className="px-1 md:px-2 min-w-[100px] md:min-w-[120px] text-center">
+                <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase">
                   {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
                 </span>
               </div>
-              <button onClick={() => changePeriod(1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-4 h-4 text-gray-600" /></button>
+              <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600" /></button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Total Saldo */}
-        <GlassCard className="lg:col-span-2 p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-800 shadow-sm relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
-          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-500">
-            <Sparkles className="w-32 h-32" />
+        <GlassCard className="lg:col-span-2 p-6 md:p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white border border-slate-800 shadow-sm relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">
+          <div className="absolute top-0 right-0 p-4 md:p-6 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-500">
+            <Sparkles className="w-24 md:w-32 h-24 md:h-32" />
           </div>
-          <div className="relative z-10 flex flex-col h-full justify-between gap-10">
+          <div className="relative z-10 flex flex-col h-full justify-between gap-6 md:gap-10 text-center md:text-left">
             <div>
-              <p className="text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset (Rekening + Tabungan)</p>
-              <h3 className={`text-5xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
+              <p className="text-slate-400 text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset (Rekening + Tabungan)</p>
+              <h3 className={`text-3xl md:text-5xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
                 Rp {overallTotalAssets.toLocaleString("id-ID")}
               </h3>
-              <div className="flex items-center gap-4 mt-3">
-                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Saldo Liquid: Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
-                <div className="w-1 h-1 bg-slate-700 rounded-full" />
-                <p className="text-amber-500/80 text-[9px] font-black uppercase tracking-widest">Tabungan: Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-2 md:gap-4 mt-4 md:mt-3">
+                <p className="text-slate-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Saldo Liquid: Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
+                <div className="hidden md:block w-1 h-1 bg-slate-700 rounded-full" />
+                <p className="text-amber-500/80 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Tabungan: Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-               <Link href="/dashboard/accounts" className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 transition-all font-black text-[10px] uppercase tracking-widest text-white shadow-xl backdrop-blur-md">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+               <Link href="/dashboard/accounts" className="flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/20 transition-all font-black text-[9px] md:text-[10px] uppercase tracking-widest text-white shadow-xl backdrop-blur-md">
                  Rekening & Transfer <ArrowRight className="w-3 h-3" />
                </Link>
             </div>
@@ -146,24 +146,24 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         </GlassCard>
 
         {/* Total Pemasukan - BLUE */}
-        <Link href="/dashboard/income" className="block">
-          <GlassCard className="h-full p-8 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/20 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+        <Link href="/dashboard/income" className="block h-full">
+          <GlassCard className="h-full p-6 md:p-8 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/20 shadow-sm relative group hover:scale-[1.01] transition-all duration-300 cursor-pointer flex flex-col items-center md:items-start text-center md:text-left">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+              <TrendingUp className="w-5 md:w-6 h-5 md:h-6 text-blue-600" />
             </div>
-            <p className="text-blue-900/40 dark:text-blue-400/40 text-[10px] font-black uppercase tracking-widest mb-1">Pemasukan ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
-            <h3 className="text-2xl font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
+            <p className="text-blue-900/40 dark:text-blue-400/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Pemasukan ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
+            <h3 className="text-xl md:text-2xl font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
           </GlassCard>
         </Link>
 
         {/* Total Pengeluaran - ORANGE */}
-        <Link href="/dashboard/expenses" className="block">
-          <GlassCard className="h-full p-8 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100/50 dark:border-orange-800/20 shadow-sm relative group hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+        <Link href="/dashboard/expenses" className="block h-full">
+          <GlassCard className="h-full p-6 md:p-8 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100/50 dark:border-orange-800/20 shadow-sm relative group hover:scale-[1.01] transition-all duration-300 cursor-pointer flex flex-col items-center md:items-start text-center md:text-left">
             <div className="p-3 bg-orange-100 dark:bg-orange-900/40 rounded-2xl w-fit mb-4 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
-              <TrendingDown className="w-6 h-6 text-orange-600" />
+              <TrendingDown className="w-5 md:w-6 h-5 md:h-6 text-orange-600" />
             </div>
-            <p className="text-orange-900/40 dark:text-orange-400/40 text-[10px] font-black uppercase tracking-widest mb-1">Pengeluaran ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
-            <h3 className="text-2xl font-black text-orange-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
+            <p className="text-orange-900/40 dark:text-orange-400/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Pengeluaran ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
+            <h3 className="text-xl md:text-2xl font-black text-orange-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
           </GlassCard>
         </Link>
       </div>
@@ -171,7 +171,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
       {/* Secondary Stats Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Daftar Saldo Rekening */}
-        <GlassCard className="lg:col-span-2 p-8 bg-emerald-50/40 dark:bg-emerald-900/10 border border-emerald-100/50 dark:border-emerald-800/20 shadow-lg shadow-emerald-500/5 hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-500">
+        <GlassCard className="lg:col-span-2 p-8 bg-emerald-50/80 dark:bg-emerald-900/20 border border-emerald-200/60 dark:border-emerald-800/40 shadow-xl shadow-emerald-500/10 hover:shadow-emerald-500/20 hover:-translate-y-1 transition-all duration-500">
            <div className="flex items-center justify-between mb-8">
               <h3 className="font-black text-xl text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-3">
                 <Wallet className="w-6 h-6 text-emerald-500" />
@@ -192,7 +192,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                   const config = getAccountIcon(acc.name, acc.type);
                   const Icon = config.icon;
                   return (
-                    <div key={acc.id} className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800/50 hover:border-emerald-500/30 transition-all group">
+                    <div key={acc.id} className="flex items-center gap-4 p-4 bg-white/60 dark:bg-gray-900/40 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30 hover:border-emerald-500/30 transition-all group shadow-sm">
                        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
                           <Icon className="w-6 h-6" style={{ color: config.color }} />
                        </div>
@@ -211,31 +211,55 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
 
         {/* Goal Card or Health Card */}
         {mainGoal ? (
-          <Link href="/dashboard/savings">
-            <GlassCard className="h-full p-8 bg-gradient-to-br from-indigo-600 to-violet-700 text-white border-none shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-all">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-120 transition-all">
-                    <Trophy className="w-32 h-32" />
-                </div>
-                <div className="relative z-10 flex flex-col h-full justify-between">
-                   <div>
-                      <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest mb-1">Target Prioritas</p>
-                      <h3 className="text-2xl font-black text-white tracking-tight">{mainGoal.name}</h3>
-                   </div>
-                   <div className="mt-8">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-2">
-                         <span>Progres</span>
-                         <span>{Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                         <div 
-                           className="h-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000"
-                           style={{ width: `${Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100)}%` }}
-                         />
-                      </div>
-                   </div>
-                </div>
-            </GlassCard>
-          </Link>
+          (() => {
+            const isCompleted = Number(mainGoal.balance) >= Number(mainGoal.targetAmount);
+            const progress = Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100);
+            
+            return (
+              <Link href="/dashboard/savings">
+                <GlassCard className={`h-full p-8 border-none shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-all bg-gradient-to-br ${
+                  isCompleted 
+                    ? 'from-amber-400 to-yellow-600 text-white shadow-amber-500/20' 
+                    : 'from-indigo-600 to-violet-700 text-white'
+                }`}>
+                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-120 transition-all">
+                        <Trophy className="w-32 h-32" />
+                    </div>
+                    <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+                       <div>
+                          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>Target Prioritas</p>
+                          <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                            {mainGoal.name}
+                            {isCompleted && <Sparkles className="w-5 h-5 text-yellow-200 animate-pulse" />}
+                          </h3>
+                       </div>
+
+                       {/* New Balance Display */}
+                       <div className="space-y-1">
+                          <span className={`text-[10px] font-black uppercase tracking-widest block ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>Terkumpul Saat Ini</span>
+                          <div className="flex items-baseline gap-2">
+                              <span className="text-2xl font-black text-white tracking-tight">Rp {Number(mainGoal.balance).toLocaleString("id-ID")}</span>
+                              <span className={`text-[10px] font-bold ${isCompleted ? 'text-amber-100/80' : 'text-indigo-200'}`}>/ Rp {Number(mainGoal.targetAmount).toLocaleString("id-ID")}</span>
+                          </div>
+                       </div>
+
+                       <div className="mt-auto">
+                          <div className={`flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>
+                             <span>Progres</span>
+                             <span>{progress.toFixed(0)}%</span>
+                          </div>
+                          <div className={`h-2 rounded-full overflow-hidden ${isCompleted ? 'bg-black/10' : 'bg-white/20'}`}>
+                             <div 
+                               className={`h-full transition-all duration-1000 ${isCompleted ? 'bg-yellow-100 shadow-[0_0_15px_rgba(255,255,255,0.8)]' : 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.5)]'}`}
+                               style={{ width: `${progress}%` }}
+                             />
+                          </div>
+                       </div>
+                    </div>
+                </GlassCard>
+              </Link>
+            );
+          })()
         ) : (
           <GlassCard className="p-6 bg-[#064E3B] border border-emerald-800 shadow-xl shadow-emerald-900/20 group hover:scale-[1.02] transition-all duration-300 relative overflow-hidden text-left">
               <div className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700">

@@ -32,12 +32,29 @@ export default async function SavingsPage() {
   // 3. Map goals with their specific balances calculated in JS
   const userGoals = goalsData.map(goal => {
       const goalBalance = allUserTransactions
-        .filter(t => t.goalId === goal.id)
+        .filter(t => t.goalId === goal.id || t.destinationGoalId === goal.id)
         .reduce((sum, t) => {
             const amount = Number(t.amount);
-            if (t.type === 'SAVING' || t.type === 'TRANSFER' || t.type === 'ALLOCATION') return sum + amount;
-            if (t.type === 'WITHDRAWAL') return sum - amount;
-            if (t.type === 'EXPENSE' && !t.accountId) return sum - amount; // Spending from goal
+            
+            // 1. Handled by destinationGoalId (Always +)
+            if (t.destinationGoalId === goal.id) {
+                return sum + amount;
+            }
+
+            // 2. Handled by goalId (Source or direct saving)
+            if (t.goalId === goal.id) {
+                if (t.type === 'SAVING' || t.type === 'TRANSFER') return sum + amount;
+                if (t.type === 'WITHDRAWAL') return sum - amount;
+                if (t.type === 'EXPENSE' && !t.accountId) return sum - amount;
+                
+                if (t.type === 'ALLOCATION') {
+                    // New logic: if it has a destination, this goal is the source (-)
+                    // Old logic: if no destination, this goal was the destination (+)
+                    if (t.destinationGoalId) return sum - amount;
+                    return sum + amount; 
+                }
+            }
+            
             return sum;
         }, 0);
       
@@ -65,7 +82,9 @@ export default async function SavingsPage() {
   const history = allUserTransactions
     .filter(t => t.type === 'SAVING' || t.type === 'WITHDRAWAL' || t.type === 'TRANSFER' || t.type === 'ALLOCATION' || (t.type === 'EXPENSE' && !t.accountId))
     .map(t => {
-        const goal = goalsData.find(g => g.id === t.goalId);
+        const sourceGoal = goalsData.find(g => g.id === t.goalId);
+        const destGoal = goalsData.find(g => g.id === t.destinationGoalId);
+        
         return {
             id: t.id,
             amount: t.amount,
@@ -73,7 +92,9 @@ export default async function SavingsPage() {
             date: t.date,
             type: t.type,
             goalId: t.goalId,
-            goalName: goal?.name || "Tabungan Umum",
+            goalName: sourceGoal?.name || "Tabungan Umum",
+            destinationGoalId: t.destinationGoalId,
+            destinationGoalName: destGoal?.name || "Tabungan Umum",
             accountId: t.accountId
         };
     })

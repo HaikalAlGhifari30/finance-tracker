@@ -193,20 +193,22 @@ export default function ProfileContent({ user }: { user: any }) {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in px-4">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Profil Pengguna</h2>
-        <p className="text-gray-500 dark:text-gray-400">Informasi personal akun Anda</p>
+    <div className="space-y-6 md:space-y-8 animate-fade-in px-2 md:px-4 max-w-2xl mx-auto pb-10">
+      <div className="text-center mb-6 md:mb-10">
+        <h2 className="text-2xl md:text-3xl font-black text-gray-800 dark:text-white tracking-tight">Profil Pengguna</h2>
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Informasi personal akun Anda</p>
       </div>
 
       {success && (
-        <div className="max-w-md mx-auto p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-center flex items-center justify-center gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs md:text-sm font-bold rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-center flex items-center justify-center gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
           <Check className="w-4 h-4" /> Profil berhasil diperbarui!
         </div>
       )}
 
-      <GlassCard className="p-10 flex flex-col items-center gap-6 shadow-xl border border-gray-100 dark:border-gray-800">
-        <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-4xl font-bold shadow-lg overflow-hidden border-4 border-white dark:border-gray-800">
+      <GlassCard className="p-8 md:p-12 flex flex-col items-center gap-6 md:gap-8 shadow-xl border border-gray-100 dark:border-gray-800/50 relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-teal-500" />
+        
+        <div className="w-28 h-28 md:w-40 md:h-40 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-4xl md:text-5xl font-black shadow-2xl overflow-hidden border-4 border-white dark:border-gray-800 group-hover:scale-105 transition-transform duration-500">
           {image ? (
             <img src={image} alt={user.name} className="w-full h-full object-cover" />
           ) : (
@@ -214,14 +216,19 @@ export default function ProfileContent({ user }: { user: any }) {
           )}
         </div>
 
-        <div className="text-center space-y-1">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{user.name}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+        <div className="text-center space-y-1.5">
+          <h3 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">{user.name}</h3>
+          <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
+            <User className="w-3.5 h-3.5" />
+            <p className="text-xs md:text-sm font-medium">{user.email}</p>
+          </div>
         </div>
+
+        <div className="w-full h-px bg-gray-50 dark:bg-gray-800/50" />
 
         <button 
           onClick={() => setShowEditModal(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+          className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs md:text-sm uppercase tracking-widest px-10 py-4 rounded-2xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
         >
           Edit Profil
         </button>
