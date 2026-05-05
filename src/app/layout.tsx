@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "FinTrack - Sistem Keuangan",
   description: "Kelola keuangan Anda dengan mudah dan efisien",
   icons: {
+    icon: "/icon",
     apple: [
       { url: "/logo.png", sizes: "180x180" }
     ]
