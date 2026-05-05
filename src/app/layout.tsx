@@ -10,6 +10,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FinTrack - Sistem Keuangan",
   description: "Kelola keuangan Anda dengan mudah dan efisien",
+  icons: {
+    apple: [
+      { url: "/logo.png", sizes: "180x180" }
+    ]
+  }
 };
 
 export default async function RootLayout({

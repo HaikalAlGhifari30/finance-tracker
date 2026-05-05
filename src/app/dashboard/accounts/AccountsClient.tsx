@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 import { formatRupiah, unformatRupiah } from "@/lib/format";
+import { createPortal } from "react-dom";
 
 interface Account {
   id: string;
@@ -453,9 +454,9 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
 
       {/* Add/Edit Account Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+      {showAddModal && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => setShowAddModal(false)} />
           <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl">
             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
@@ -540,13 +541,13 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </div>
             </form>
           </GlassCard>
-        </div>
+        </div>, document.body
       )}
 
       {/* Transfer Modal */}
-      {showTransferModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
+      {showTransferModal && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => setShowTransferModal(false)} />
           <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl">
             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">Transfer Saldo</h2>
@@ -625,17 +626,17 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </div>
             </form>
           </GlassCard>
-        </div>
+        </div>, document.body
       )}
       {/* Delete Confirmation Dialog */}
-      {isDeleteDialogOpen && (() => {
+      {isDeleteDialogOpen && typeof document !== "undefined" && createPortal((() => {
         const acc = accounts.find(a => a.id === accountToDelete);
         const hasBalance = (acc?.balance || 0) > 0;
         
         if (showDoubleConfirm) {
           return (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300" onClick={() => setShowDoubleConfirm(false)} />
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => setShowDoubleConfirm(false)} />
               <GlassCard className="w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-rose-500/30 shadow-2xl p-8 flex flex-col items-center text-center bg-white dark:bg-[#1E1E2D]">
                 <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mb-6 animate-pulse">
                   <X className="w-10 h-10 text-rose-600" />
@@ -667,8 +668,8 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
         }
 
         return (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => {
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => {
                 setIsDeleteDialogOpen(false);
                 setAccountToDelete(null);
                 setTransferToAccount("");
@@ -782,7 +783,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
             </GlassCard>
           </div>
         );
-      })()}
+      })(), document.body)}
     </div>
   );
 }

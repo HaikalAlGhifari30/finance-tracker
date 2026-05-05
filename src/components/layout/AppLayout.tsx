@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Home, Users, List, PlusCircle, CreditCard, Moon, Sun, Settings, ChevronLeft, ChevronRight, TrendingUp, Trophy, TrendingDown, Wallet, X } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 
@@ -14,9 +14,10 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
   const { theme, setTheme } = useTheme();
   const [isClient, setIsClient] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     setIsClient(true);
@@ -25,6 +26,37 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
       setIsSidebarOpen(false);
     }
   }, []);
+
+  useEffect(() => {
+    // Disable auto-hide on important form/profile pages so it doesn't get in the way
+    const isFormPage = pathname.includes('/add') || pathname.includes('/edit') || pathname.includes('/profile');
+    if (isFormPage) {
+      setShowMobileNav(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // If at the very top, always show
+      if (currentScrollY < 50) {
+        setShowMobileNav(true);
+      } 
+      // If scrolling down, hide
+      else if (currentScrollY > lastScrollY.current) {
+        setShowMobileNav(false);
+      } 
+      // If scrolling up, show
+      else {
+        setShowMobileNav(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [pathname]);
 
   const handleLogout = async () => {
     localStorage.setItem('theme', 'light');
@@ -79,7 +111,6 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => mobile && setIsMobileMenuOpen(false)}
               title={!mobile && !isSidebarOpen ? item.label : undefined}
               className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-4 py-3.5' : 'px-0 py-3.5 justify-center w-12 h-12 mx-auto'} ${
                 isActive 
@@ -107,36 +138,14 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     <div className="min-h-screen bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300 overflow-x-hidden">
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-[#1E1E2D] border-b border-gray-100 dark:border-gray-800 sticky top-0 z-[60]">
+      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white/90 dark:bg-[#1E1E2D]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-[60]">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="font-black text-gray-900 dark:text-gray-100 text-lg leading-none tracking-tight">FinTrack</h1>
         </div>
-        <button 
-          onClick={() => setIsMobileMenuOpen(true)}
-          className="p-2 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-        >
-          <List className="w-6 h-6" />
-        </button>
       </div>
-
-      {/* Mobile Menu Drawer */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-white dark:bg-[#1E1E2D] shadow-2xl animate-in slide-in-from-left duration-300">
-            <button 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="absolute top-6 right-6 p-2 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-500"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <NavContent mobile />
-          </aside>
-        </div>
-      )}
 
       {/* Desktop Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#1E1E2D] shadow-[2px_0_20px_rgba(0,0,0,0.03)] hidden md:flex flex-col rounded-r-3xl my-4 ml-4 h-[calc(100vh-2rem)] transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-24'}`}>
@@ -150,7 +159,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 p-4 md:p-10 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'}`}>
+      <main className={`flex-1 p-4 pb-24 md:p-10 md:pb-10 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'}`}>
         
         {/* Top Header */}
         <header className="flex justify-end items-center mb-6 md:mb-12 gap-4 relative">
@@ -223,6 +232,36 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
           {children}
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/95 dark:bg-[#1E1E2D]/95 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none transition-transform duration-300 ease-in-out ${showMobileNav ? 'translate-y-0' : 'translate-y-[120%]'}`}>
+        <div className="flex items-center justify-around px-2 py-2">
+          {(role === "SUPERADMIN" ? navItems : [
+            { label: "Dashboard", shortLabel: "Home", href: "/dashboard", icon: Home },
+            { label: "Pemasukan", shortLabel: "Masuk", href: "/dashboard/income", icon: TrendingUp },
+            { label: "Pengeluaran", shortLabel: "Keluar", href: "/dashboard/expenses", icon: TrendingDown },
+            { label: "Rekening & Transfer", shortLabel: "Rekening", href: "/dashboard/accounts", icon: Wallet },
+            { label: "Tabungan", shortLabel: "Tabungan", href: "/dashboard/savings", icon: Trophy },
+          ]).map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                className={`flex flex-col items-center justify-center w-16 gap-1 p-1 transition-all ${isActive ? 'scale-105' : 'hover:scale-105'}`}
+              >
+                <div className={`p-2 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span className={`text-[9px] font-bold tracking-wide transition-colors ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-gray-500'}`}>
+                  {('shortLabel' in item) ? (item as any).shortLabel : item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
     </div>
   );
