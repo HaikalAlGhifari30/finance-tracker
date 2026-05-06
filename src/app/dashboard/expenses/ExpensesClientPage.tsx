@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { format, parseISO, isSameMonth, isSameYear } from "date-fns";
 import { id } from "date-fns/locale";
-import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, ChevronDown, Filter, Wallet } from "lucide-react";
+import { Plus, Search, Edit2, CreditCard, Download, ListPlus, ChevronLeft, ChevronRight, Calendar, FileText, ChevronDown, Filter, Wallet, TrendingDown, MoreVertical, Trash2 } from "lucide-react";
 import ExpenseModal from "./ExpenseModal";
 import CategoryModal from "./CategoryModal";
 import DeleteExpenseButton from "./DeleteExpenseButton";
@@ -12,8 +12,11 @@ import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { Pagination } from "@/components/ui/Pagination";
+import { getCategoryColorBadge } from "@/lib/constants";
+import { deleteTransaction } from "@/app/actions/transactions";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export default function ExpensesClientPage({ initialExpenses, categories, goals, accounts, totalSavings }: { initialExpenses: any[], categories: any[], goals: any[], accounts: any[], totalSavings: number }) {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
@@ -29,6 +32,10 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  
+  const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   useEffect(() => {
     setCurrentPage(1);
@@ -57,6 +64,46 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
     const start = (currentPage - 1) * pageSize;
     return filteredExpenses.slice(start, start + pageSize);
   }, [filteredExpenses, currentPage, pageSize]);
+
+  const groupedExpenses = useMemo(() => {
+    const groups: { date: string; items: any[] }[] = [];
+    const today = new Date();
+    
+    paginatedExpenses.forEach(t => {
+      const tDate = typeof t.date === 'string' ? parseISO(t.date) : new Date(t.date);
+      let dateStr = "";
+      
+      if (tDate.getDate() === today.getDate() && tDate.getMonth() === today.getMonth() && tDate.getFullYear() === today.getFullYear()) {
+        dateStr = "Hari Ini";
+      } else {
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (tDate.getDate() === yesterday.getDate() && tDate.getMonth() === yesterday.getMonth() && tDate.getFullYear() === yesterday.getFullYear()) {
+          dateStr = "Kemarin";
+        } else {
+           dateStr = format(tDate, "dd MMMM yyyy", { locale: id });
+        }
+      }
+      
+      let group = groups.find(g => g.date === dateStr);
+      if (!group) {
+        group = { date: dateStr, items: [] };
+        groups.push(group);
+      }
+      group.items.push(t);
+    });
+    
+    return groups;
+  }, [paginatedExpenses]);
+
+  const confirmDelete = () => {
+    if (expenseToDelete) {
+      startDeleteTransition(async () => {
+        await deleteTransaction(expenseToDelete);
+        setExpenseToDelete(null);
+      });
+    }
+  };
 
   const handleExportExcel = () => {
     if (filteredExpenses.length === 0) {
@@ -287,50 +334,51 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left border-collapse min-w-[600px] md:min-w-full">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto no-scrollbar">
+              <table className="w-full text-left border-collapse min-w-full">
                 <thead>
                   <tr className="bg-gray-100/70 dark:bg-gray-800/50">
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Tanggal</th>
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Kategori</th>
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Sumber</th>
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Deskripsi</th>
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-center">Nominal</th>
-                    <th className="px-4 md:px-6 py-4 md:py-5 text-[10px] md:text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-right">Aksi</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Tanggal</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Kategori</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Sumber</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800">Deskripsi</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-center">Nominal</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                   {paginatedExpenses.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
-                      <td className="px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap font-bold">
+                      <td className="px-6 py-5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap font-bold">
                         {format(new Date(item.date), "dd/MM/yyyy")}
                       </td>
-                      <td className="px-4 md:px-6 py-4 md:py-5">
-                        <span className="inline-flex items-center px-2 md:px-3 py-1 md:py-1.5 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-800/50">
+                      <td className="px-6 py-5">
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${getCategoryColorBadge(item.categoryName)}`}>
                           {item.categoryName || "Umum"}
                         </span>
                       </td>
-                      <td className="px-4 md:px-6 py-4 md:py-5">
+                      <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
                            <Wallet className="w-3 h-3 text-gray-400" />
-                           <span className="text-[11px] md:text-xs font-bold text-gray-600 dark:text-gray-300">
+                           <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
                              {item.accountName || "Utama"}
                            </span>
                         </div>
                       </td>
-                      <td className="px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm text-gray-600 dark:text-gray-400 max-w-[150px] md:max-w-[300px] truncate font-medium">
+                      <td className="px-6 py-5 text-sm text-gray-600 dark:text-gray-400 max-w-[300px] truncate font-medium">
                         {item.description || "-"}
                       </td>
-                      <td className="px-4 md:px-6 py-4 md:py-5 text-xs md:text-sm font-black text-rose-600 text-center whitespace-nowrap">
+                      <td className="px-6 py-5 text-sm font-black text-rose-600 text-center whitespace-nowrap">
                         - Rp {Number(item.amount).toLocaleString("id-ID")}
                       </td>
-                      <td className="px-4 md:px-6 py-4 md:py-5 text-right">
-                        <div className="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="px-6 py-5 text-right">
+                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => handleEdit(item)}
                             className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors"
                           >
-                            <Edit2 className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                            <Edit2 className="w-4 h-4" />
                           </button>
                           <DeleteExpenseButton id={item.id} />
                         </div>
@@ -339,6 +387,57 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile List (Grouped) */}
+            <div className="md:hidden flex flex-col p-4 bg-white dark:bg-[#1E1E2D] rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm mx-4 mb-4">
+              {groupedExpenses.map((group, groupIdx) => (
+                <div key={group.date} className={groupIdx > 0 ? "mt-6" : ""}>
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3 px-1">{group.date}</h4>
+                  <div className="flex flex-col">
+                    {group.items.map((item, itemIdx) => (
+                      <div key={item.id} className={`flex items-start justify-between gap-3 py-3 px-1 relative group ${itemIdx !== group.items.length - 1 ? 'border-b border-gray-50 dark:border-gray-800/50' : ''}`}>
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center min-w-[40px] bg-rose-50 text-rose-600 dark:bg-rose-900/20 mt-0.5`}>
+                            <TrendingDown className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0 flex-1 mt-0.5">
+                            <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight mb-0.5 truncate">{item.description}</p>
+                            <p className="text-[10px] text-gray-400 font-medium tracking-wide truncate">
+                               {item.categoryName || "Umum"} • {item.accountName || "Utama"}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black whitespace-nowrap text-rose-600">
+                              -Rp {Number(item.amount).toLocaleString("id-ID")}
+                            </span>
+                            <div className="relative">
+                              <button onClick={() => setOpenActionMenuId(openActionMenuId === item.id ? null : item.id)} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg transition-colors">
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                              {openActionMenuId === item.id && (
+                                <>
+                                  <div className="fixed inset-0 z-40" onClick={() => setOpenActionMenuId(null)} />
+                                  <div className="absolute right-0 top-full mt-1 w-32 bg-white dark:bg-[#1E1E2D] rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-gray-100 dark:border-gray-800 py-1 z-50 animate-in fade-in zoom-in duration-200">
+                                    <button onClick={() => { setOpenActionMenuId(null); handleEdit(item); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                      <Edit2 className="w-3.5 h-3.5" /> Edit
+                                    </button>
+                                    <button onClick={() => { setOpenActionMenuId(null); setExpenseToDelete(item.id); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
+                                      <Trash2 className="w-3.5 h-3.5" /> Hapus
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
             <Pagination
               currentPage={currentPage}
@@ -362,7 +461,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
             <div className="relative z-10">
               <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md border border-white/30">
-                  <Plus className="w-3.5 md:w-4 h-3.5 md:h-4 text-white rotate-45" />
+                  <TrendingDown className="w-3.5 md:w-4 h-3.5 md:h-4 text-white" />
                 </div>
                 <p className="text-rose-100 text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Pengeluaran Periode Ini</p>
               </div>
@@ -380,6 +479,16 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
           </GlassCard>
         </div>
       )}
+
+      {/* Confirmation Dialog for Mobile Action Menu */}
+      <ConfirmDialog 
+        isOpen={expenseToDelete !== null}
+        onCancel={() => setExpenseToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Hapus Pengeluaran"
+        message="Apakah Anda yakin ingin menghapus catatan pengeluaran ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Ya, Hapus"
+      />
 
       <ExpenseModal
         isOpen={isExpenseModalOpen}

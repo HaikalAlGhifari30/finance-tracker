@@ -41,3 +41,34 @@ export const PRESET_ACCOUNTS = [
   { name: "ShopeePay", type: "EWALLET" },
   { name: "Cash", type: "CASH" },
 ];
+
+export const getCategoryColorBadge = (categoryName: string | null | undefined) => {
+  if (!categoryName) return "bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border-gray-200/50 dark:border-gray-700/50";
+  
+  const name = categoryName.toLowerCase();
+  
+  if (name.includes('makan')) {
+    return "bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-100/50 dark:border-orange-800/50";
+  }
+  if (name.includes('jajan')) {
+    return "bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 border-pink-100/50 dark:border-pink-800/50";
+  }
+  if (name.includes('transportasi')) {
+    return "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-100/50 dark:border-blue-800/50";
+  }
+  if (name.includes('kosan')) {
+    return "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-100/50 dark:border-purple-800/50";
+  }
+  if (name.includes('tagihan')) {
+    return "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border-rose-100/50 dark:border-rose-800/50";
+  }
+  if (name.includes('gaji') || name.includes('pemasukan') || name.includes('bonus')) {
+    return "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-100/50 dark:border-emerald-800/50";
+  }
+  if (name.includes('hiburan')) {
+    return "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border-indigo-100/50 dark:border-indigo-800/50";
+  }
+  
+  // Default / Lainnya -> Gray
+  return "bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border-gray-200/50 dark:border-gray-700/50";
+};

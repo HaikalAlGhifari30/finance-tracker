@@ -279,7 +279,7 @@ export async function getTransferHistory(params?: { month?: number, year?: numbe
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
     .leftJoin(sql`${accounts} as to_acc`, eq(transactions.destinationAccountId, sql`to_acc.id`))
     .where(and(...conditions))
-    .orderBy(desc(transactions.date))
+    .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(limit)
     .offset(offset);
 

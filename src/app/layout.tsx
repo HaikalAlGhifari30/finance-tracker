@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -10,12 +10,31 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "FinTrack - Sistem Keuangan",
   description: "Kelola keuangan Anda dengan mudah dan efisien",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FinTrack",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: "/icon",
     apple: [
       { url: "/logo.png", sizes: "180x180" }
     ]
   }
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#10b981" },
+    { media: "(prefers-color-scheme: dark)", color: "#10b981" }
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({

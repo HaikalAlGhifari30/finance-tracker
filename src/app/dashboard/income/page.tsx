@@ -30,7 +30,7 @@ export default async function IncomePage() {
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "INCOME")))
-    .orderBy(desc(transactions.date))
+    .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .execute();
 
   let userCategories = await db

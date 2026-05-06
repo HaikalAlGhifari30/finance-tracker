@@ -5,7 +5,7 @@ import { format, isSameMonth, isSameYear, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight, Trophy, Sparkles,
-  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote
+  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus
 } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -72,7 +72,9 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   };
 
   return (
-    <div className="space-y-8 md:space-y-12 animate-fade-in text-left pb-10">
+    <>
+      {/* DESKTOP LAYOUT */}
+      <div className="hidden md:block space-y-8 md:space-y-12 animate-fade-in text-left pb-10">
       <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
         <div className="text-center xl:text-left">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Halo, {user.name}! 👋</h1>
@@ -304,5 +306,167 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         </GlassCard>
       </div>
     </div>
+
+    {/* MOBILE LAYOUT (Mobile Redesign) */}
+      <div className="md:hidden space-y-6 animate-fade-in text-left pb-4 px-1">
+        {/* Header (Greeting & Date) */}
+        <div className="flex justify-between items-end px-2">
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Halo, {user.name}!</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-[11px] tracking-wide mt-1">
+              {format(new Date(), "EEEE, dd MMM yyyy", { locale: id })}
+            </p>
+          </div>
+        </div>
+
+        {/* Mobile ATM/Bank Card */}
+        <div className="relative p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl shadow-slate-900/30 overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <Sparkles className="w-32 h-32" />
+          </div>
+          <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+            <div>
+              <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Total Aset Bersih</p>
+              <h3 className={`text-3xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
+                Rp {overallTotalAssets.toLocaleString("id-ID")}
+              </h3>
+            </div>
+            
+            <div className="flex gap-4 items-center bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm">
+               <div className="flex-1">
+                 <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Saldo Liquid</p>
+                 <p className="text-xs font-bold mt-1 text-slate-100">Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
+               </div>
+               <div className="w-px h-8 bg-slate-700"></div>
+               <div className="flex-1">
+                 <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest">Tabungan</p>
+                 <p className="text-xs font-bold mt-1 text-amber-100">Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Action Grid */}
+        <div className="grid grid-cols-5 gap-y-6 gap-x-2 px-1 py-4">
+          <Link href="/dashboard/accounts" className="flex flex-col items-center gap-2 group">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 flex items-center justify-center active:scale-95 transition-all">
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Rekening</span>
+          </Link>
+          <Link href="/dashboard/income" className="flex flex-col items-center gap-2 group">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center active:scale-95 transition-all">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Masuk</span>
+          </Link>
+          <Link href="/dashboard/budget" className="flex flex-col items-center gap-2 group">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 flex items-center justify-center active:scale-95 transition-all">
+              <List className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Alokasi</span>
+          </Link>
+          <Link href="/dashboard/expenses" className="flex flex-col items-center gap-2 group">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-rose-50 dark:bg-rose-900/20 text-rose-600 flex items-center justify-center active:scale-95 transition-all">
+              <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Keluar</span>
+          </Link>
+          <Link href="/dashboard/savings" className="flex flex-col items-center gap-2 group">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center active:scale-95 transition-all">
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Tabungan</span>
+          </Link>
+        </div>
+
+        {/* Ringkasan Bulanan (Compact) */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link href="/dashboard/income" className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/20 shadow-sm flex flex-col justify-center active:scale-95 transition-all">
+            <div className="text-blue-900/40 dark:text-blue-400/40 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-500 flex items-center justify-center"><TrendingUp className="w-2.5 h-2.5" /></div>
+              Pemasukan
+            </div>
+            <h3 className="text-xs font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
+          </Link>
+          <Link href="/dashboard/expenses" className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100/50 dark:border-rose-800/20 shadow-sm flex flex-col justify-center active:scale-95 transition-all">
+            <div className="text-rose-900/40 dark:text-rose-400/40 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+              <div className="w-4 h-4 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-500 flex items-center justify-center"><TrendingDown className="w-2.5 h-2.5" /></div>
+              Pengeluaran
+            </div>
+            <h3 className="text-xs font-black text-rose-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
+          </Link>
+        </div>
+
+        {/* Progress Tabungan (Mobile simplified) */}
+        {mainGoal && (
+          <Link href="/dashboard/savings" className="block active:scale-[0.98] transition-transform">
+            <div className={`p-5 rounded-2xl relative overflow-hidden bg-gradient-to-br ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'from-amber-400 to-yellow-600' : 'from-indigo-600 to-violet-700'}`}>
+               <div className="relative z-10">
+                 <div className="flex justify-between items-start mb-4">
+                   <div>
+                     <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-indigo-200'}`}>Target Aktif</p>
+                     <h3 className="text-sm font-bold text-white">{mainGoal.name}</h3>
+                   </div>
+                   <Trophy className="w-6 h-6 text-white/50" />
+                 </div>
+                 
+                 <div className={`h-1.5 rounded-full overflow-hidden ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'bg-black/10' : 'bg-white/20'}`}>
+                    <div 
+                      className={`h-full transition-all duration-1000 ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'bg-yellow-100' : 'bg-white'}`}
+                      style={{ width: `${Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100)}%` }}
+                    />
+                 </div>
+                 <div className={`mt-2 flex justify-between text-[9px] font-bold tracking-widest ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-indigo-200'}`}>
+                    <span>Rp {Number(mainGoal.balance).toLocaleString("id-ID")}</span>
+                    <span>{Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100).toFixed(0)}%</span>
+                 </div>
+               </div>
+            </div>
+          </Link>
+        )}
+
+        {/* Recent Transactions */}
+        <div className="bg-white dark:bg-gray-800/40 rounded-3xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
+           <div className="flex justify-between items-center mb-5">
+             <h3 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-tight">Riwayat Terakhir</h3>
+             <Link href="/dashboard/expenses" className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg active:scale-95 transition-all">Lihat Semua</Link>
+           </div>
+           
+           <div className="space-y-4">
+             {filteredActivities.slice(0, 5).map((act, i) => (
+               <div key={i} className="flex items-center justify-between gap-3">
+                 <div className="flex items-center gap-3">
+                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
+                     {act.type === 'INCOME' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                   </div>
+                   <div>
+                     <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight mb-0.5 line-clamp-1">{act.description}</p>
+                     <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">{format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName}</p>
+                   </div>
+                 </div>
+                 <span className={`text-xs font-black whitespace-nowrap ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
+                   {act.type === 'INCOME' ? '+' : '-'}Rp {Number(act.amount).toLocaleString("id-ID")}
+                 </span>
+               </div>
+             ))}
+             {filteredActivities.length === 0 && (
+               <div className="text-center py-6 text-gray-400 text-xs font-bold">
+                 Belum ada transaksi
+               </div>
+             )}
+           </div>
+        </div>
+      </div>
+
+      {/* FAB Mobile */}
+      <div className="md:hidden fixed bottom-6 right-6 z-50">
+         <Link href="/dashboard/expenses">
+            <button className="w-14 h-14 bg-gradient-to-br from-rose-400 to-red-500 text-white rounded-[20px] flex items-center justify-center shadow-lg shadow-rose-500/40 hover:from-rose-500 hover:to-red-600 active:scale-90 transition-all">
+               <Plus className="w-6 h-6" />
+            </button>
+         </Link>
+      </div>
+    </>
   );
 }

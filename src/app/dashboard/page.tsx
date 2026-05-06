@@ -57,7 +57,7 @@ export default async function DashboardPage() {
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accountsTable, eq(transactions.accountId, accountsTable.id))
     .where(eq(transactions.userId, userId))
-    .orderBy(desc(transactions.date))
+    .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(500)
     .execute();
 
