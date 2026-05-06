@@ -194,7 +194,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     <div className="min-h-[100dvh] bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300">
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-4 bg-white/90 dark:bg-[#1E1E2D]/90 backdrop-blur-md border-b border-gray-100/50 dark:border-gray-800/50 sticky top-0 z-[30]">
+      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-2 z-[30]">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 active:scale-95 transition-transform">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden">

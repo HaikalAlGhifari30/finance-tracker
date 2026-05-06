@@ -49,7 +49,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={isDark ? "dark" : ""} suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
+      <body className={`${inter.className} min-h-[100dvh] w-full bg-[#F8F9FD] dark:bg-[#13111C] antialiased selection:bg-emerald-500/30`} suppressHydrationWarning>
         <ThemeProvider>
           {children}
           <Toaster position="top-right" richColors closeButton />
