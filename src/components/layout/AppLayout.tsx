@@ -191,10 +191,10 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300 overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300">
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 py-4 bg-white/90 dark:bg-[#1E1E2D]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-[30]">
+      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-4 bg-white/90 dark:bg-[#1E1E2D]/90 backdrop-blur-md border-b border-gray-100/50 dark:border-gray-800/50 sticky top-0 z-[30]">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 active:scale-95 transition-transform">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden">
@@ -222,7 +222,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 p-4 pb-24 md:p-10 md:pb-10 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'}`}>
+      <main className={`flex-1 p-4 pb-[calc(env(safe-area-inset-bottom)+100px)] md:p-10 md:pb-10 min-h-[100dvh] flex flex-col transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'}`}>
         
         {/* Top Header */}
         <header className="hidden md:flex justify-end items-center mb-12 gap-4 relative">
@@ -245,31 +245,31 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
       {/* Mobile Bottom Navigation */}
       {pathname !== '/dashboard' && (
-        <div className={`md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out w-[95vw] max-w-[400px] ${showMobileNav ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
-          <div className="bg-white/95 dark:bg-[#1E1E2D]/95 backdrop-blur-xl border border-gray-100/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-[2rem] px-2 py-2 flex items-center justify-between">
-            <Link href="/dashboard/accounts" className={`flex flex-col items-center justify-center flex-1 py-2 rounded-[1.2rem] transition-all active:scale-95 ${pathname === '/dashboard/accounts' ? 'bg-emerald-50/80 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'}`}>
-              <Wallet className={`w-5 h-5 mb-1 transition-all ${pathname === '/dashboard/accounts' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[9px] tracking-wide ${pathname === '/dashboard/accounts' ? 'font-black' : 'font-semibold'}`}>Rekening</span>
+        <div className={`md:hidden fixed bottom-[max(env(safe-area-inset-bottom),8px)] left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out w-[92vw] max-w-[360px] ${showMobileNav ? 'translate-y-0 opacity-100' : 'translate-y-32 opacity-0 pointer-events-none'}`}>
+          <div className="bg-white/80 dark:bg-[#1E1E2D]/80 backdrop-blur-md border border-gray-100/50 dark:border-gray-800/50 shadow-sm rounded-full px-1 py-1 flex items-center justify-between">
+            <Link href="/dashboard/accounts" className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-full transition-all active:scale-95 ${pathname === '/dashboard/accounts' ? 'bg-emerald-50/80 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-400'}`}>
+              <Wallet className={`w-4.5 h-4.5 mb-0.5 transition-all ${pathname === '/dashboard/accounts' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[8px] tracking-wide ${pathname === '/dashboard/accounts' ? 'font-black' : 'font-semibold'}`}>Rekening</span>
             </Link>
 
-            <Link href="/dashboard/income" className={`flex flex-col items-center justify-center flex-1 py-2 rounded-[1.2rem] transition-all active:scale-95 ${pathname === '/dashboard/income' ? 'bg-blue-50/80 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'}`}>
-              <TrendingUp className={`w-5 h-5 mb-1 transition-all ${pathname === '/dashboard/income' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[9px] tracking-wide ${pathname === '/dashboard/income' ? 'font-black' : 'font-semibold'}`}>Masuk</span>
+            <Link href="/dashboard/income" className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-full transition-all active:scale-95 ${pathname === '/dashboard/income' ? 'bg-blue-50/80 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-400'}`}>
+              <TrendingUp className={`w-4.5 h-4.5 mb-0.5 transition-all ${pathname === '/dashboard/income' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[8px] tracking-wide ${pathname === '/dashboard/income' ? 'font-black' : 'font-semibold'}`}>Masuk</span>
             </Link>
             
-            <Link href="/dashboard" className={`flex flex-col items-center justify-center flex-1 py-2 rounded-[1.2rem] transition-all active:scale-95 ${pathname === '/dashboard' ? 'bg-emerald-50/80 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'}`}>
-              <Home className={`w-5 h-5 mb-1 transition-all ${pathname === '/dashboard' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[9px] tracking-wide ${pathname === '/dashboard' ? 'font-black' : 'font-semibold'}`}>Home</span>
+            <Link href="/dashboard" className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-full transition-all active:scale-95 ${pathname === '/dashboard' ? 'bg-emerald-50/80 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-400'}`}>
+              <Home className={`w-4.5 h-4.5 mb-0.5 transition-all ${pathname === '/dashboard' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[8px] tracking-wide ${pathname === '/dashboard' ? 'font-black' : 'font-semibold'}`}>Home</span>
             </Link>
 
-            <Link href="/dashboard/expenses" className={`flex flex-col items-center justify-center flex-1 py-2 rounded-[1.2rem] transition-all active:scale-95 ${pathname === '/dashboard/expenses' ? 'bg-rose-50/80 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'}`}>
-              <TrendingDown className={`w-5 h-5 mb-1 transition-all ${pathname === '/dashboard/expenses' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[9px] tracking-wide ${pathname === '/dashboard/expenses' ? 'font-black' : 'font-semibold'}`}>Keluar</span>
+            <Link href="/dashboard/expenses" className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-full transition-all active:scale-95 ${pathname === '/dashboard/expenses' ? 'bg-rose-50/80 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-400'}`}>
+              <TrendingDown className={`w-4.5 h-4.5 mb-0.5 transition-all ${pathname === '/dashboard/expenses' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[8px] tracking-wide ${pathname === '/dashboard/expenses' ? 'font-black' : 'font-semibold'}`}>Keluar</span>
             </Link>
             
-            <Link href="/dashboard/budget" className={`flex flex-col items-center justify-center flex-1 py-2 rounded-[1.2rem] transition-all active:scale-95 ${pathname === '/dashboard/budget' ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-300'}`}>
-              <List className={`w-5 h-5 mb-1 transition-all ${pathname === '/dashboard/budget' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
-              <span className={`text-[9px] tracking-wide ${pathname === '/dashboard/budget' ? 'font-black' : 'font-semibold'}`}>Alokasi</span>
+            <Link href="/dashboard/budget" className={`flex flex-col items-center justify-center flex-1 py-1.5 rounded-full transition-all active:scale-95 ${pathname === '/dashboard/budget' ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400' : 'text-gray-400 hover:text-gray-500 dark:hover:text-gray-400'}`}>
+              <List className={`w-4.5 h-4.5 mb-0.5 transition-all ${pathname === '/dashboard/budget' ? 'stroke-[2.5px]' : 'stroke-[1.5px]'}`} />
+              <span className={`text-[8px] tracking-wide ${pathname === '/dashboard/budget' ? 'font-black' : 'font-semibold'}`}>Alokasi</span>
             </Link>
           </div>
         </div>

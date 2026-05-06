@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Kelola keuangan Anda dengan mudah dan efisien",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "FinTrack",
   },
   formatDetection: {
@@ -28,13 +28,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#10b981" },
-    { media: "(prefers-color-scheme: dark)", color: "#10b981" }
+    { media: "(prefers-color-scheme: light)", color: "#F8F9FD" },
+    { media: "(prefers-color-scheme: dark)", color: "#13111C" }
   ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({

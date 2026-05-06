@@ -7,15 +7,13 @@
 }
 
 :root {
-  --background: #ffffff;
+  --background: #F8F9FD;
   --foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Since we are doing vibrant gradient background all over, 
-       foreground can stay light/dark accordingly. We'll default to light text for dark mode */
-    --background: #0a0a0a;
+    --background: #13111C;
     --foreground: #ededed;
   }
 }

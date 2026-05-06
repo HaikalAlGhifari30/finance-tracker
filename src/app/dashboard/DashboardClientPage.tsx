@@ -460,7 +460,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
       </div>
 
       {/* FAB Mobile */}
-      <div className="md:hidden fixed bottom-6 right-6 z-50">
+      <div className="md:hidden fixed bottom-[calc(env(safe-area-inset-bottom)+24px)] right-6 z-50">
          <Link href="/dashboard/expenses">
             <button className="w-14 h-14 bg-gradient-to-br from-rose-400 to-red-500 text-white rounded-[20px] flex items-center justify-center shadow-lg shadow-rose-500/40 hover:from-rose-500 hover:to-red-600 active:scale-90 transition-all">
                <Plus className="w-6 h-6" />
