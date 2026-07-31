@@ -22,6 +22,7 @@ interface Account {
   accountNumber: string | null;
   balance: number;
   createdAt: Date;
+  memberId?: string | null;
 }
 
 export default function AccountsClient({ initialAccounts, initialTransferHistory, initialTransferTotal, user, categories, members }: { initialAccounts: Account[], initialTransferHistory: any[], initialTransferTotal: number, user: any, categories: any[], members: any[] }) {
