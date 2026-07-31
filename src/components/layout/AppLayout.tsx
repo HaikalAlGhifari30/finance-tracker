@@ -136,7 +136,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
   const HeaderActions = () => (
     <div className="flex items-center gap-3 md:gap-4 relative">
-      <div className="flex items-center gap-2 bg-gray-100 dark:bg-[#1E1E2D] p-1 rounded-full shadow-inner border border-gray-200 dark:border-gray-800">
+      <div className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-[#1E1E2D] p-1 rounded-full shadow-inner border border-gray-200 dark:border-gray-800">
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="w-12 md:w-14 h-6 md:h-7 rounded-full relative flex items-center transition-colors bg-gray-300 dark:bg-emerald-600"
@@ -167,6 +167,20 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Akun Saya</p>
                    <p className="text-xs md:text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
                 </div>
+                
+                <button 
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="w-full md:hidden flex items-center justify-between px-5 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
+                >
+                   <div className="flex items-center gap-3">
+                     {theme === 'dark' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />} 
+                     Mode {theme === 'dark' ? 'Gelap' : 'Terang'}
+                   </div>
+                   <div className="w-8 h-4 bg-gray-300 dark:bg-emerald-600 rounded-full relative transition-colors">
+                     <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-transform duration-300 ${theme === 'dark' ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+                   </div>
+                </button>
+
                 <Link 
                   href="/dashboard/profile" 
                   onClick={() => setShowUserMenu(false)}
