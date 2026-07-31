@@ -16,6 +16,7 @@ interface DashboardClientPageProps {
   initialActivities: any[];
   user: { name: string | null };
   mainGoal?: any;
+  totalAssets: number;
   totalSavingsPool: number;
   accounts: any[];
   members: any[];
