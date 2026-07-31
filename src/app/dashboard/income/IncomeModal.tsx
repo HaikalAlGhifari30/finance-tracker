@@ -34,7 +34,7 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
         if (!isOpen) return;
 
         if (mode === "edit" && initialData) {
-            setAmount(formatRupiah(initialData.amount));
+            setAmount(formatRupiah(Number(initialData.amount)));
             setDescription(initialData.description || "");
             setCategoryId(initialData.categoryId || "");
             setAccountId(initialData.accountId || accounts[0]?.id || "");

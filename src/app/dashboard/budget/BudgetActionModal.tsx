@@ -37,7 +37,7 @@ export default function BudgetActionModal({
     if (existingItems.length > 0) {
       setItems(existingItems.map(item => ({
         categoryId: item.categoryId,
-        amount: formatRupiah(item.amount)
+        amount: formatRupiah(Number(item.amount))
       })));
     } else {
       setItems([]);
