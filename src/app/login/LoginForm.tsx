@@ -76,7 +76,7 @@ export default function LoginForm() {
           setError(
             error?.message?.includes("Invalid") || error?.code === "INVALID_EMAIL_OR_PASSWORD" 
               ? "Email atau password yang Anda masukkan salah." 
-              : "Terjadi kesalahan. Coba sesaat lagi."
+              : `Error: ${error?.message || error?.code || "Terjadi kesalahan."}`
           );
           setLoading(false);
           return;
