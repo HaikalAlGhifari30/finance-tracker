@@ -132,6 +132,7 @@ export const budgetPeriods = pgTable("budget_periods", {
 	memberId: text("memberId").references(() => members.id, { onDelete: "cascade" }),
 	month: text("month").notNull(), // "1" to "12"
 	year: text("year").notNull(), // e.g., "2026"
+	totalBudget: decimal("totalBudget", { precision: 15, scale: 2 }).notNull().default("0"),
 	createdAt: timestamp("createdAt").notNull(),
 });
 

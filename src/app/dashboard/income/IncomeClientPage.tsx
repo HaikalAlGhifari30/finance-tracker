@@ -36,6 +36,7 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
   const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
   const [incomeToDelete, setIncomeToDelete] = useState<string | null>(null);
@@ -193,22 +194,13 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
           <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Manajemen Pemasukan</h2>
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Pantau dan kelola sumber pemasukan Anda secara teratur.</p>
         </div>
-        <div className="w-full lg:w-auto">
-          <MemberFilter members={members} className="w-full sm:w-auto" />
-        </div>
+        {/* MemberFilter moved down */}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 w-full lg:max-w-md">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Cari..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 md:py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-xs md:text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-medium shadow-sm"
-            />
+          <div className="flex-1">
+            <MemberFilter members={members} className="w-full" />
           </div>
 
           <div className="relative">
@@ -253,31 +245,15 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
           </div>
         </div>
 
-        <div className="hidden lg:flex flex-wrap items-center justify-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 w-full lg:w-auto">
-          <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
-            <button
-              onClick={() => setViewMode("monthly")}
-              className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Bln
-            </button>
-            <button
-              onClick={() => setViewMode("yearly")}
-              className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Thn
-            </button>
+        <div className="hidden lg:flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full lg:w-auto justify-center">
+          <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
+          <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
+            <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+              {format(currentDate, "MMMM yyyy", { locale: id })}
+            </span>
+            <Calendar className="w-3.5 h-3.5 text-gray-400" />
           </div>
-
-          <div className="flex items-center gap-1">
-            <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
-            <div className="px-1 md:px-2 min-w-[100px] md:min-w-[120px] text-center">
-              <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase">
-                {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
-              </span>
-            </div>
-            <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
-          </div>
+          <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -303,30 +279,36 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
             </button>
           </div>
 
-          <div className="hidden lg:block relative w-full sm:w-auto group">
+          <div className="hidden lg:block relative w-full sm:w-auto">
             <button
+              onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-xs md:text-sm font-black text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm active:scale-95"
             >
               <Download className="w-4 h-4 md:w-5 md:h-5" />
               <span>Export</span>
-              <ChevronDown className="w-3 h-3 md:w-4 md:h-4 opacity-50 group-hover:rotate-180 transition-transform" />
+              <ChevronDown className="w-3 h-3 md:w-4 md:h-4 opacity-50 transition-transform" />
             </button>
-            <div className="absolute top-full right-0 mt-2 w-full sm:w-48 bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-              <button
-                onClick={handleExportExcel}
-                className="w-full flex items-center gap-3 px-5 py-3 text-xs md:text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-600 transition-colors"
-              >
-                <Download className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
-                Excel Spreadsheet
-              </button>
-              <button
-                onClick={handleExportPDF}
-                className="w-full flex items-center gap-3 px-5 py-3 text-xs md:text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 transition-colors"
-              >
-                <FileText className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-500" />
-                Dokumen PDF
-              </button>
-            </div>
+            {isExportDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsExportDropdownOpen(false)}></div>
+                <div className="absolute top-full right-0 left-0 sm:left-auto mt-2 w-full sm:w-48 bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 animate-in fade-in zoom-in duration-200">
+                  <button
+                    onClick={() => { handleExportExcel(); setIsExportDropdownOpen(false); }}
+                    className="w-full flex items-center justify-center sm:justify-start gap-3 px-5 py-3 text-xs md:text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-600 transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
+                    Excel Spreadsheet
+                  </button>
+                  <button
+                    onClick={() => { handleExportPDF(); setIsExportDropdownOpen(false); }}
+                    className="w-full flex items-center justify-center sm:justify-start gap-3 px-5 py-3 text-xs md:text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 transition-colors"
+                  >
+                    <FileText className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-500" />
+                    Dokumen PDF
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -473,57 +455,47 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
 
       {/* Mobile Bottom Controls */}
       <div className="lg:hidden flex flex-col gap-4 mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[24px] border border-gray-100 dark:border-gray-800 w-full shadow-sm">
-          <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
-            <button
-              onClick={() => setViewMode("monthly")}
-              className={`text-[10px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Bln
-            </button>
-            <button
-              onClick={() => setViewMode("yearly")}
-              className={`text-[10px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-            >
-              Thn
-            </button>
+        <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full justify-center">
+          <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
+          <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
+            <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+              {format(currentDate, "MMMM yyyy", { locale: id })}
+            </span>
+            <Calendar className="w-3.5 h-3.5 text-gray-400" />
           </div>
-
-          <div className="flex items-center gap-1 pr-2">
-            <button onClick={() => changePeriod(-1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-4 h-4 text-gray-600" /></button>
-            <div className="min-w-[100px] text-center">
-              <span className="font-bold text-xs text-gray-900 dark:text-white tracking-tight uppercase">
-                {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
-              </span>
-            </div>
-            <button onClick={() => changePeriod(1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-4 h-4 text-gray-600" /></button>
-          </div>
+          <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
         </div>
 
-        <div className="relative w-full group">
+        <div className="relative w-full">
           <button
+            onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
             className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm font-black text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm active:scale-95"
           >
             <Download className="w-5 h-5" />
             <span>Export Data</span>
-            <ChevronDown className="w-4 h-4 opacity-50 group-hover:-rotate-180 transition-transform" />
+            <ChevronDown className="w-4 h-4 opacity-50 transition-transform" />
           </button>
-          <div className="absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-            <button
-              onClick={handleExportExcel}
-              className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-600 transition-colors"
-            >
-              <Download className="w-4 h-4 text-emerald-500" />
-              Excel Spreadsheet
-            </button>
-            <button
-              onClick={handleExportPDF}
-              className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 transition-colors"
-            >
-              <FileText className="w-4 h-4 text-rose-500" />
-              Dokumen PDF
-            </button>
-          </div>
+          {isExportDropdownOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsExportDropdownOpen(false)}></div>
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <button
+                  onClick={() => { handleExportExcel(); setIsExportDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-600 transition-colors"
+                >
+                  <Download className="w-4 h-4 text-emerald-500" />
+                  Excel Spreadsheet
+                </button>
+                <button
+                  onClick={() => { handleExportPDF(); setIsExportDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-rose-500" />
+                  Dokumen PDF
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

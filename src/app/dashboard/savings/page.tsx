@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import SavingsClientPage from "./SavingsClientPage";
 import { getAccounts } from "@/app/actions/accounts";
+import { getMembers } from "@/app/actions/members";
 
 export default async function SavingsPage() {
   const session = await auth.api.getSession({
@@ -80,7 +81,7 @@ export default async function SavingsPage() {
   const unallocatedSavings = totalSavingsPool - totalAllocated;
 
   // 6. Fetch Members and Accounts
-  const membersData = await db.select().from(members).where(eq(members.userId, userId)).execute();
+  const membersData = await getMembers();
   const userAccounts = await getAccounts();
 
   // 7. Fetch Savings Transaction History
@@ -118,6 +119,7 @@ export default async function SavingsPage() {
       goals={userGoals}
       history={history}
       accounts={userAccounts}
+      members={membersData}
     />
   );
 }

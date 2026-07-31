@@ -5,7 +5,7 @@ import { members } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { eq, and, asc, sql } from "drizzle-orm";
+import { eq, and, asc, desc, sql } from "drizzle-orm";
 
 export async function getMembers() {
   const session = await auth.api.getSession({
@@ -24,7 +24,7 @@ export async function getMembers() {
           eq(members.isActive, true)
         )
       )
-      .orderBy(asc(members.createdAt))
+      .orderBy(desc(members.isOwner), asc(members.createdAt))
       .execute();
 
     // Pastikan selalu ada member owner

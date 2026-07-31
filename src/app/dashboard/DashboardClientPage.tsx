@@ -122,31 +122,15 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             {format(new Date(), "EEEE, dd MMMM yyyy", { locale: id })}
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full md:w-auto">
-            <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
-              <button
-                onClick={() => setViewMode("monthly")}
-                className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Bln
-              </button>
-              <button
-                onClick={() => setViewMode("yearly")}
-                className={`text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Thn
-              </button>
+          <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full md:w-auto justify-center">
+            <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
+            <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
+              <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+                {format(currentDate, "MMMM yyyy", { locale: id })}
+              </span>
+              <Calendar className="w-3.5 h-3.5 text-gray-400" />
             </div>
-
-            <div className="flex items-center gap-1 pr-1 md:pr-2">
-              <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600" /></button>
-              <div className="px-1 md:px-2 min-w-[100px] md:min-w-[120px] text-center">
-                <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase">
-                  {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
-                </span>
-              </div>
-              <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-600" /></button>
-            </div>
+            <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
           </div>
         </div>
       </div>

@@ -46,6 +46,7 @@ export async function getBudgetPeriod(month: string, year: string, memberId?: st
 
   return {
     ...period,
+    totalBudget: Number(period.totalBudget),
     items: items.map(item => ({
       ...item,
       amount: Number(item.amount)
@@ -53,7 +54,7 @@ export async function getBudgetPeriod(month: string, year: string, memberId?: st
   };
 }
 
-export async function createBudgetPeriod(month: string, year: string, copyFromPrevious: boolean = false, memberId?: string) {
+export async function createBudgetPeriod(month: string, year: string, copyFromPrevious: boolean = false, memberId?: string, initialTotalBudget: number = 0) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -62,14 +63,9 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
   const userId = session.user.id;
 
   const periodId = uuidv4();
-  await db.insert(budgetPeriods).values({
-    id: periodId,
-    userId,
-    month,
-    year,
-    memberId: memberId || null,
-    createdAt: new Date(),
-  }).execute();
+  
+  let prevTotalBudget = initialTotalBudget.toString();
+  let prevItems: any[] = [];
 
   if (copyFromPrevious) {
     // Logic to find previous month
@@ -95,27 +91,53 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
       .execute();
 
     if (prevPeriod) {
-      const prevItems = await db
+      prevTotalBudget = prevPeriod.totalBudget;
+      prevItems = await db
         .select()
         .from(budgetItems)
         .where(eq(budgetItems.periodId, prevPeriod.id))
         .execute();
-
-      if (prevItems.length > 0) {
-        await db.insert(budgetItems).values(
-          prevItems.map(item => ({
-            id: uuidv4(),
-            periodId,
-            categoryId: item.categoryId,
-            amount: item.amount,
-          }))
-        ).execute();
-      }
     }
+  }
+
+  await db.insert(budgetPeriods).values({
+    id: periodId,
+    userId,
+    month,
+    year,
+    memberId: memberId || null,
+    totalBudget: prevTotalBudget,
+    createdAt: new Date(),
+  }).execute();
+
+  if (copyFromPrevious && prevItems.length > 0) {
+    await db.insert(budgetItems).values(
+      prevItems.map(item => ({
+        id: uuidv4(),
+        periodId,
+        categoryId: item.categoryId,
+        amount: item.amount,
+      }))
+    ).execute();
   }
 
   revalidatePath("/dashboard/budget");
   return periodId;
+}
+
+export async function updateBudgetPeriodTotal(periodId: string, totalBudget: number) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) throw new Error("Unauthorized");
+
+  await db.update(budgetPeriods)
+    .set({ totalBudget: totalBudget.toString() })
+    .where(eq(budgetPeriods.id, periodId))
+    .execute();
+
+  revalidatePath("/dashboard/budget");
 }
 
 export async function upsertBudgetItems(periodId: string, items: { categoryId: string; amount: number }[]) {

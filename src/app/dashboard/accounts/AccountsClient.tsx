@@ -510,20 +510,29 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
             
             <form onSubmit={handleAddAccount} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
               {!editingAccount && (
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
-                  <select
-                    value={memberId}
-                    onChange={(e) => setMemberId(e.target.value)}
-                    required
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
-                  >
-                    <option value="">Pilih Anggota Pemilik Rekening</option>
-                    {members.map(m => (
-                      <option key={m.id} value={m.id}>{m.name}</option>
-                    ))}
-                  </select>
-                </div>
+                currentMember === "all" ? (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                    <select
+                      value={memberId}
+                      onChange={(e) => setMemberId(e.target.value)}
+                      required
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                    >
+                      <option value="">Pilih Anggota Pemilik Rekening</option>
+                      {members.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                    <div className="w-full px-5 py-4 bg-gray-100/50 dark:bg-[#13111C]/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-600 dark:text-gray-400 font-bold text-base">
+                      {members.find(m => m.id === memberId)?.name || memberId}
+                    </div>
+                  </div>
+                )
               )}
               
               <div className="space-y-2">

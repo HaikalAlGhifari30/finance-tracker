@@ -51,47 +51,47 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-white/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-800">
-      <div className="flex items-center gap-4 order-2 sm:order-1">
-        <div className="flex items-center gap-2">
-            <span className="text-[11px] font-black uppercase text-gray-400 tracking-wider">Per Halaman</span>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 md:gap-4 px-4 md:px-6 py-4 bg-white/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-800">
+      <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 order-2 sm:order-1">
+        <div className="flex items-center gap-1.5 md:gap-2">
+            <span className="text-[8px] md:text-[11px] font-black uppercase text-gray-400 tracking-wider">Per Halaman</span>
             <div className="relative group">
                 <select
                     value={pageSize}
                     onChange={(e) => onPageSizeChange(Number(e.target.value))}
-                    className="appearance-none bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 pl-4 pr-10 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all cursor-pointer"
+                    className="appearance-none bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 pl-2.5 pr-7 py-1 md:pl-4 md:pr-10 md:py-2 rounded-xl text-[8px] md:text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500/20 transition-all cursor-pointer"
                 >
                     {pageSizeOptions.map(option => (
                         <option key={option} value={option}>{option}</option>
                     ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+                <ChevronDown className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-gray-400 pointer-events-none group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
             </div>
         </div>
         <div className="h-4 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
-        <p className="text-[11px] font-black uppercase text-gray-400 tracking-wider whitespace-nowrap">
+        <p className="text-[8px] md:text-[11px] font-black uppercase text-gray-400 tracking-wider whitespace-nowrap">
           Menampilkan <span className="text-gray-700 dark:text-gray-200">{startItem}-{endItem}</span> dari <span className="text-gray-700 dark:text-gray-200">{totalItems}</span>
         </p>
       </div>
 
-      <div className="flex items-center gap-1.5 order-1 sm:order-2">
+      <div className="flex items-center gap-1 md:gap-1.5 order-1 sm:order-2">
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90"
+          className="p-1.5 md:p-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
         </button>
 
         <div className="flex items-center gap-1">
           {getPageNumbers().map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? (
-                <span className="px-2 text-gray-400 font-bold">...</span>
+                <span className="px-1 md:px-2 text-[10px] md:text-xs text-gray-400 font-bold">...</span>
               ) : (
                 <button
                   onClick={() => onPageChange(page as number)}
-                  className={`min-w-[40px] h-10 rounded-xl text-xs font-black transition-all active:scale-95 ${
+                  className={`min-w-[32px] md:min-w-[40px] h-8 md:h-10 rounded-xl text-[10px] md:text-xs font-black transition-all active:scale-95 ${
                     currentPage === page
                       ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 shadow-sm'
                       : 'border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -107,9 +107,9 @@ export const Pagination: React.FC<PaginationProps> = ({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90"
+          className="p-1.5 md:p-2 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </div>
     </div>

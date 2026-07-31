@@ -79,8 +79,8 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       setAmount("");
       setDescription("");
       setCategoryId(filteredCategories[0]?.id || "");
-      setAccountId(accounts[0]?.id || "");
-      setMemberId(currentMember !== "all" ? currentMember : (members[0]?.id || ""));
+      setAccountId("");
+      setMemberId(currentMember !== "all" ? currentMember : "");
       const now = new Date();
       const offset = now.getTimezoneOffset();
       const initialDate = new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
@@ -106,6 +106,8 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       } else if (filteredAccounts.length === 0) {
         setAccountId("SAVINGS");
       }
+    } else if (!memberId) {
+      setAccountId("");
     }
   }, [memberId, accountId, accounts]);
 
@@ -116,6 +118,10 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
     const cleanAmount = Number(unformatRupiah(amount));
     if (!cleanAmount || isNaN(cleanAmount)) {
       toast.error("Nominal tidak valid");
+      return;
+    }
+    if (!memberId) {
+      toast.error("Harap pilih anggota");
       return;
     }
 
@@ -185,25 +191,6 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
         <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 text-left overflow-y-auto custom-scrollbar">
           <div className="space-y-6 md:space-y-8">
             <div className="space-y-3">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
-              <div className="relative group">
-                <select
-                  value={memberId}
-                  required
-                  onChange={(e) => setMemberId(e.target.value)}
-                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
-                >
-                  <option value="" disabled>Pilih Anggota</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
-                </select>
-                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
               <div className="relative group">
                 <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
@@ -222,34 +209,67 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Keluar dari rekening</label>
-              <div className="relative group">
-                <select
-                  value={accountId}
-                  required
-                  onChange={(e) => setAccountId(e.target.value)}
-                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-emerald-200 dark:group-hover:border-emerald-800"
-                >
-                  <option value="" disabled>Pilih Sumber Dana</option>
-                  <optgroup label="Rekening Personal">
-                    {filteredAccounts.map(acc => (
-                      <option key={acc.id} value={acc.id}>
-                        {acc.name} (Rp {acc.balance?.toLocaleString('id-ID') || 0})
-                      </option>
+            {(mode === "edit" || currentMember === "all") ? (
+              <div className="space-y-3">
+                <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
+                <div className="relative group">
+                  <select
+                    value={memberId}
+                    required
+                    onChange={(e) => setMemberId(e.target.value)}
+                    className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                  >
+                    <option value="" disabled>Pilih Anggota</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
                     ))}
-                    {filteredAccounts.length === 0 && <option value="" disabled>Tidak ada rekening personal</option>}
-                  </optgroup>
-                  <optgroup label="Tabungan & Simpanan">
-                    <option value="SAVINGS">
-                      Tabungan (Rp {totalSavings.toLocaleString('id-ID')})
-                    </option>
-                  </optgroup>
-                </select>
-                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </select>
+                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
+                <div className="relative">
+                  <div className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-100/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-bold text-sm flex items-center">
+                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    {members.find(m => m.id === memberId)?.name || memberId}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {memberId && (
+              <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Keluar dari rekening</label>
+                <div className="relative group">
+                  <select
+                    value={accountId}
+                    required
+                    onChange={(e) => setAccountId(e.target.value)}
+                    className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-emerald-200 dark:group-hover:border-emerald-800"
+                  >
+                    <option value="" disabled>Pilih Sumber Dana</option>
+                    <optgroup label="Rekening Personal">
+                      {filteredAccounts.map(acc => (
+                        <option key={acc.id} value={acc.id}>
+                          {acc.name} (Rp {acc.balance?.toLocaleString('id-ID') || 0})
+                        </option>
+                      ))}
+                      {filteredAccounts.length === 0 && <option value="" disabled>Tidak ada rekening personal</option>}
+                    </optgroup>
+                    <optgroup label="Tabungan & Simpanan">
+                      <option value="SAVINGS">
+                        Tabungan (Rp {totalSavings.toLocaleString('id-ID')})
+                      </option>
+                    </optgroup>
+                  </select>
+                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-3">

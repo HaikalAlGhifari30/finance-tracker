@@ -12,13 +12,14 @@ interface Member {
 interface MemberFilterProps {
   members: Member[];
   className?: string;
+  hideAll?: boolean;
 }
 
-export function MemberFilter({ members, className = "" }: MemberFilterProps) {
+export function MemberFilter({ members, className = "", hideAll = false }: MemberFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentMember = searchParams.get("member") || "all";
+  const currentMember = searchParams.get("member") || (hideAll ? (members[0]?.id || "") : "all");
   const [isOpen, setIsOpen] = useState(false);
 
   const handleMemberChange = (id: string) => {
@@ -32,7 +33,7 @@ export function MemberFilter({ members, className = "" }: MemberFilterProps) {
     setIsOpen(false);
   };
 
-  const currentLabel = currentMember === "all" ? "Semua Anggota" : (members.find(m => m.id === currentMember)?.name || "Semua Anggota");
+  const currentLabel = currentMember === "all" ? "Semua Anggota" : (members.find(m => m.id === currentMember)?.name || "Pilih Anggota");
 
   return (
     <div className={`relative ${className} z-30`}>
@@ -55,13 +56,15 @@ export function MemberFilter({ members, className = "" }: MemberFilterProps) {
               <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Pilih Anggota</span>
             </div>
             
-            <button
-              onClick={() => handleMemberChange("all")}
-              className={`w-full flex items-center gap-3 px-5 py-3 text-xs font-bold transition-colors ${currentMember === 'all' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
-            >
-              <Users className={`w-4 h-4 ${currentMember === 'all' ? 'text-emerald-500' : 'text-gray-400'}`} />
-              Semua Anggota
-            </button>
+            {!hideAll && (
+              <button
+                onClick={() => handleMemberChange("all")}
+                className={`w-full flex items-center gap-3 px-5 py-3 text-xs font-bold transition-colors ${currentMember === 'all' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+              >
+                <Users className={`w-4 h-4 ${currentMember === 'all' ? 'text-emerald-500' : 'text-gray-400'}`} />
+                Semua Anggota
+              </button>
+            )}
             
             {members.map((member) => (
               <button

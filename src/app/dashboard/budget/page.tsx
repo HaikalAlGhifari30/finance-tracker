@@ -7,6 +7,7 @@ import { categories, members as membersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import BudgetClientPage from "./BudgetClientPage";
 import { getMembers } from "@/app/actions/members";
+import { getAccounts } from "@/app/actions/accounts";
 
 export default async function BudgetPage() {
   const session = await auth.api.getSession({
@@ -26,6 +27,7 @@ export default async function BudgetPage() {
     .execute();
 
   const members = await getMembers();
+  const accounts = await getAccounts();
 
   return (
     <BudgetClientPage 
@@ -33,6 +35,7 @@ export default async function BudgetPage() {
       initialMonth={currentMonth}
       initialYear={currentYear}
       members={members}
+      accounts={accounts}
     />
   );
 }

@@ -189,6 +189,13 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                 >
                    <CreditCard className="w-3.5 h-3.5 md:w-4 md:h-4" /> Edit Profil
                 </Link>
+                <Link 
+                  href="/dashboard/members" 
+                  onClick={() => setShowUserMenu(false)}
+                  className="md:hidden flex items-center gap-3 px-5 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
+                >
+                   <Users className="w-3.5 h-3.5" /> Anggota
+                </Link>
                 <button 
                   onClick={() => {
                     setShowUserMenu(false);

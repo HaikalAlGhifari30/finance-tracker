@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import GoalActionMenu from "./GoalActionMenu";
 import { isSameMonth, isSameYear, parseISO } from "date-fns";
 
-export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings, goals, history, accounts }: { totalSavingsPool: number, unallocatedSavings: number, goals: any[], history: any[], accounts: any[] }) {
+export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings, goals, history, accounts, members }: { totalSavingsPool: number, unallocatedSavings: number, goals: any[], history: any[], accounts: any[], members: any[] }) {
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [actionModalMode, setActionModalMode] = useState<"SAVING" | "WITHDRAWAL" | "ALLOCATE">("SAVING");
@@ -85,31 +85,15 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Satu saldo untuk berbagai tujuan masa depan Anda.</p>
         </div>
         <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-2 md:gap-3 bg-white dark:bg-[#1E1E2D] p-1 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
-            <div className="flex p-0.5 md:p-1 bg-gray-50 dark:bg-gray-800/50 rounded-lg md:rounded-xl border border-gray-100/50 dark:border-gray-700/50">
-              <button
-                onClick={() => setViewMode("monthly")}
-                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Bln
-              </button>
-              <button
-                onClick={() => setViewMode("yearly")}
-                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Thn
-              </button>
+          <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
+            <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
+            <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
+              <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+                {format(currentDate, "MMMM yyyy", { locale: id })}
+              </span>
+              <Calendar className="w-3.5 h-3.5 text-gray-400" />
             </div>
-
-            <div className="flex items-center gap-1 pr-1 md:pr-2">
-              <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
-              <div className="px-1 md:px-2 min-w-[80px] md:min-w-[100px] text-center">
-                <span className="font-black text-[9px] md:text-[10px] text-gray-900 dark:text-white tracking-tight uppercase">
-                  {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
-                </span>
-              </div>
-              <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
-            </div>
+            <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 w-full sm:w-auto">
@@ -437,6 +421,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
         accounts={accounts}
         goals={goals}
         unallocatedSavings={unallocatedSavings}
+        members={members}
       />
     </div>
   );

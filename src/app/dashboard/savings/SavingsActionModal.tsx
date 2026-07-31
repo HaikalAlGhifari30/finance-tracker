@@ -13,15 +13,17 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   mode: "SAVING" | "WITHDRAWAL" | "ALLOCATE";
-  accounts: { id: string; name: string; balance: number }[];
+  accounts: { id: string; name: string; balance: number; memberId?: string | null }[];
   goals: { id: string; name: string; balance: string | number }[];
   unallocatedSavings: number;
+  members: { id: string; name: string }[];
 }
 
-export default function SavingsActionModal({ isOpen, onClose, mode, accounts, goals, unallocatedSavings }: Props) {
+export default function SavingsActionModal({ isOpen, onClose, mode, accounts, goals, unallocatedSavings, members }: Props) {
   const [isPending, startTransition] = useTransition();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [memberId, setMemberId] = useState("");
   const [accountId, setAccountId] = useState("");
   const [goalId, setGoalId] = useState(""); // Destination Goal
   const [sourceGoalId, setSourceGoalId] = useState(""); // Source Goal
@@ -38,11 +40,18 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
 
     setAmount("");
     setDescription("");
-    setAccountId(accounts[0]?.id || "");
+    setMemberId("");
+    setAccountId("");
     setGoalId(""); // Default to "Tabungan Umum" (Empty)
     setSourceGoalId(""); // Default to "Tabungan Umum" (Empty)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  const filteredAccounts = accounts.filter(acc => acc.memberId === memberId);
+
+  useEffect(() => {
+    setAccountId("");
+  }, [memberId]);
 
   if (!isOpen || !mounted) return null;
 
@@ -120,6 +129,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
         accountId: accountId,
         destinationAccountId: mode === "WITHDRAWAL" ? accountId : undefined,
         goalId: goalId,
+        memberId: memberId,
       };
 
       if (mode === "WITHDRAWAL") {
@@ -196,6 +206,27 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
             </div>
 
             <div className="grid grid-cols-1 gap-6">
+              {mode !== "ALLOCATE" && (
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Pilih Anggota</label>
+                  <div className="relative group">
+                    <select
+                      value={memberId}
+                      required
+                      onChange={(e) => setMemberId(e.target.value)}
+                      className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                    >
+                      <option value="" disabled>Pilih Anggota</option>
+                      {members.map(m => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              )}
+
               {mode === "ALLOCATE" ? (
                 <>
                   <div className="space-y-3">
@@ -274,49 +305,53 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       </div>
 
                       {/* Pindahkan ke Rekening (Destination) */}
-                      <div className="space-y-3">
-                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                          Pindahkan ke Rekening
-                        </label>
-                        <div className="relative group">
-                          <select
-                            value={accountId}
-                            required
-                            onChange={(e) => setAccountId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                          >
-                            <option value="" disabled>Pilih Rekening</option>
-                            {accounts.map(acc => (
-                              <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
-                            ))}
-                          </select>
-                          <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      {memberId && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                            Pindahkan ke Rekening
+                          </label>
+                          <div className="relative group">
+                            <select
+                              value={accountId}
+                              required
+                              onChange={(e) => setAccountId(e.target.value)}
+                              className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                            >
+                              <option value="" disabled>Pilih Rekening</option>
+                              {filteredAccounts.map(acc => (
+                                <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
+                              ))}
+                            </select>
+                            <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </>
                   ) : (
                     <>
-                      <div className="space-y-3">
-                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                          Sumber Dana (Rekening)
-                        </label>
-                        <div className="relative group">
-                          <select
-                            value={accountId}
-                            required
-                            onChange={(e) => setAccountId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                          >
-                            <option value="" disabled>Pilih Rekening</option>
-                            {accounts.map(acc => (
-                              <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
-                            ))}
-                          </select>
-                          <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      {memberId && (
+                        <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                          <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                            Sumber Dana (Rekening)
+                          </label>
+                          <div className="relative group">
+                            <select
+                              value={accountId}
+                              required
+                              onChange={(e) => setAccountId(e.target.value)}
+                              className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                            >
+                              <option value="" disabled>Pilih Rekening</option>
+                              {filteredAccounts.map(acc => (
+                                <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
+                              ))}
+                            </select>
+                            <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       <div className="space-y-3">
                         <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
