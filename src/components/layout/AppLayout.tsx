@@ -76,8 +76,9 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     { label: "Pemasukan", href: "/dashboard/income", icon: TrendingUp },
     { label: "Alokasi Dana", href: "/dashboard/budget", icon: List },
     { label: "Pengeluaran", href: "/dashboard/expenses", icon: TrendingDown },
-    { label: "Rekening & Transfer", href: "/dashboard/accounts", icon: Wallet },
+    { label: "Rekening", href: "/dashboard/accounts", icon: Wallet },
     { label: "Tabungan", href: "/dashboard/savings", icon: Trophy },
+    { label: "Anggota", href: "/dashboard/members", icon: Users },
   ];
 
   if (!isClient) return null;
@@ -208,7 +209,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     <div className="min-h-[100dvh] bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300">
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-2 z-[30]">
+      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-3 z-[30] border-b border-gray-200/60 dark:border-gray-800/60">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 active:scale-95 transition-transform">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden">

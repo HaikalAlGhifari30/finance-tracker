@@ -12,6 +12,8 @@ import { format, formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 import { formatRupiah, unformatRupiah } from "@/lib/format";
 import { createPortal } from "react-dom";
+import { MemberFilter } from "@/components/MemberFilter";
+import { useSearchParams } from "next/navigation";
 
 interface Account {
   id: string;
@@ -22,7 +24,15 @@ interface Account {
   createdAt: Date;
 }
 
-export default function AccountsClient({ initialAccounts, initialTransferHistory, initialTransferTotal, user, categories }: { initialAccounts: Account[], initialTransferHistory: any[], initialTransferTotal: number, user: any, categories: any[] }) {
+export default function AccountsClient({ initialAccounts, initialTransferHistory, initialTransferTotal, user, categories, members }: { initialAccounts: Account[], initialTransferHistory: any[], initialTransferTotal: number, user: any, categories: any[], members: any[] }) {
+  const searchParams = useSearchParams();
+  const currentMember = searchParams.get("member") || "all";
+
+  // Filter accounts client-side
+  const filteredAccounts = initialAccounts.filter(acc => 
+    currentMember === "all" ? true : acc.memberId === currentMember
+  );
+
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   
   // Transfer History State
@@ -49,21 +59,24 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
   const [name, setName] = useState("");
   const [type, setType] = useState("BANK");
   const [accountNumber, setAccountNumber] = useState("");
+  const [memberId, setMemberId] = useState("");
 
   // Transfer States
+  const [fromMember, setFromMember] = useState("");
   const [fromAccount, setFromAccount] = useState("");
+  const [toMember, setToMember] = useState("");
   const [toAccount, setToAccount] = useState("");
   const [transferAmount, setTransferAmount] = useState("");
   const [transferDesc, setTransferDesc] = useState("");
 
-  const totalBalance = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+  const totalBalance = filteredAccounts.reduce((acc, curr) => acc + curr.balance, 0);
 
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     const res = editingAccount 
-      ? await updateAccount(editingAccount.id, name, type, accountNumber)
-      : await addAccount(name, type, accountNumber);
+      ? await updateAccount(editingAccount.id, name, type, accountNumber) // note: memberId is usually not updated
+      : await addAccount(name, type, memberId, accountNumber);
     
     if (res.success) {
       toast.success(editingAccount ? "Rekening diperbarui" : "Rekening ditambahkan");
@@ -199,36 +212,42 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
         <div className="text-center lg:text-left">
           <h1 className="text-2xl md:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-tight">Rekening & Transfer</h1>
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Atur sumber dana dan pantau saldo Anda secara real-time.</p>
         </div>
-        <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto">
-          <button 
-            onClick={() => {
-              setFromAccount("");
-              setToAccount("");
-              setTransferAmount("");
-              setTransferDesc("");
-              setShowTransferModal(true);
-            }}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-white dark:bg-[#1E1E2D] text-emerald-600 dark:text-emerald-400 text-xs md:text-sm font-bold rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all whitespace-nowrap active:scale-95"
-          >
-            <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5" /> <span>Transfer</span>
-          </button>
-          <button 
-            onClick={() => {
-              setEditingAccount(null);
-              setName("");
-              setType("BANK");
-              setAccountNumber("");
-              setShowAddModal(true);
-            }}
-            className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs md:text-sm font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:opacity-90 transition-all whitespace-nowrap active:scale-95"
-          >
-            <Plus className="w-4 h-4 md:w-5 md:h-5" /> <span>Tambah</span>
-          </button>
+        <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
+          <MemberFilter members={members} className="w-full sm:w-auto" />
+          <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto">
+            <button 
+              onClick={() => {
+                setFromMember("");
+                setFromAccount("");
+                setToMember("");
+                setToAccount("");
+                setTransferAmount("");
+                setTransferDesc("");
+                setShowTransferModal(true);
+              }}
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-white dark:bg-[#1E1E2D] text-emerald-600 dark:text-emerald-400 text-xs md:text-sm font-bold rounded-2xl shadow-sm border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-all whitespace-nowrap active:scale-95"
+            >
+              <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5" /> <span>Transfer</span>
+            </button>
+            <button 
+              onClick={() => {
+                setEditingAccount(null);
+                setName("");
+                setType("BANK");
+                setAccountNumber("");
+                setMemberId(currentMember !== "all" ? currentMember : members[0]?.id);
+                setShowAddModal(true);
+              }}
+              className="flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs md:text-sm font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:opacity-90 transition-all whitespace-nowrap active:scale-95"
+            >
+              <Plus className="w-4 h-4 md:w-5 md:h-5" /> <span>Tambah</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -245,7 +264,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
           <div className="mt-4 md:mt-6 flex items-center justify-center md:justify-start gap-4">
             <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
               <p className="text-[10px] text-emerald-50/70 font-black uppercase tracking-widest">Jumlah Rekening</p>
-              <p className="text-white font-bold text-sm md:text-base">{accounts.length} Akun</p>
+              <p className="text-white font-bold text-sm md:text-base">{filteredAccounts.length} Akun</p>
             </div>
           </div>
         </div>
@@ -253,7 +272,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
       {/* Accounts List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {accounts.map((acc) => {
+        {filteredAccounts.map((acc) => {
           const config = getIcon(acc.name, acc.type);
           const Icon = config.icon;
           
@@ -286,7 +305,14 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </div>
 
               <div>
-                <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 truncate">{acc.name}</h3>
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 truncate">
+                  {acc.name}
+                  {currentMember === "all" && members.find(m => m.id === acc.memberId) && (
+                    <span className="ml-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                      {members.find(m => m.id === acc.memberId)?.name}
+                    </span>
+                  )}
+                </h3>
                 <p className="text-[11px] md:text-sm text-gray-500 dark:text-gray-400 font-medium mb-3 md:mb-4">
                   {acc.type === 'BANK' ? 'Rekening Bank' : acc.type === 'EWALLET' ? 'E-Wallet' : 'Tunai'}
                   {acc.accountNumber && ` • ${acc.accountNumber}`}
@@ -375,9 +401,23 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                       <div className="flex flex-col flex-1">
                         <span className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 md:mb-2">Perpindahan Dana</span>
                         <div className="flex items-center gap-2 md:gap-3">
-                          <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.fromAccountName}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.fromAccountName}</span>
+                            {transfer.fromMemberName && (
+                              <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                {transfer.fromMemberName}
+                              </span>
+                            )}
+                          </div>
                           <ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-300 shrink-0" />
-                          <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.toAccountName}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.toAccountName}</span>
+                            {transfer.toMemberName && (
+                              <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                                {transfer.toMemberName}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -457,7 +497,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
       {showAddModal && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => setShowAddModal(false)} />
-          <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl">
+          <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                 {editingAccount ? "Edit Rekening" : "Tambah Rekening Baru"}
@@ -467,7 +507,24 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </button>
             </div>
             
-            <form onSubmit={handleAddAccount} className="p-6 space-y-5">
+            <form onSubmit={handleAddAccount} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+              {!editingAccount && (
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                  <select
+                    value={memberId}
+                    onChange={(e) => setMemberId(e.target.value)}
+                    required
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                  >
+                    <option value="">Pilih Anggota Pemilik Rekening</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Tipe Rekening</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -548,7 +605,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
       {showTransferModal && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-500" onClick={() => setShowTransferModal(false)} />
-          <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl">
+          <GlassCard className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">Transfer Saldo</h2>
               <button onClick={() => setShowTransferModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
@@ -556,18 +613,41 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </button>
             </div>
             
-            <form onSubmit={handleTransfer} className="p-6 space-y-5">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Dari Rekening</label>
-                <select
-                  value={fromAccount}
-                  onChange={(e) => setFromAccount(e.target.value)}
-                  required
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
-                >
-                  <option value="">Pilih Sumber Dana</option>
-                  {accounts.map(a => <option key={a.id} value={a.id}>{a.name} (Rp {a.balance.toLocaleString('id-ID')})</option>)}
-                </select>
+            <form onSubmit={handleTransfer} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Dari Rekening</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                  <select
+                    value={fromMember}
+                    onChange={(e) => {
+                      setFromMember(e.target.value);
+                      setFromAccount(""); // Reset account when member changes
+                    }}
+                    required
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                  >
+                    <option value="">Pilih Anggota Pengirim</option>
+                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Sumber Dana</label>
+                  <select
+                    value={fromAccount}
+                    onChange={(e) => setFromAccount(e.target.value)}
+                    required
+                    disabled={!fromMember}
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50"
+                  >
+                    <option value="">Pilih Sumber Dana</option>
+                    {accounts.filter(a => a.memberId === fromMember).map(a => (
+                      <option key={a.id} value={a.id}>{a.name} - Rp {a.balance.toLocaleString('id-ID')}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="flex justify-center -my-2 relative z-10">
@@ -576,17 +656,40 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                  </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Ke Rekening</label>
-                <select
-                  value={toAccount}
-                  onChange={(e) => setToAccount(e.target.value)}
-                  required
-                  className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
-                >
-                  <option value="">Pilih Rekening Tujuan</option>
-                  {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Ke Rekening</h3>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                  <select
+                    value={toMember}
+                    onChange={(e) => {
+                      setToMember(e.target.value);
+                      setToAccount(""); // Reset account when member changes
+                    }}
+                    required
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                  >
+                    <option value="">Pilih Anggota Penerima</option>
+                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Rekening Tujuan</label>
+                  <select
+                    value={toAccount}
+                    onChange={(e) => setToAccount(e.target.value)}
+                    required
+                    disabled={!toMember}
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50"
+                  >
+                    <option value="">Pilih Rekening Tujuan</option>
+                    {accounts.filter(a => a.memberId === toMember).map(a => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -716,9 +819,14 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                           className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
                         >
                           <option value="">Pilih Rekening Tujuan</option>
-                          {accounts.filter(a => a.id !== accountToDelete).map(a => (
-                            <option key={a.id} value={a.id}>{a.name} (Rp {a.balance.toLocaleString('id-ID')})</option>
-                          ))}
+                          {accounts.filter(a => a.id !== accountToDelete).map(a => {
+                            const memberName = members.find(m => m.id === a.memberId)?.name;
+                            return (
+                              <option key={a.id} value={a.id}>
+                                {a.name} {memberName ? `(${memberName})` : ''} - Rp {a.balance.toLocaleString('id-ID')}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
                     </div>

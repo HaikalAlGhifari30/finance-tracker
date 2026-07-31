@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { transactions, categories, goals, accounts } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, and, sql } from "drizzle-orm";
+import { members } from "@/db/schema";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import SavingsClientPage from "./SavingsClientPage";
@@ -43,7 +44,7 @@ export default async function SavingsPage() {
 
             // 2. Handled by goalId (Source or direct saving)
             if (t.goalId === goal.id) {
-                if (t.type === 'SAVING' || t.type === 'TRANSFER') return sum + amount;
+                if (t.type === 'SAVING') return sum + amount;
                 if (t.type === 'WITHDRAWAL') return sum - amount;
                 if (t.type === 'EXPENSE' && !t.accountId) return sum - amount;
                 
@@ -78,12 +79,21 @@ export default async function SavingsPage() {
   const totalAllocated = userGoals.reduce((sum, g) => sum + g.balance, 0);
   const unallocatedSavings = totalSavingsPool - totalAllocated;
 
-  // 6. Fetch Savings Transaction History
+  // 6. Fetch Members and Accounts
+  const membersData = await db.select().from(members).where(eq(members.userId, userId)).execute();
+  const userAccounts = await getAccounts();
+
+  // 7. Fetch Savings Transaction History
   const history = allUserTransactions
-    .filter(t => t.type === 'SAVING' || t.type === 'WITHDRAWAL' || t.type === 'TRANSFER' || t.type === 'ALLOCATION' || (t.type === 'EXPENSE' && !t.accountId))
+    .filter(t => t.type === 'SAVING' || t.type === 'WITHDRAWAL' || t.type === 'ALLOCATION' || (t.type === 'EXPENSE' && !t.accountId))
     .map(t => {
         const sourceGoal = goalsData.find(g => g.id === t.goalId);
         const destGoal = goalsData.find(g => g.id === t.destinationGoalId);
+        const account = userAccounts.find(a => a.id === t.accountId);
+        
+        // Find member from transaction's memberId or fallback to account's memberId
+        const memberId = t.memberId || account?.memberId;
+        const member = membersData.find(m => m.id === memberId);
         
         return {
             id: t.id,
@@ -95,12 +105,11 @@ export default async function SavingsPage() {
             goalName: sourceGoal?.name || "Tabungan Umum",
             destinationGoalId: t.destinationGoalId,
             destinationGoalName: destGoal?.name || "Tabungan Umum",
-            accountId: t.accountId
+            accountId: t.accountId,
+            memberName: member?.name
         };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-  const userAccounts = await getAccounts();
 
   return (
     <SavingsClientPage 

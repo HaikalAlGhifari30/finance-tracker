@@ -1,13 +1,13 @@
 "use server";
 
 import { db } from "@/db";
-import { accounts, transactions, categories, expenses, income } from "@/db/schema";
+import { accounts, transactions, categories, expenses, income, members } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { eq, and, sql, or, desc } from "drizzle-orm";
+import { eq, and, sql, or, desc, aliasedTable } from "drizzle-orm";
 
-export async function addAccount(name: string, type: string, accountNumber?: string) {
+export async function addAccount(name: string, type: string, memberId: string, accountNumber?: string) {
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -21,6 +21,7 @@ export async function addAccount(name: string, type: string, accountNumber?: str
       type,
       accountNumber: accountNumber || null,
       userId: session.user.id,
+      memberId: memberId,
       createdAt: new Date(),
     });
     
@@ -186,7 +187,7 @@ export async function deleteAccount(id: string, destinationAccountId?: string, s
   }
 }
 
-export async function getAccounts() {
+export async function getAccounts(memberId?: string) {
   const session = await auth.api.getSession({
     headers: await headers()
   });
@@ -194,7 +195,12 @@ export async function getAccounts() {
   if (!session?.user) return [];
 
   try {
-    const userAccounts = await db.select().from(accounts).where(eq(accounts.userId, session.user.id)).execute();
+    const conditions = [eq(accounts.userId, session.user.id)];
+    if (memberId) {
+      conditions.push(eq(accounts.memberId, memberId));
+    }
+    
+    const userAccounts = await db.select().from(accounts).where(and(...conditions)).execute();
     
     // For each account, calculate balance
     const accountsWithBalance = await Promise.all(userAccounts.map(async (acc) => {
@@ -267,17 +273,25 @@ export async function getTransferHistory(params?: { month?: number, year?: numbe
       conditions.push(sql`EXTRACT(YEAR FROM ${transactions.date}) = ${year}`);
     }
 
+    const toAccount = aliasedTable(accounts, "to_acc");
+    const fromMember = aliasedTable(members, "from_member");
+    const toMember = aliasedTable(members, "to_member");
+
     const dataQuery = db.select({
       id: transactions.id,
       amount: transactions.amount,
       description: transactions.description,
       date: transactions.date,
-      fromAccountName: sql<string>`COALESCE(${accounts}.name, '(Dihapus)')`,
-      toAccountName: sql<string>`COALESCE(to_acc.name, '(Dihapus)')`,
+      fromAccountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
+      toAccountName: sql<string>`COALESCE(${toAccount.name}, '(Dihapus)')`,
+      fromMemberName: fromMember.name,
+      toMemberName: toMember.name,
     })
     .from(transactions)
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
-    .leftJoin(sql`${accounts} as to_acc`, eq(transactions.destinationAccountId, sql`to_acc.id`))
+    .leftJoin(toAccount, eq(transactions.destinationAccountId, toAccount.id))
+    .leftJoin(fromMember, eq(accounts.memberId, fromMember.id))
+    .leftJoin(toMember, eq(toAccount.memberId, toMember.id))
     .where(and(...conditions))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(limit)

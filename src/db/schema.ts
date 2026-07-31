@@ -13,6 +13,15 @@ export const user = pgTable("user", {
 	phoneNumber: text("phoneNumber")
 });
 
+export const members = pgTable("members", {
+	id: text("id").primaryKey(),
+	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	name: text("name").notNull(),
+	isOwner: boolean("isOwner").default(false).notNull(), // true for the main account creator
+	isActive: boolean("isActive").default(true).notNull(), // for soft delete
+	createdAt: timestamp("createdAt").notNull(),
+});
+
 export const session = pgTable("session", {
 	id: text("id").primaryKey(),
 	expiresAt: timestamp("expiresAt").notNull(),
@@ -97,6 +106,7 @@ export const accounts = pgTable("accounts", {
 	type: text("type").notNull(), // BANK / EWALLET / CASH
 	accountNumber: text("accountNumber"),
 	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	memberId: text("memberId").references(() => members.id, { onDelete: "cascade" }),
 	createdAt: timestamp("createdAt").notNull(),
 });
 
@@ -106,7 +116,8 @@ export const transactions = pgTable("transactions", {
 	description: text("description"),
 	date: timestamp("date").notNull(),
 	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
-	type: text("type").notNull(), // INCOME / EXPENSE / TRANSFER
+	memberId: text("memberId").references(() => members.id, { onDelete: "set null" }), // Optional for older records or generic transactions
+	type: text("type").notNull(), // INCOME / EXPENSE / TRANSFER / SAVING / WITHDRAWAL / ALLOCATION
 	categoryId: text("categoryId").references(() => categories.id, { onDelete: "set null" }),
 	accountId: text("accountId").references(() => accounts.id, { onDelete: "set null" }),
 	destinationAccountId: text("destinationAccountId").references(() => accounts.id, { onDelete: "set null" }), // for transfers
@@ -118,6 +129,7 @@ export const transactions = pgTable("transactions", {
 export const budgetPeriods = pgTable("budget_periods", {
 	id: text("id").primaryKey(),
 	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	memberId: text("memberId").references(() => members.id, { onDelete: "cascade" }),
 	month: text("month").notNull(), // "1" to "12"
 	year: text("year").notNull(), // e.g., "2026"
 	createdAt: timestamp("createdAt").notNull(),

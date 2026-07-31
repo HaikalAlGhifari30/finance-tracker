@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAccounts, getTransferHistory } from "@/app/actions/accounts";
+import { getMembers } from "@/app/actions/members";
 import AccountsClient from "./AccountsClient";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
@@ -15,6 +16,7 @@ export default async function AccountsPage() {
   if (!session?.user) redirect("/login");
 
   const accounts = await getAccounts();
+  const members = await getMembers();
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -36,6 +38,7 @@ export default async function AccountsPage() {
       initialTransferTotal={transferResult.total}
       user={session.user}
       categories={userCategories}
+      members={members}
     />
   );
 }

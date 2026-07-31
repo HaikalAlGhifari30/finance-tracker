@@ -21,15 +21,20 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { getBudgetPeriod, createBudgetPeriod, getCategoryExpensesForPeriod, upsertBudgetItems } from "@/app/actions/budget";
 import BudgetActionModal from "./BudgetActionModal";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { MemberFilter } from "@/components/MemberFilter";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 interface BudgetClientPageProps {
   allCategories: any[];
   initialMonth: string;
   initialYear: string;
+  members: any[];
 }
 
-export default function BudgetClientPage({ allCategories, initialMonth, initialYear }: BudgetClientPageProps) {
+export default function BudgetClientPage({ allCategories, initialMonth, initialYear, members }: BudgetClientPageProps) {
+  const searchParams = useSearchParams();
+  const currentMember = searchParams.get("member") || "all";
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
   const [currentDate, setCurrentDate] = useState(new Date(parseInt(initialYear), parseInt(initialMonth) - 1));
   const [budgetPeriod, setBudgetPeriod] = useState<any>(null);
@@ -55,9 +60,10 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   const fetchBudgetData = async () => {
     setLoading(true);
     try {
+      const targetMemberId = currentMember === "all" ? undefined : currentMember;
       const [period, expenses] = await Promise.all([
-        getBudgetPeriod(monthStr, yearStr),
-        getCategoryExpensesForPeriod(monthStr, yearStr)
+        getBudgetPeriod(monthStr, yearStr, targetMemberId),
+        getCategoryExpensesForPeriod(monthStr, yearStr, targetMemberId)
       ]);
       setBudgetPeriod(period);
       setCategoryExpenses(expenses);
@@ -80,7 +86,8 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   const handleCreatePeriod = async (copy: boolean) => {
     setLoading(true);
     try {
-      await createBudgetPeriod(monthStr, yearStr, copy);
+      const targetMemberId = currentMember === "all" ? undefined : currentMember;
+      await createBudgetPeriod(monthStr, yearStr, copy, targetMemberId);
       toast.success(copy ? "Alokasi berhasil disalin" : "Periode alokasi baru dibuat");
       fetchBudgetData();
     } catch (error) {
@@ -132,7 +139,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
         <div className="text-center lg:text-left">
           <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Alokasi Dana 🎯</h1>
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">
@@ -140,7 +147,8 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           </p>
         </div>
 
-        <div className="flex flex-col items-center lg:items-end gap-3 w-full lg:w-auto">
+        <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
+          <MemberFilter members={members} className="w-full sm:w-auto" />
           <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
             <div className="flex p-0.5 md:p-1 bg-white dark:bg-gray-800/50 rounded-lg md:rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
               <button
@@ -169,7 +177,6 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           </div>
         </div>
       </div>
-
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (

@@ -67,6 +67,11 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                          tx.type === 'WITHDRAWAL' ? 'Penarikan' :
                          'Pengeluaran'}
                     </span>
+                    {tx.memberName && (
+                      <span className="text-[7px] md:text-[8px] font-black px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-tighter bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1">
+                        {tx.memberName}
+                      </span>
+                    )}
                 </div>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                   <p className="text-[9px] md:text-[10px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-widest whitespace-nowrap">

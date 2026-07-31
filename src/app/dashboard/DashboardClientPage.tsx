@@ -5,7 +5,7 @@ import { format, isSameMonth, isSameYear, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight, Trophy, Sparkles,
-  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus
+  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus, Eye, EyeOff
 } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -16,14 +16,19 @@ interface DashboardClientPageProps {
   initialActivities: any[];
   user: { name: string | null };
   mainGoal?: any;
-  totalAssets: number;
   totalSavingsPool: number;
   accounts: any[];
+  members: any[];
 }
 
-export default function DashboardClientPage({ initialActivities, user, mainGoal, totalAssets: overallTotalAssets, totalSavingsPool, accounts }: DashboardClientPageProps) {
+export default function DashboardClientPage({ initialActivities, user, mainGoal, totalAssets: overallTotalAssets, totalSavingsPool, accounts, members }: DashboardClientPageProps) {
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showBalances, setShowBalances] = useState(false);
+
+  const renderBalance = (amount: number, prefix: string = "Rp ") => {
+    return showBalances ? `${prefix}${amount.toLocaleString("id-ID")}` : `${prefix}•••••••`;
+  };
 
   const changePeriod = (amount: number) => {
     const newDate = new Date(currentDate);
@@ -50,26 +55,51 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   const stats = useMemo(() => {
     let periodIncome = 0;
     let periodExpense = 0;
+    const incomeByMember: Record<string, number> = {};
+    const expenseByMember: Record<string, number> = {};
+
+    if (members) {
+      members.forEach(m => {
+        incomeByMember[m.id] = 0;
+        expenseByMember[m.id] = 0;
+      });
+    }
 
     filteredActivities.forEach((act) => {
       const amount = Number(act.amount);
       if (act.type === "INCOME") {
         periodIncome += amount;
+        if (act.memberId && incomeByMember[act.memberId] !== undefined) {
+          incomeByMember[act.memberId] += amount;
+        }
       } else if (act.type === "EXPENSE") {
         periodExpense += amount;
+        if (act.memberId && expenseByMember[act.memberId] !== undefined) {
+          expenseByMember[act.memberId] += amount;
+        }
       }
     });
 
     return {
       income: periodIncome,
       expense: periodExpense,
-      net: periodIncome - periodExpense
+      net: periodIncome - periodExpense,
+      incomeByMember,
+      expenseByMember
     };
-  }, [filteredActivities]);
+  }, [filteredActivities, members]);
 
   const getAccountIcon = (name: string, type: string) => {
     return ACCOUNT_ICONS[name.toUpperCase()] || ACCOUNT_ICONS[type] || ACCOUNT_ICONS.DEFAULT;
   };
+
+  const memberBalances = useMemo(() => {
+    if (!members) return [];
+    return members.map(m => {
+      const balance = accounts.filter(a => a.memberId === m.id).reduce((sum, a) => sum + a.balance, 0);
+      return { ...m, balance };
+    });
+  }, [members, accounts]);
 
   return (
     <>
@@ -128,15 +158,29 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             <Sparkles className="w-24 md:w-32 h-24 md:h-32" />
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between gap-6 md:gap-10 text-center md:text-left">
+            <div className="flex flex-col md:flex-row justify-between items-start">
+              <div>
+                <p className="text-slate-400 text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset (Rekening + Tabungan)</p>
+                <h3 className={`text-3xl md:text-5xl font-black tracking-tighter ${overallTotalAssets < 0 && showBalances ? 'text-rose-400' : 'text-white'}`}>
+                  {renderBalance(overallTotalAssets)}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowBalances(!showBalances)}
+                className="hidden md:flex p-2 md:p-3 mt-4 md:mt-0 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all text-white/80 active:scale-95 items-center justify-center"
+              >
+                {showBalances ? <EyeOff className="w-5 h-5 md:w-6 md:h-6" /> : <Eye className="w-5 h-5 md:w-6 md:h-6" />}
+              </button>
+            </div>
             <div>
-              <p className="text-slate-400 text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em] mb-1">Total Aset (Rekening + Tabungan)</p>
-              <h3 className={`text-3xl md:text-5xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
-                Rp {overallTotalAssets.toLocaleString("id-ID")}
-              </h3>
-              <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-2 md:gap-4 mt-4 md:mt-3">
-                <p className="text-slate-500 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Saldo Liquid: Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
-                <div className="hidden md:block w-1 h-1 bg-slate-700 rounded-full" />
-                <p className="text-amber-500/80 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Tabungan: Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
+              <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-2 md:gap-4 mt-4 md:mt-3 flex-wrap">
+                {memberBalances.map(m => (
+                  <div key={m.id} className="flex items-center gap-2">
+                    <p className="text-slate-400 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Saldo {m.name}: {renderBalance(m.balance)}</p>
+                    <div className="hidden md:block w-1 h-1 bg-slate-700 rounded-full" />
+                  </div>
+                ))}
+                <p className="text-amber-500/80 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Tabungan Bersama: {renderBalance(totalSavingsPool)}</p>
               </div>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
@@ -155,6 +199,13 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             </div>
             <p className="text-blue-900/40 dark:text-blue-400/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Pemasukan ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
             <h3 className="text-xl md:text-2xl font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
+            <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-1.5 md:gap-3 mt-3 w-full">
+              {members?.map(m => (
+                <div key={m.id} className="flex items-center gap-1.5">
+                  <p className="text-blue-900/50 dark:text-blue-400/60 text-[8px] md:text-[9px] font-black uppercase tracking-widest">{m.name}: Rp {(stats.incomeByMember[m.id] || 0).toLocaleString("id-ID")}</p>
+                </div>
+              ))}
+            </div>
           </GlassCard>
         </Link>
 
@@ -166,6 +217,13 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             </div>
             <p className="text-orange-900/40 dark:text-orange-400/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Pengeluaran ({viewMode === "monthly" ? "Bulan Ini" : "Tahun Ini"})</p>
             <h3 className="text-xl md:text-2xl font-black text-orange-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
+            <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-1.5 md:gap-3 mt-3 w-full">
+              {members?.map(m => (
+                <div key={m.id} className="flex items-center gap-1.5">
+                  <p className="text-orange-900/50 dark:text-orange-400/60 text-[8px] md:text-[9px] font-black uppercase tracking-widest">{m.name}: Rp {(stats.expenseByMember[m.id] || 0).toLocaleString("id-ID")}</p>
+                </div>
+              ))}
+            </div>
           </GlassCard>
         </Link>
       </div>
@@ -198,10 +256,12 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
                           <Icon className="w-6 h-6" style={{ color: config.color }} />
                        </div>
-                       <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">{acc.name}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">
+                            {acc.name} {members?.find(m => m.id === acc.memberId) ? `(${members.find(m => m.id === acc.memberId).name})` : ''}
+                          </p>
                           <p className="text-lg font-black text-gray-800 dark:text-gray-100 tracking-tight truncate">
-                             Rp {acc.balance.toLocaleString('id-ID')}
+                             {renderBalance(acc.balance)}
                           </p>
                        </div>
                     </div>
@@ -325,23 +385,36 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             <Sparkles className="w-32 h-32" />
           </div>
           <div className="relative z-10 flex flex-col h-full justify-between gap-6">
-            <div>
-              <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Total Aset Bersih</p>
-              <h3 className={`text-3xl font-black tracking-tighter ${overallTotalAssets < 0 ? 'text-rose-400' : 'text-white'}`}>
-                Rp {overallTotalAssets.toLocaleString("id-ID")}
-              </h3>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Total Aset Bersih</p>
+                <h3 className={`text-3xl font-black tracking-tighter ${overallTotalAssets < 0 && showBalances ? 'text-rose-400' : 'text-white'}`}>
+                  {renderBalance(overallTotalAssets)}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowBalances(!showBalances)}
+                className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all text-white/80 active:scale-95"
+              >
+                {showBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
             </div>
             
-            <div className="flex gap-4 items-center bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm">
-               <div className="flex-1">
-                 <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Saldo Liquid</p>
-                 <p className="text-xs font-bold mt-1 text-slate-100">Rp {(overallTotalAssets - totalSavingsPool).toLocaleString("id-ID")}</p>
-               </div>
-               <div className="w-px h-8 bg-slate-700"></div>
-               <div className="flex-1">
-                 <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest">Tabungan</p>
-                 <p className="text-xs font-bold mt-1 text-amber-100">Rp {totalSavingsPool.toLocaleString("id-ID")}</p>
-               </div>
+            <div className="flex flex-col gap-3 mt-2">
+              {memberBalances.map(m => (
+                 <div key={m.id} className="flex gap-4 items-center bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm">
+                   <div className="flex-1">
+                     <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Saldo {m.name}</p>
+                     <p className="text-xs font-bold mt-1 text-slate-100">{renderBalance(m.balance)}</p>
+                   </div>
+                 </div>
+              ))}
+              <div className="flex gap-4 items-center bg-amber-500/10 rounded-2xl p-4 border border-amber-500/20 backdrop-blur-sm">
+                 <div className="flex-1">
+                   <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest">Tabungan Bersama</p>
+                   <p className="text-xs font-bold mt-1 text-amber-100">{renderBalance(totalSavingsPool)}</p>
+                 </div>
+              </div>
             </div>
           </div>
         </div>
@@ -388,6 +461,14 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
               Pemasukan
             </div>
             <h3 className="text-xs font-black text-blue-600">Rp {stats.income.toLocaleString("id-ID")}</h3>
+            <div className="mt-2 flex flex-col gap-0.5 pt-1.5 border-t border-blue-100/50 dark:border-blue-800/20">
+              {members?.map(m => (
+                <div key={m.id} className="flex justify-between items-center text-[7px]">
+                  <span className="font-bold text-blue-900/50 dark:text-blue-400/60 uppercase tracking-widest">{m.name}</span>
+                  <span className="font-black text-blue-600/70 dark:text-blue-400/80">Rp {(stats.incomeByMember[m.id] || 0).toLocaleString("id-ID")}</span>
+                </div>
+              ))}
+            </div>
           </Link>
           <Link href="/dashboard/expenses" className="p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100/50 dark:border-rose-800/20 shadow-sm flex flex-col justify-center active:scale-95 transition-all">
             <div className="text-rose-900/40 dark:text-rose-400/40 text-[9px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
@@ -395,6 +476,14 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
               Pengeluaran
             </div>
             <h3 className="text-xs font-black text-rose-600">Rp {stats.expense.toLocaleString("id-ID")}</h3>
+            <div className="mt-2 flex flex-col gap-0.5 pt-1.5 border-t border-rose-100/50 dark:border-rose-800/20">
+              {members?.map(m => (
+                <div key={m.id} className="flex justify-between items-center text-[7px]">
+                  <span className="font-bold text-rose-900/50 dark:text-rose-400/60 uppercase tracking-widest">{m.name}</span>
+                  <span className="font-black text-rose-600/70 dark:text-rose-400/80">Rp {(stats.expenseByMember[m.id] || 0).toLocaleString("id-ID")}</span>
+                </div>
+              ))}
+            </div>
           </Link>
         </div>
 
@@ -440,10 +529,19 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
                      {act.type === 'INCOME' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                    </div>
-                   <div>
-                     <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight mb-0.5 line-clamp-1">{act.description}</p>
-                     <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">{format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName}</p>
-                   </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-1">{act.description}</p>
+                        {act.memberName && (
+                          <span className="text-[6px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            {act.memberName}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">
+                        {format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName || (act.type === 'SAVING' ? 'Tabungan' : 'Umum')}
+                      </p>
+                    </div>
                  </div>
                  <span className={`text-xs font-black whitespace-nowrap ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
                    {act.type === 'INCOME' ? '+' : '-'}Rp {Number(act.amount).toLocaleString("id-ID")}

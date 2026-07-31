@@ -385,8 +385,17 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                             )}
                                         </div>
                                     </td>
-                                    <td className="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm text-gray-500 dark:text-gray-500 font-medium max-w-[150px] truncate">
-                                        {item.description || "-"}
+                                    <td className="px-4 md:px-8 py-4 md:py-5">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs md:text-sm text-gray-500 dark:text-gray-500 font-medium max-w-[150px] truncate">
+                                                {item.description || "-"}
+                                            </span>
+                                            {item.memberName && (
+                                                <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 shrink-0">
+                                                    {item.memberName}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className={`px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black text-center whitespace-nowrap ${
                                         item.type === 'ALLOCATION' ? 'text-emerald-600' :

@@ -1,6 +1,6 @@
 import { GlassCard } from "@/components/ui/GlassCard";
 import { db } from "@/db";
-import { transactions, categories, goals, accounts as accountsTable } from "@/db/schema";
+import { transactions, categories, goals, accounts as accountsTable, members as membersTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, desc, sql, and } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -12,6 +12,7 @@ import { id } from "date-fns/locale";
 import ActivityLogClient from "./ActivityLogClient";
 import DashboardClientPage from "./DashboardClientPage";
 import { getAccounts } from "@/app/actions/accounts";
+import { getMembers } from "@/app/actions/members";
 
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
@@ -21,6 +22,8 @@ export default async function DashboardPage() {
   if (!session?.user) redirect("/login");
 
   const userId = session.user.id;
+
+  const members = await getMembers();
 
   // 1. Fetch Accounts with Balances
   const accounts = await getAccounts();
@@ -52,10 +55,13 @@ export default async function DashboardPage() {
       type: transactions.type,
       categoryName: categories.name,
       accountName: sql<string>`COALESCE(${accountsTable.name}, '(Dihapus)')`,
+      memberName: membersTable.name,
+      memberId: sql<string>`COALESCE(${transactions.memberId}, ${accountsTable.memberId})`,
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accountsTable, eq(transactions.accountId, accountsTable.id))
+    .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(eq(transactions.userId, userId))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(500)
@@ -104,6 +110,7 @@ export default async function DashboardPage() {
       totalSavingsPool={totalSavingsPool}
       mainGoal={mainGoal}
       accounts={accounts}
+      members={members}
     />
   );
 }

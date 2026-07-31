@@ -1,11 +1,12 @@
 import { db } from "@/db";
-import { categories, transactions, goals, accounts } from "@/db/schema";
+import { categories, transactions, goals, accounts, members as membersTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import ExpensesClientPage from "./ExpensesClientPage";
 import { getAccounts } from "@/app/actions/accounts";
+import { getMembers } from "@/app/actions/members";
 
 export default async function ExpensesListPage() {
   const session = await auth.api.getSession({
@@ -26,11 +27,13 @@ export default async function ExpensesListPage() {
       categoryName: categories.name,
       accountId: transactions.accountId,
       accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
-      // destinationAccountId: transactions.destinationAccountId, // Not needed for simple expense list
+      memberId: transactions.memberId,
+      memberName: membersTable.name,
     })
     .from(transactions)
     .innerJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+    .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "EXPENSE")))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .execute();
@@ -48,6 +51,7 @@ export default async function ExpensesListPage() {
     .execute();
 
   const userAccounts = await getAccounts();
+  const members = await getMembers();
 
   // Seed default categories if none exist for this type
   if (userCategories.length === 0) {
@@ -101,6 +105,7 @@ export default async function ExpensesListPage() {
       goals={userGoals}
       accounts={userAccounts}
       totalSavings={totalSavings}
+      members={members}
     />
   );
 }

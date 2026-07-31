@@ -59,7 +59,7 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
       <div className="fixed inset-0 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-300" onClick={onClose} />
 
       <div className="relative w-full max-w-xl bg-white dark:bg-[#1E1E2D] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]">
-        <div className="px-10 py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+        <div className="px-6 md:px-10 py-6 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
           <div className="flex items-center gap-4 text-left">
             <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-2xl">
               <ListPlus className="w-6 h-6 text-blue-600" />
@@ -74,24 +74,24 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
           </button>
         </div>
 
-        <div className="p-10 space-y-10 overflow-y-auto no-scrollbar text-left">
+        <div className="p-6 md:p-10 space-y-8 md:space-y-10 overflow-y-auto no-scrollbar text-left">
           <div className="space-y-4">
             <h4 className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">Buat Kategori Baru</h4>
-            <form onSubmit={handleSubmit} className="flex gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 md:gap-4">
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="cth: Gaji, Bonus, Dividen..."
-                className="flex-1 px-6 py-4 rounded-2xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all font-bold"
+                className="flex-1 px-4 md:px-6 py-3 md:py-4 rounded-2xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all font-bold"
               />
               <button
                 type="submit"
                 disabled={isPending}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black px-8 py-4 rounded-2xl shadow-lg shadow-blue-500/20 disabled:opacity-70 transition-all active:scale-95 whitespace-nowrap"
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-black px-6 md:px-8 py-3 md:py-4 rounded-2xl shadow-lg shadow-blue-500/20 disabled:opacity-70 transition-all active:scale-95 whitespace-nowrap"
               >
-                {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Tambah"}
+                {isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Tambah"}
               </button>
             </form>
           </div>

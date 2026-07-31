@@ -109,7 +109,7 @@ export default function BudgetActionModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[12px] animate-in fade-in duration-500" onClick={onClose} />
       
       <GlassCard className="relative w-full max-w-2xl bg-white dark:bg-[#1E1E2D] p-0 overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 rounded-[2.5rem] border border-gray-100 dark:border-gray-800">
-        <div className="p-8 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+        <div className="p-6 md:p-8 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
           <div>
             <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Edit Alokasi Dana</h3>
             <p className="text-gray-500 text-xs font-medium mt-1 uppercase tracking-widest">Atur batas pengeluaran per kategori</p>
@@ -119,7 +119,7 @@ export default function BudgetActionModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8">
+        <form onSubmit={handleSubmit} className="p-6 md:p-8">
           <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
             {items.map((item, index) => (
               <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-gray-100 dark:border-gray-800 group transition-all hover:border-emerald-500/30">
@@ -175,18 +175,18 @@ export default function BudgetActionModal({
             </button>
           </div>
 
-          <div className="mt-10 flex gap-4">
+          <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 md:gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all active:scale-95"
+              className="flex-1 px-8 py-3 md:py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-gray-200 transition-all active:scale-95"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 px-8 py-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+              className="flex-1 px-8 py-3 md:py-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
             >
               {isPending ? "Menyimpan..." : <><Save className="w-4 h-4" /> Simpan Alokasi</>}
             </button>

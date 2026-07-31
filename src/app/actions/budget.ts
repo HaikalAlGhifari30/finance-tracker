@@ -8,7 +8,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 
-export async function getBudgetPeriod(month: string, year: string) {
+export async function getBudgetPeriod(month: string, year: string, memberId?: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -23,7 +23,8 @@ export async function getBudgetPeriod(month: string, year: string) {
       and(
         eq(budgetPeriods.userId, userId),
         eq(budgetPeriods.month, month),
-        eq(budgetPeriods.year, year)
+        eq(budgetPeriods.year, year),
+        memberId ? eq(budgetPeriods.memberId, memberId) : sql`${budgetPeriods.memberId} IS NULL`
       )
     )
     .limit(1)
@@ -52,7 +53,7 @@ export async function getBudgetPeriod(month: string, year: string) {
   };
 }
 
-export async function createBudgetPeriod(month: string, year: string, copyFromPrevious: boolean = false) {
+export async function createBudgetPeriod(month: string, year: string, copyFromPrevious: boolean = false, memberId?: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -66,6 +67,7 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
     userId,
     month,
     year,
+    memberId: memberId || null,
     createdAt: new Date(),
   }).execute();
 
@@ -85,7 +87,8 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
         and(
           eq(budgetPeriods.userId, userId),
           eq(budgetPeriods.month, prevMonth.toString()),
-          eq(budgetPeriods.year, prevYear.toString())
+          eq(budgetPeriods.year, prevYear.toString()),
+          memberId ? eq(budgetPeriods.memberId, memberId) : sql`${budgetPeriods.memberId} IS NULL`
         )
       )
       .limit(1)
@@ -139,7 +142,7 @@ export async function upsertBudgetItems(periodId: string, items: { categoryId: s
   revalidatePath("/dashboard/budget");
 }
 
-export async function getCategoryExpensesForPeriod(month: string, year: string) {
+export async function getCategoryExpensesForPeriod(month: string, year: string, memberId?: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -162,7 +165,8 @@ export async function getCategoryExpensesForPeriod(month: string, year: string) 
       and(
         eq(transactions.userId, userId),
         eq(transactions.type, "EXPENSE"),
-        sql`${transactions.date} >= ${startDate} AND ${transactions.date} <= ${endDate}`
+        sql`${transactions.date} >= ${startDate} AND ${transactions.date} <= ${endDate}`,
+        memberId ? eq(transactions.memberId, memberId) : undefined
       )
     )
     .groupBy(transactions.categoryId)

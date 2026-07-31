@@ -3,9 +3,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getBudgetPeriod, getCategoryExpensesForPeriod } from "@/app/actions/budget";
 import { db } from "@/db";
-import { categories } from "@/db/schema";
+import { categories, members as membersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import BudgetClientPage from "./BudgetClientPage";
+import { getMembers } from "@/app/actions/members";
 
 export default async function BudgetPage() {
   const session = await auth.api.getSession({
@@ -24,11 +25,14 @@ export default async function BudgetPage() {
     .where(eq(categories.userId, session.user.id))
     .execute();
 
+  const members = await getMembers();
+
   return (
     <BudgetClientPage 
       allCategories={allCategories}
       initialMonth={currentMonth}
       initialYear={currentYear}
+      members={members}
     />
   );
 }

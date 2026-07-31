@@ -1,9 +1,10 @@
 import { db } from "@/db";
-import { transactions, categories, accounts } from "@/db/schema";
+import { transactions, categories, accounts, members as membersTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getMembers } from "@/app/actions/members";
 import IncomeClientPage from "./IncomeClientPage";
 
 export default async function IncomePage() {
@@ -25,10 +26,13 @@ export default async function IncomePage() {
       categoryName: categories.name,
       accountId: transactions.accountId,
       accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
+      memberId: transactions.memberId,
+      memberName: membersTable.name,
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
+    .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "INCOME")))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .execute();
@@ -65,11 +69,14 @@ export default async function IncomePage() {
     .where(eq(accounts.userId, userId))
     .execute();
 
+  const members = await getMembers();
+
   return (
     <IncomeClientPage 
       initialIncome={incomeList} 
       categories={userCategories} 
       accounts={userAccounts}
+      members={members}
     />
   );
 }

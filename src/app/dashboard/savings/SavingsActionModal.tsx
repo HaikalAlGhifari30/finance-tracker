@@ -149,8 +149,8 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 text-left">
       <div className="fixed inset-0 bg-black/70 backdrop-blur-[12px] animate-in fade-in duration-500" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg bg-white dark:bg-[#1E1E2D] rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300">
-        <div className="px-10 py-10 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+      <div className="relative w-full max-w-lg bg-white dark:bg-[#1E1E2D] rounded-[32px] md:rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+        <div className="px-6 md:px-10 py-6 md:py-10 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
           <div className="flex items-center gap-5">
             <div className={`p-4 rounded-[24px] transition-all duration-500 shadow-lg ${mode === 'SAVING' ? 'bg-amber-500 text-white shadow-amber-500/20' :
               mode === 'WITHDRAWAL' ? 'bg-blue-600 text-white shadow-blue-500/20' :
@@ -174,14 +174,14 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-          <div className="space-y-8">
+        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 overflow-y-auto custom-scrollbar">
+          <div className="space-y-6 md:space-y-8">
             <div className="space-y-3">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
               <div className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
-                  <Banknote className={`w-7 h-7 text-gray-300 transition-colors ${mode === 'SAVING' ? 'group-hover:text-amber-400' : 'group-hover:text-blue-400'}`} />
-                  <span className={`font-black text-2xl group-focus-within:opacity-100 transition-colors opacity-30 ${mode === 'SAVING' ? 'text-amber-600' : 'text-blue-600'}`}>Rp</span>
+                <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
+                  <Banknote className={`hidden sm:block w-7 h-7 text-gray-300 transition-colors ${mode === 'SAVING' ? 'group-hover:text-amber-400' : 'group-hover:text-blue-400'}`} />
+                  <span className={`font-black text-xl md:text-2xl group-focus-within:opacity-100 transition-colors opacity-30 ${mode === 'SAVING' ? 'text-amber-600' : 'text-blue-600'}`}>Rp</span>
                 </div>
                 <input
                   type="text"
@@ -190,7 +190,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder="0"
-                  className={`w-full pl-24 pr-8 py-6 rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-3xl shadow-inner ${mode === 'SAVING' ? 'text-amber-600 focus:border-amber-500/50' : 'text-blue-600 focus:border-blue-500/50'}`}
+                  className={`w-full pl-[3.5rem] sm:pl-24 pr-6 md:pr-8 py-4 md:py-6 rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-2xl md:text-3xl shadow-inner ${mode === 'SAVING' ? 'text-amber-600 focus:border-amber-500/50' : 'text-blue-600 focus:border-blue-500/50'}`}
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       <select
                         value={sourceGoalId}
                         onChange={(e) => setSourceGoalId(e.target.value)}
-                        className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                       >
                         <option value="">Tabungan Umum (Rp {unallocatedSavings.toLocaleString("id-ID")})</option>
                         {goals.map(goal => (
@@ -228,7 +228,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       <select
                         value={goalId}
                         onChange={(e) => setGoalId(e.target.value)}
-                        className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                       >
                         <option value="">Tabungan Umum (Pindahkan Balik)</option>
                         {goals.map(goal => (
@@ -253,7 +253,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                           <select
                             value={goalId}
                             onChange={(e) => setGoalId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                           >
                             <option value="">
                               Tabungan Umum (Rp {unallocatedSavings.toLocaleString('id-ID')})
@@ -283,7 +283,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                             value={accountId}
                             required
                             onChange={(e) => setAccountId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                           >
                             <option value="" disabled>Pilih Rekening</option>
                             {accounts.map(acc => (
@@ -306,7 +306,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                             value={accountId}
                             required
                             onChange={(e) => setAccountId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                           >
                             <option value="" disabled>Pilih Rekening</option>
                             {accounts.map(acc => (
@@ -326,7 +326,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                           <select
                             value={goalId}
                             onChange={(e) => setGoalId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-sm"
+                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                           >
                             <option value="">
                               {mode === 'SAVING' ? "Tabungan Umum (Tanpa Alokasi)" : `Tabungan Umum (Pindahkan Balik)`}
@@ -353,7 +353,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={mode === 'SAVING' ? "cth: Setoran bulanan..." : "cth: Tarik untuk kebutuhan..."}
-                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-medium text-sm"
+                  className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-medium text-xs md:text-sm"
                 />
                 <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
@@ -367,25 +367,25 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                   required
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-bold text-sm"
+                  className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-bold text-xs md:text-sm"
                 />
                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
             </div>
           </div>
 
-          <div className="pt-8 flex gap-4">
+          <div className="pt-6 md:pt-8 flex flex-col sm:flex-row gap-3 md:gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-6 rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[11px] uppercase tracking-[0.2em]"
+              className="flex-1 px-4 py-4 md:py-6 rounded-[20px] md:rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-6 rounded-[28px] shadow-2xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[11px] uppercase tracking-[0.2em]"
+              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 md:py-6 rounded-[20px] md:rounded-[28px] shadow-2xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Konfirmasi Transaksi"}
             </button>

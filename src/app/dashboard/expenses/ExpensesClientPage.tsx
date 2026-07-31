@@ -17,8 +17,12 @@ import { Pagination } from "@/components/ui/Pagination";
 import { getCategoryColorBadge } from "@/lib/constants";
 import { deleteTransaction } from "@/app/actions/transactions";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { MemberFilter } from "@/components/MemberFilter";
+import { useSearchParams } from "next/navigation";
 
-export default function ExpensesClientPage({ initialExpenses, categories, goals, accounts, totalSavings }: { initialExpenses: any[], categories: any[], goals: any[], accounts: any[], totalSavings: number }) {
+export default function ExpensesClientPage({ initialExpenses, categories, goals, accounts, totalSavings, members }: { initialExpenses: any[], categories: any[], goals: any[], accounts: any[], totalSavings: number, members: any[] }) {
+  const searchParams = useSearchParams();
+  const currentMember = searchParams.get("member") || "all";
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -53,10 +57,11 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
         : isSameYear(itemDate, currentDate);
 
       const matchesCategory = selectedCategory === "all" || item.categoryId === selectedCategory;
+      const matchesMember = currentMember === "all" || item.memberId === currentMember;
 
-      return matchesSearch && matchesPeriod && matchesCategory;
+      return matchesSearch && matchesPeriod && matchesCategory && matchesMember;
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [initialExpenses, searchTerm, currentDate, viewMode, selectedCategory]);
+  }, [initialExpenses, searchTerm, currentDate, viewMode, selectedCategory, currentMember]);
 
   const totalFilteredAmount = filteredExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
 
@@ -183,13 +188,17 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
         <div className="text-center lg:text-left">
-          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Manajemen Pengeluaran</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Pantau dan kelola pengeluaran Anda secara detail.</p>
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Pengeluaran & Transaksi</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Catat dan pantau arus kas keluar harian Anda dengan mudah.</p>
+        </div>
+        <div className="w-full lg:w-auto">
+          <MemberFilter members={members} className="w-full sm:w-auto" />
         </div>
       </div>
 
+      {/* Control Panel */}
       <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
         <div className="flex items-center gap-2 md:gap-3 w-full lg:max-w-md">
           <div className="relative flex-1">
@@ -245,7 +254,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 w-full lg:w-auto">
+        <div className="hidden lg:flex flex-wrap items-center justify-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1 rounded-[24px] border border-gray-100 dark:border-gray-800 w-full lg:w-auto">
           <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
             <button
               onClick={() => setViewMode("monthly")}
@@ -295,7 +304,7 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
             </button>
           </div>
 
-          <div className="relative w-full sm:w-auto group">
+          <div className="hidden lg:block relative w-full sm:w-auto group">
             <button
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 md:px-6 py-3 md:py-3.5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-xs md:text-sm font-black text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm active:scale-95"
             >
@@ -363,6 +372,11 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
                            <Wallet className="w-3 h-3 text-gray-400" />
                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
                              {item.accountName || "Utama"}
+                             {currentMember === "all" && item.memberName && (
+                               <span className="ml-2 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                 {item.memberName}
+                               </span>
+                             )}
                            </span>
                         </div>
                       </td>
@@ -406,6 +420,13 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
                             <p className="text-[10px] text-gray-400 font-medium tracking-wide truncate">
                                {item.categoryName || "Umum"} • {item.accountName || "Utama"}
                             </p>
+                            {currentMember === "all" && item.memberName && (
+                              <div className="mt-1">
+                                <span className="text-[7px] font-black uppercase tracking-widest text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-900/20 px-1.5 py-0.5 rounded-full">
+                                  {item.memberName}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-1">
@@ -450,6 +471,62 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
           </>
         )}
       </GlassCard>
+
+      {/* Mobile Bottom Controls */}
+      <div className="lg:hidden flex flex-col gap-4 mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[24px] border border-gray-100 dark:border-gray-800 w-full shadow-sm">
+          <div className="flex p-1 bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100/50 dark:border-gray-700/50">
+            <button
+              onClick={() => setViewMode("monthly")}
+              className={`text-[10px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+            >
+              Bln
+            </button>
+            <button
+              onClick={() => setViewMode("yearly")}
+              className={`text-[10px] px-4 py-2 rounded-lg font-black uppercase tracking-widest transition-all ${viewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+            >
+              Thn
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1 pr-2">
+            <button onClick={() => changePeriod(-1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-4 h-4 text-gray-600" /></button>
+            <div className="min-w-[100px] text-center">
+              <span className="font-bold text-xs text-gray-900 dark:text-white tracking-tight uppercase">
+                {viewMode === "monthly" ? format(currentDate, "MMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
+              </span>
+            </div>
+            <button onClick={() => changePeriod(1)} className="p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-4 h-4 text-gray-600" /></button>
+          </div>
+        </div>
+
+        <div className="relative w-full group">
+          <button
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1E1E2D] text-sm font-black text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm active:scale-95"
+          >
+            <Download className="w-5 h-5" />
+            <span>Export Data</span>
+            <ChevronDown className="w-4 h-4 opacity-50 group-hover:-rotate-180 transition-transform" />
+          </button>
+          <div className="absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-[#1E1E2D] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+            <button
+              onClick={handleExportExcel}
+              className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-600 transition-colors"
+            >
+              <Download className="w-4 h-4 text-emerald-500" />
+              Excel Spreadsheet
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="w-full flex items-center gap-3 px-5 py-4 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 hover:text-rose-600 transition-colors"
+            >
+              <FileText className="w-4 h-4 text-rose-500" />
+              Dokumen PDF
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Card at Bottom */}
       {filteredExpenses.length > 0 && (
@@ -499,6 +576,8 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
         goals={goals}
         accounts={accounts}
         totalSavings={totalSavings}
+        members={members}
+        currentMember={currentMember}
       />
 
       <CategoryModal

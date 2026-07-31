@@ -17,6 +17,7 @@ export async function addTransaction(data: {
   destinationAccountId?: string;
   goalId?: string;
   destinationGoalId?: string;
+  memberId?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -37,6 +38,7 @@ export async function addTransaction(data: {
       destinationAccountId: data.destinationAccountId || null,
       goalId: data.goalId || null,
       destinationGoalId: data.destinationGoalId || null,
+      memberId: data.memberId || null,
       createdAt: new Date(),
     });
     
@@ -89,6 +91,7 @@ export async function updateTransaction(id: string, data: {
   destinationAccountId?: string;
   goalId?: string;
   destinationGoalId?: string;
+  memberId?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -108,6 +111,7 @@ export async function updateTransaction(id: string, data: {
         destinationAccountId: data.destinationAccountId || null,
         goalId: data.goalId || null,
         destinationGoalId: data.destinationGoalId || null,
+        memberId: data.memberId || null,
       })
       .where(
         and(

@@ -17,16 +17,19 @@ interface Props {
   goals: any[];
   accounts: any[];
   totalSavings: number;
+  members: any[];
+  currentMember: string;
 }
 
 const isSaving = (name?: string) => name?.toLowerCase() === "tabungan";
 
-export default function ExpenseModal({ isOpen, onClose, mode, initialData, categories, goals, accounts, totalSavings }: Props) {
+export default function ExpenseModal({ isOpen, onClose, mode, initialData, categories, goals, accounts, totalSavings, members, currentMember }: Props) {
   const [isPending, startTransition] = useTransition();
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [accountId, setAccountId] = useState("");
+  const [memberId, setMemberId] = useState("");
   const [date, setDate] = useState(() => {
     const now = new Date();
     const offset = now.getTimezoneOffset();
@@ -69,6 +72,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       setDescription(initialData.description || "");
       setCategoryId(initialData.categoryId || "");
       setAccountId(initialData.accountId || accounts[0]?.id || "");
+      setMemberId(initialData.memberId || "");
       setDate(new Date(initialData.date).toISOString().split('T')[0]);
     } else {
       // Initialize only if opening the modal or resetting
@@ -76,6 +80,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       setDescription("");
       setCategoryId(filteredCategories[0]?.id || "");
       setAccountId(accounts[0]?.id || "");
+      setMemberId(currentMember !== "all" ? currentMember : (members[0]?.id || ""));
       const now = new Date();
       const offset = now.getTimezoneOffset();
       const initialDate = new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
@@ -91,6 +96,18 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       fetchBudgetData(date);
     }
   }, [date]);
+
+  const filteredAccounts = accounts.filter(acc => acc.memberId === memberId);
+
+  useEffect(() => {
+    if (memberId && accountId !== "SAVINGS") {
+      if (filteredAccounts.length > 0 && !filteredAccounts.find(a => a.id === accountId)) {
+        setAccountId(filteredAccounts[0].id);
+      } else if (filteredAccounts.length === 0) {
+        setAccountId("SAVINGS");
+      }
+    }
+  }, [memberId, accountId, accounts]);
 
   if (!isOpen || !mounted) return null;
 
@@ -124,6 +141,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
         date,
         type: 'EXPENSE' as const,
         accountId: accountId === "SAVINGS" ? "" : accountId,
+        memberId
       };
 
       const res = mode === "create"
@@ -146,9 +164,8 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
   const content = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 text-left">
       <div className="fixed inset-0 bg-black/70 backdrop-blur-[12px] animate-in fade-in duration-500" onClick={onClose} />
-
-      <div className="relative w-full max-w-lg bg-white dark:bg-[#1E1E2D] rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300">
-        <div className="px-10 py-10 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+      <div className="relative w-full max-w-lg bg-white dark:bg-[#1E1E2D] rounded-[32px] md:rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+        <div className="px-6 md:px-10 py-6 md:py-10 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
           <div className="flex items-center gap-5">
             <div className="p-4 rounded-[24px] bg-rose-600 text-white shadow-lg shadow-rose-500/20">
               <CreditCard className="w-6 h-6" />
@@ -165,14 +182,33 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8 max-h-[70vh] overflow-y-auto no-scrollbar">
-          <div className="space-y-8">
+        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 text-left overflow-y-auto custom-scrollbar">
+          <div className="space-y-6 md:space-y-8">
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
+              <div className="relative group">
+                <select
+                  value={memberId}
+                  required
+                  onChange={(e) => setMemberId(e.target.value)}
+                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                >
+                  <option value="" disabled>Pilih Anggota</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+
             <div className="space-y-3">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
               <div className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
-                  <Banknote className="w-7 h-7 text-gray-300 group-hover:text-rose-400 transition-colors" />
-                  <span className="font-black text-2xl text-rose-600/30 group-focus-within:text-rose-600 transition-colors">Rp</span>
+                <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
+                  <Banknote className="hidden sm:block w-7 h-7 text-gray-300 group-hover:text-rose-400 transition-colors" />
+                  <span className="font-black text-xl md:text-2xl text-rose-600/30 group-focus-within:text-rose-600 transition-colors">Rp</span>
                 </div>
                 <input
                   type="text"
@@ -181,7 +217,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder="0"
-                  className="w-full pl-24 pr-8 py-6 rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-black text-3xl text-rose-600 shadow-inner group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                  className="w-full pl-[3.5rem] sm:pl-24 pr-6 md:pr-8 py-4 md:py-6 rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-black text-2xl md:text-3xl text-rose-600 shadow-inner group-hover:border-rose-200 dark:group-hover:border-rose-800 no-spinner"
                 />
               </div>
             </div>
@@ -197,11 +233,12 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                 >
                   <option value="" disabled>Pilih Sumber Dana</option>
                   <optgroup label="Rekening Personal">
-                    {accounts.map(acc => (
+                    {filteredAccounts.map(acc => (
                       <option key={acc.id} value={acc.id}>
                         {acc.name} (Rp {acc.balance?.toLocaleString('id-ID') || 0})
                       </option>
                     ))}
+                    {filteredAccounts.length === 0 && <option value="" disabled>Tidak ada rekening personal</option>}
                   </optgroup>
                   <optgroup label="Tabungan & Simpanan">
                     <option value="SAVINGS">
@@ -214,7 +251,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-3">
                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Kategori</label>
                 <div className="relative group">
@@ -222,7 +259,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                     value={categoryId}
                     required
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                    className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
                   >
                     {filteredCategories.map(cat => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -272,7 +309,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                     required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-bold text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                    className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-bold text-xs md:text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
                   />
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
@@ -287,25 +324,25 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="cth: Makan siang, bayar kos, dll..."
-                  className="w-full pl-12 pr-8 py-5 rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-medium text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
+                  className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all font-medium text-xs md:text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
                 />
                 <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
 
-          <div className="pt-8 flex gap-4">
+          <div className="pt-6 md:pt-8 flex flex-col sm:flex-row gap-3 md:gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-6 rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[11px] uppercase tracking-[0.2em]"
+              className="flex-1 px-4 py-4 md:py-6 rounded-[20px] md:rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-6 rounded-[28px] shadow-2xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[11px] uppercase tracking-[0.2em]"
+              className="flex-[1.5] bg-rose-500 hover:bg-rose-600 text-white font-black py-4 md:py-6 rounded-[20px] md:rounded-[28px] shadow-2xl shadow-rose-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (mode === "create" ? "Konfirmasi" : "Simpan Perubahan")}
             </button>
