@@ -76,7 +76,16 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                   <p className="text-[9px] md:text-[10px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-widest whitespace-nowrap">
                     <Calendar className="w-3 h-3" />
-                    {format(new Date(tx.date), "dd MMM yyyy")}
+                    {(() => {
+                      if (typeof tx.date === 'string') {
+                        const parts = tx.date.split('T')[0].split('-');
+                        if (parts.length === 3) {
+                          const localD = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                          return format(localD, "dd MMM yyyy", { locale: id });
+                        }
+                      }
+                      return format(new Date(tx.date), "dd MMM yyyy", { locale: id });
+                    })()}
                   </p>
                   <span className="hidden sm:block w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></span>
                   <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 whitespace-nowrap">

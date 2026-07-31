@@ -45,16 +45,26 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
     [categories]
   );
 
-  const fetchBudgetData = async (selectedDate: string) => {
+  const fetchBudgetData = async (selectedDate: string, selectedMemberId: string) => {
     try {
-      const d = new Date(selectedDate);
-      const month = (d.getMonth() + 1).toString();
-      const year = d.getFullYear().toString();
+      if (!selectedDate) return;
       
-      const [period, expenses] = await Promise.all([
-        getBudgetPeriod(month, year),
-        getCategoryExpensesForPeriod(month, year)
+      const parts = selectedDate.split('-');
+      const year = parts[0];
+      const month = String(parseInt(parts[1], 10)); // e.g. "08" -> "8"
+      
+      let [period, expenses] = await Promise.all([
+        getBudgetPeriod(month, year, selectedMemberId || undefined),
+        getCategoryExpensesForPeriod(month, year, selectedMemberId || undefined)
       ]);
+
+      // If no member-specific budget found or no items, fallback to overall/null member budget
+      if (!period || !period.items || period.items.length === 0) {
+        const fallbackPeriod = await getBudgetPeriod(month, year);
+        if (fallbackPeriod && fallbackPeriod.items && fallbackPeriod.items.length > 0) {
+          period = fallbackPeriod;
+        }
+      }
 
       setBudgetItems(period?.items || []);
       setCategoryExpenses(expenses || {});
@@ -73,29 +83,27 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
       setCategoryId(initialData.categoryId || "");
       setAccountId(initialData.accountId || accounts[0]?.id || "");
       setMemberId(initialData.memberId || "");
-      setDate(new Date(initialData.date).toISOString().split('T')[0]);
+      const dStr = new Date(initialData.date).toISOString().split('T')[0];
+      setDate(dStr);
     } else {
-      // Initialize only if opening the modal or resetting
       setAmount("");
       setDescription("");
       setCategoryId(filteredCategories[0]?.id || "");
       setAccountId("");
-      setMemberId(currentMember !== "all" ? currentMember : "");
+      const targetMember = currentMember !== "all" ? currentMember : (members[0]?.id || "");
+      setMemberId(targetMember);
       const now = new Date();
       const offset = now.getTimezoneOffset();
       const initialDate = new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0];
       setDate(initialDate);
-      fetchBudgetData(initialDate);
     }
-    // We only want to run this when the modal opens or data changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchBudgetData(date);
+    if (isOpen && date) {
+      fetchBudgetData(date, memberId);
     }
-  }, [date]);
+  }, [date, memberId, isOpen]);
 
   const filteredAccounts = accounts.filter(acc => acc.memberId === memberId);
 
@@ -281,9 +289,20 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
                     onChange={(e) => setCategoryId(e.target.value)}
                     className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-rose-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm group-hover:border-rose-200 dark:group-hover:border-rose-800"
                   >
-                    {filteredCategories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
+                    {filteredCategories.map(cat => {
+                      const budget = budgetItems.find(item => item.categoryId === cat.id);
+                      let label = cat.name;
+                      if (budget) {
+                        const spent = categoryExpenses[cat.id] || 0;
+                        const remaining = budget.amount - spent;
+                        label += ` (Sisa: Rp ${remaining.toLocaleString('id-ID')})`;
+                      }
+                      return (
+                        <option key={cat.id} value={cat.id}>
+                          {label}
+                        </option>
+                      );
+                    })}
                   </select>
                   <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />

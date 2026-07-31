@@ -59,9 +59,17 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
 
       const matchesCategory = selectedCategory === "all" || item.categoryId === selectedCategory;
       const matchesMember = currentMember === "all" || item.memberId === currentMember;
-
       return matchesSearch && matchesPeriod && matchesCategory && matchesMember;
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }).sort((a, b) => {
+      const dateA = typeof a.date === 'string' ? parseISO(a.date) : new Date(a.date);
+      const dateB = typeof b.date === 'string' ? parseISO(b.date) : new Date(b.date);
+      const dateDiff = dateB.getTime() - dateA.getTime();
+      if (dateDiff !== 0) return dateDiff;
+      
+      const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return createdB - createdA;
+    });
   }, [initialIncome, searchTerm, currentDate, viewMode, selectedCategory, currentMember]);
 
   const totalFilteredAmount = filteredIncome.reduce((sum, item) => sum + Number(item.amount), 0);
@@ -341,7 +349,16 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
                   {paginatedIncome.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors group">
                       <td className="px-6 py-5 text-sm text-gray-700 dark:text-gray-300 whitespace-nowrap font-bold">
-                        {format(new Date(item.date), "dd/MM/yyyy")}
+                        {(() => {
+                          if (typeof item.date === 'string') {
+                            const parts = item.date.split('T')[0].split('-');
+                            if (parts.length === 3) {
+                              const localD = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                              return format(localD, "dd/MM/yyyy", { locale: id });
+                            }
+                          }
+                          return format(new Date(item.date), "dd/MM/yyyy", { locale: id });
+                        })()}
                       </td>
                       <td className="px-6 py-5">
                         <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${getCategoryColorBadge(item.categoryName)}`}>

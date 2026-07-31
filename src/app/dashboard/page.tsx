@@ -57,6 +57,7 @@ export default async function DashboardPage() {
       accountName: sql<string>`COALESCE(${accountsTable.name}, '(Dihapus)')`,
       memberName: membersTable.name,
       memberId: sql<string>`COALESCE(${transactions.memberId}, ${accountsTable.memberId})`,
+      createdAt: transactions.createdAt,
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))

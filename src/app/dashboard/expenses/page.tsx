@@ -29,9 +29,10 @@ export default async function ExpensesListPage() {
       accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
       memberId: transactions.memberId,
       memberName: membersTable.name,
+      createdAt: transactions.createdAt,
     })
     .from(transactions)
-    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .leftJoin(categories, eq(transactions.categoryId, categories.id))
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
     .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "EXPENSE")))

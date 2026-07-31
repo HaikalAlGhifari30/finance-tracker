@@ -266,11 +266,15 @@ export async function getTransferHistory(params?: { month?: number, year?: numbe
     ];
 
     if (viewMode === "monthly" && month !== undefined && year !== undefined) {
-      // Drizzle way to filter by month/year on Date column
-      conditions.push(sql`EXTRACT(MONTH FROM ${transactions.date}) = ${month}`);
-      conditions.push(sql`EXTRACT(YEAR FROM ${transactions.date}) = ${year}`);
+      const mStr = String(month).padStart(2, '0');
+      const lastDay = new Date(year, month, 0).getDate();
+      const startIso = `${year}-${mStr}-01`;
+      const endIso = `${year}-${mStr}-${String(lastDay).padStart(2, '0')}`;
+      conditions.push(sql`(${transactions.date})::date >= ${startIso}::date AND (${transactions.date})::date <= ${endIso}::date`);
     } else if (viewMode === "yearly" && year !== undefined) {
-      conditions.push(sql`EXTRACT(YEAR FROM ${transactions.date}) = ${year}`);
+      const startIso = `${year}-01-01`;
+      const endIso = `${year}-12-31`;
+      conditions.push(sql`(${transactions.date})::date >= ${startIso}::date AND (${transactions.date})::date <= ${endIso}::date`);
     }
 
     const toAccount = aliasedTable(accounts, "to_acc");
@@ -286,6 +290,7 @@ export async function getTransferHistory(params?: { month?: number, year?: numbe
       toAccountName: sql<string>`COALESCE(${toAccount.name}, '(Dihapus)')`,
       fromMemberName: fromMember.name,
       toMemberName: toMember.name,
+      createdAt: transactions.createdAt,
     })
     .from(transactions)
     .leftJoin(accounts, eq(transactions.accountId, accounts.id))
@@ -293,7 +298,7 @@ export async function getTransferHistory(params?: { month?: number, year?: numbe
     .leftJoin(fromMember, eq(accounts.memberId, fromMember.id))
     .leftJoin(toMember, eq(toAccount.memberId, toMember.id))
     .where(and(...conditions))
-    .orderBy(desc(transactions.date), desc(transactions.createdAt))
+    .orderBy(desc(transactions.createdAt), desc(transactions.date))
     .limit(limit)
     .offset(offset);
 

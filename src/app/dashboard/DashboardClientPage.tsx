@@ -42,14 +42,27 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   };
 
   const filteredActivities = useMemo(() => {
-    return initialActivities.filter((activity) => {
-      const activityDate = typeof activity.date === 'string' ? parseISO(activity.date) : new Date(activity.date);
-      if (viewMode === "monthly") {
-        return isSameMonth(activityDate, currentDate) && isSameYear(activityDate, currentDate);
-      } else {
-        return isSameYear(activityDate, currentDate);
-      }
-    });
+    return initialActivities
+      .filter((activity) => {
+        const activityDate = typeof activity.date === 'string' ? parseISO(activity.date) : new Date(activity.date);
+        if (viewMode === "monthly") {
+          return isSameMonth(activityDate, currentDate) && isSameYear(activityDate, currentDate);
+        } else {
+          return isSameYear(activityDate, currentDate);
+        }
+      })
+      .sort((a, b) => {
+        // Sort strictly by database insertion order (createdAt) descending first
+        const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        const createdDiff = createdB - createdA;
+        if (createdDiff !== 0) return createdDiff;
+
+        // Fallback tiebreaker: date descending (newest first)
+        const dateA = typeof a.date === 'string' ? parseISO(a.date) : new Date(a.date);
+        const dateB = typeof b.date === 'string' ? parseISO(b.date) : new Date(b.date);
+        return dateB.getTime() - dateA.getTime();
+      });
   }, [initialActivities, viewMode, currentDate]);
 
   // Calculate all stats for the selected period

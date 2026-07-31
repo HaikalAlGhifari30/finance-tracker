@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { X, Save, Plus, Trash2, AlertCircle } from "lucide-react";
+import { X, Save, Plus, Trash2, AlertCircle, Lock, Unlock } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { upsertBudgetItems } from "@/app/actions/budget";
 import { toast } from "sonner";
@@ -32,10 +32,15 @@ export default function BudgetActionModal({
 }: BudgetActionModalProps) {
   const [isPending, startTransition] = useTransition();
   const [localTotalBudget, setLocalTotalBudget] = useState("");
-  const [items, setItems] = useState<{ categoryId: string; amount: string }[]>([]);
+  const [items, setItems] = useState<{ categoryId: string; amount: string; locked: boolean }[]>([]);
+  // Ref always holds the latest items — avoids stale closure in blur/submit handlers
+  const itemsRef = useRef<{ categoryId: string; amount: string; locked: boolean }[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [itemToDeleteIndex, setItemToDeleteIndex] = useState<number | null>(null);
+
+  // Keep ref in sync with state
+  useEffect(() => { itemsRef.current = items; }, [items]);
 
   useEffect(() => {
     setMounted(true);
@@ -43,7 +48,8 @@ export default function BudgetActionModal({
     if (existingItems.length > 0) {
       setItems(existingItems.map(item => ({
         categoryId: item.categoryId,
-        amount: formatRupiah(Number(item.amount))
+        amount: formatRupiah(Number(item.amount)),
+        locked: false  // All start unlocked; user locking happens on blur
       })));
     } else {
       setItems([]);
@@ -59,7 +65,7 @@ export default function BudgetActionModal({
       toast.error("Semua kategori sudah ditambahkan");
       return;
     }
-    setItems([...items, { categoryId: availableCategory.id, amount: "" }]);
+    setItems([...items, { categoryId: availableCategory.id, amount: "", locked: false }]);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -76,98 +82,136 @@ export default function BudgetActionModal({
   };
 
   const handleUpdateItem = (index: number, field: string, value: string) => {
-    const newItems = [...items];
-    if (field === "amount") {
-      const cleanVal = parseFloat(unformatRupiah(value)) || 0;
-      const targetBudgetVal = parseFloat(unformatRupiah(localTotalBudget)) || 0;
-      
-      newItems[index].amount = formatRupiah(value);
-      
-      // Proportional Adjustment for other categories
-      const otherItemsIndices = items.map((_, i) => i).filter(i => i !== index);
-      
-      if (otherItemsIndices.length > 0) {
-        const remainingBudget = targetBudgetVal - cleanVal;
-        
-        const sumOtherCurrent = otherItemsIndices.reduce((sum, i) => {
-          return sum + (parseFloat(unformatRupiah(items[i].amount)) || 0);
-        }, 0);
-        
-        if (sumOtherCurrent > 0) {
-          let distributedSoFar = 0;
-          otherItemsIndices.forEach((i, idx) => {
-            const currentVal = parseFloat(unformatRupiah(items[i].amount)) || 0;
-            let newVal = Math.round((currentVal / sumOtherCurrent) * remainingBudget);
-            if (newVal < 0) newVal = 0;
-            
-            if (idx === otherItemsIndices.length - 1) {
-              const exactVal = remainingBudget - distributedSoFar;
-              newItems[i].amount = formatRupiah(Math.max(0, exactVal).toString());
-            } else {
-              newItems[i].amount = formatRupiah(newVal.toString());
-              distributedSoFar += newVal;
-            }
-          });
-        } else {
-          const equalShare = Math.floor(remainingBudget / otherItemsIndices.length);
-          otherItemsIndices.forEach((i, idx) => {
-            if (idx === otherItemsIndices.length - 1) {
-              const exactVal = remainingBudget - (equalShare * (otherItemsIndices.length - 1));
-              newItems[i].amount = formatRupiah(Math.max(0, exactVal).toString());
-            } else {
-              newItems[i].amount = formatRupiah(Math.max(0, equalShare).toString());
-            }
-          });
-        }
+    // Use functional update to always work on latest state (avoids stale closure)
+    setItems(prev => {
+      const newItems = prev.map(item => ({ ...item }));
+      if (field === "amount") {
+        newItems[index].amount = formatRupiah(value);
+      } else {
+        newItems[index].categoryId = value;
       }
-    } else {
-      newItems[index].categoryId = value;
-    }
-    setItems(newItems);
-  };
-
-  const handleAutoDistribute = () => {
-    const targetBudgetVal = parseFloat(unformatRupiah(localTotalBudget)) || 0;
-    if (items.length === 0) return;
-    const share = Math.floor(targetBudgetVal / items.length);
-    const newItems = items.map((item, idx) => {
-      const amount = idx === items.length - 1
-        ? targetBudgetVal - (share * (items.length - 1))
-        : share;
-      return {
-        ...item,
-        amount: formatRupiah(amount.toString())
-      };
+      return newItems;
     });
-    setItems(newItems);
-    toast.success("Budget dibagi rata ke setiap kategori");
   };
 
+  const roundToK = (val: number) => Math.round(val / 1000) * 1000;
+
+  // Distribute `budget` across `indices` proportionally (or equally if sumCurrent=0).
+  // Returns new amounts as integers (rounded to 1000). Last index absorbs remainder.
+  const distributeRemaining = (
+    budget: number,
+    indices: number[],
+    currentItems: typeof items
+  ): Record<number, number> => {
+    const result: Record<number, number> = {};
+    if (indices.length === 0) return result;
+
+    const sumCurrent = indices.reduce(
+      (s, i) => s + (Math.round(parseFloat(unformatRupiah(currentItems[i].amount)) || 0)), 0
+    );
+
+    let distributed = 0;
+    indices.forEach((i, idx) => {
+      let newVal: number;
+      const isLast = idx === indices.length - 1;
+      if (isLast) {
+        newVal = Math.max(0, budget - distributed);
+      } else if (sumCurrent > 0) {
+        const currentVal = Math.round(parseFloat(unformatRupiah(currentItems[i].amount)) || 0);
+        newVal = roundToK(Math.round((currentVal / sumCurrent) * budget));
+        if (newVal < 0) newVal = 0;
+        distributed += newVal;
+      } else {
+        newVal = roundToK(Math.floor(budget / indices.length));
+        distributed += newVal;
+      }
+      result[i] = newVal;
+    });
+    return result;
+  };
+
+  /**
+   * onBlur handler for a budget amount field.
+   * Uses setItems(prev=>) so it always reads the LATEST state (no stale closure).
+   * - Locks the current field.
+   * - Distributes remaining budget to all UNLOCKED fields proportionally.
+   */
+  const handleBlurAmount = (index: number) => {
+    const targetBudgetVal = Math.round(parseFloat(unformatRupiah(localTotalBudget)) || 0);
+
+    setItems(prevItems => {
+      const thisVal = Math.round(parseFloat(unformatRupiah(prevItems[index].amount)) || 0);
+      const newItems = prevItems.map(item => ({ ...item }));
+      newItems[index].amount = formatRupiah(thisVal.toString());
+      newItems[index].locked = true;
+
+      const lockedSum = newItems.reduce(
+        (s, item) => item.locked ? s + (Math.round(parseFloat(unformatRupiah(item.amount)) || 0)) : s, 0
+      );
+      const remaining = targetBudgetVal - lockedSum;
+      const unlockedIndices = newItems.map((_, i) => i).filter(i => !newItems[i].locked);
+
+      if (unlockedIndices.length > 0 && remaining >= 0) {
+        const distributed = distributeRemaining(remaining, unlockedIndices, newItems);
+        unlockedIndices.forEach(i => {
+          newItems[i].amount = formatRupiah((distributed[i] ?? 0).toString());
+        });
+      }
+
+      return newItems;
+    });
+  };
+
+  // Unlock a single locked item (allow it to be freely distributed again)
+  const handleUnlockItem = (index: number) => {
+    setItems(prev => prev.map((item, i) => ({
+      ...item,
+      locked: i === index ? false : item.locked
+    })));
+    toast.info("Kunci dilepas. Nominal akan disesuaikan otomatis.");
+  };
+
+  // Bagi Rata: unlock all and distribute equally
+  const handleAutoDistribute = () => {
+    const targetBudgetVal = Math.round(parseFloat(unformatRupiah(localTotalBudget)) || 0);
+    if (items.length === 0) return;
+    const share = roundToK(Math.floor(targetBudgetVal / items.length));
+    const newItems = items.map((item, idx) => ({
+      ...item,
+      locked: false,
+      amount: formatRupiah((
+        idx === items.length - 1
+          ? Math.max(0, targetBudgetVal - share * (items.length - 1))
+          : share
+      ).toString())
+    }));
+    setItems(newItems);
+    toast.success("Budget dibagi rata — semua kunci dilepas");
+  };
+
+  // Sesuaikan Proporsional: unlock all and scale proportionally
   const handleScaleProportionally = () => {
-    const targetBudgetVal = parseFloat(unformatRupiah(localTotalBudget)) || 0;
-    const currentSum = items.reduce((sum, item) => sum + (parseFloat(unformatRupiah(item.amount)) || 0), 0);
-    if (currentSum === 0) {
-      handleAutoDistribute();
-      return;
-    }
+    const targetBudgetVal = Math.round(parseFloat(unformatRupiah(localTotalBudget)) || 0);
+    const currentSum = items.reduce(
+      (s, item) => s + (Math.round(parseFloat(unformatRupiah(item.amount)) || 0)), 0
+    );
+    if (currentSum === 0) { handleAutoDistribute(); return; }
+
     let distributedSoFar = 0;
     const newItems = items.map((item, idx) => {
-      const currentVal = parseFloat(unformatRupiah(item.amount)) || 0;
-      let newVal = Math.round((currentVal / currentSum) * targetBudgetVal);
-      if (newVal < 0) newVal = 0;
-      
+      const currentVal = Math.round(parseFloat(unformatRupiah(item.amount)) || 0);
+      let newVal: number;
       if (idx === items.length - 1) {
-        newVal = targetBudgetVal - distributedSoFar;
+        newVal = Math.max(0, targetBudgetVal - distributedSoFar);
       } else {
+        newVal = roundToK(Math.round((currentVal / currentSum) * targetBudgetVal));
+        if (newVal < 0) newVal = 0;
         distributedSoFar += newVal;
       }
-      return {
-        ...item,
-        amount: formatRupiah(Math.max(0, newVal).toString())
-      };
+      return { ...item, locked: false, amount: formatRupiah(newVal.toString()) };
     });
     setItems(newItems);
-    toast.success("Kategori disesuaikan secara proporsional");
+    toast.success("Disesuaikan proporsional — semua kunci dilepas");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -179,11 +223,15 @@ export default function BudgetActionModal({
       return;
     }
 
-    const validItems = items.filter(i => i.categoryId && i.amount && parseFloat(unformatRupiah(i.amount)) >= 0);
+    // Read from ref to get the LATEST state (not stale closure from submit event)
+    const currentItems = itemsRef.current;
+    const validItems = currentItems.filter(i =>
+      i.categoryId && i.amount !== "" && parseFloat(unformatRupiah(i.amount)) > 0
+    );
     const sumItems = validItems.reduce((sum, i) => sum + parseFloat(unformatRupiah(i.amount)), 0);
 
-    if (sumItems !== targetBudgetVal && items.length > 0) {
-      toast.error(`Jumlah nominal kategori (Rp ${sumItems.toLocaleString("id-ID")}) harus sama dengan Total Budget (Rp ${targetBudgetVal.toLocaleString("id-ID")})`);
+    if (Math.round(sumItems) !== Math.round(targetBudgetVal) && currentItems.length > 0) {
+      toast.error(`Jumlah nominal kategori (Rp ${Math.round(sumItems).toLocaleString("id-ID")}) harus sama dengan Total Budget (Rp ${Math.round(targetBudgetVal).toLocaleString("id-ID")})`);
       return;
     }
 
@@ -241,10 +289,11 @@ export default function BudgetActionModal({
               />
             </div>
             
+            {/* Warning banner when unbalanced */}
             {isBudgetUnbalanced && (
               <div className="p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 animate-in fade-in duration-200">
                 <div className="text-[10px] font-bold text-amber-800 dark:text-amber-400">
-                  ⚠️ Jumlah nominal kategori (Rp {sumCategories.toLocaleString("id-ID")}) belum sesuai dengan Total Budget (Rp {targetBudgetNumber.toLocaleString("id-ID")})
+                  ⚠️ Total kategori (Rp {sumCategories.toLocaleString("id-ID")}) belum sesuai dengan Budget (Rp {targetBudgetNumber.toLocaleString("id-ID")})
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto">
                   <button
@@ -264,11 +313,38 @@ export default function BudgetActionModal({
                 </div>
               </div>
             )}
+
+            {/* Always-visible distribution buttons */}
+            {items.length > 0 && !isBudgetUnbalanced && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleScaleProportionally}
+                  className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800/60 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
+                >
+                  ↕ Sesuaikan Proporsional
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAutoDistribute}
+                  className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800/60 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all hover:bg-gray-200 dark:hover:bg-gray-700"
+                >
+                  ÷ Bagi Rata
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4 flex-1">
             {items.map((item, index) => (
-              <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-5 bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-gray-100 dark:border-gray-800 group transition-all hover:border-emerald-500/30">
+              <div
+                key={index}
+                className={`flex flex-col sm:flex-row items-end gap-3 p-5 rounded-3xl border group transition-all ${
+                  item.locked
+                    ? "bg-amber-50/5 dark:bg-amber-950/10 border-amber-500/30 dark:border-amber-500/20"
+                    : "bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 hover:border-emerald-500/30"
+                }`}
+              >
                 <div className="flex-1 space-y-2 w-full">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pilih Kategori</label>
                   <select
@@ -277,7 +353,11 @@ export default function BudgetActionModal({
                     className="w-full bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
                   >
                     {allCategories.map((cat) => (
-                      <option key={cat.id} value={cat.id} disabled={items.some((i, idx) => i.categoryId === cat.id && idx !== index)} className="text-gray-900">
+                      <option
+                        key={cat.id}
+                        value={cat.id}
+                        disabled={items.some((i, idx) => i.categoryId === cat.id && idx !== index)}
+                      >
                         {cat.name}
                       </option>
                     ))}
@@ -285,16 +365,41 @@ export default function BudgetActionModal({
                 </div>
                 
                 <div className="flex-1 space-y-2 w-full">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nominal Budget (Rp)</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                    Nominal Budget (Rp)
+                  </label>
                   <input
                     type="text"
                     value={item.amount}
                     onChange={(e) => handleUpdateItem(index, "amount", e.target.value)}
+                    onBlur={() => handleBlurAmount(index)}
                     placeholder="Contoh: 1.000.000"
-                    className="w-full bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className={`w-full bg-white dark:bg-gray-800 rounded-2xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white border focus:outline-none focus:ring-2 transition-all ${
+                      item.locked
+                        ? "border-amber-400/50 focus:ring-amber-500/20"
+                        : "border-gray-200 dark:border-gray-700 focus:ring-emerald-500/20"
+                    }`}
                   />
                 </div>
 
+                {/* Lock / Unlock toggle button */}
+                <button
+                  type="button"
+                  onClick={() => item.locked ? handleUnlockItem(index) : handleBlurAmount(index)}
+                  title={item.locked ? "Klik untuk buka kunci (nilai bisa berubah)" : "Klik untuk kunci nilai ini"}
+                  className={`p-3 rounded-2xl transition-all shrink-0 ${
+                    item.locked
+                      ? "text-amber-500 bg-amber-500/10 hover:bg-amber-500/20"
+                      : "text-gray-300 dark:text-gray-600 hover:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {item.locked
+                    ? <Lock className="w-5 h-5" />
+                    : <Unlock className="w-5 h-5" />
+                  }
+                </button>
+
+                {/* Delete button */}
                 <button
                   type="button"
                   onClick={() => handleRemoveItem(index)}

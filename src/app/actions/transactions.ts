@@ -30,7 +30,9 @@ export async function addTransaction(data: {
       id: crypto.randomUUID(),
       amount: data.amount.toString(),
       description: data.description || null,
-      date: new Date(data.date),
+      date: typeof data.date === 'string' && data.date.includes('T')
+        ? new Date(data.date)
+        : new Date(`${data.date}T00:00:00`),
       userId: session.user.id,
       type: data.type,
       categoryId: data.categoryId || null,

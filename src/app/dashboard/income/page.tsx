@@ -28,6 +28,7 @@ export default async function IncomePage() {
       accountName: sql<string>`COALESCE(${accounts.name}, '(Dihapus)')`,
       memberId: transactions.memberId,
       memberName: membersTable.name,
+      createdAt: transactions.createdAt,
     })
     .from(transactions)
     .leftJoin(categories, eq(transactions.categoryId, categories.id))

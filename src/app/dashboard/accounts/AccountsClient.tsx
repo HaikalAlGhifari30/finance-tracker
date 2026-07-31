@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Plus, Wallet, ArrowRightLeft, CreditCard, Landmark, Smartphone, Banknote, MoreVertical, Pencil, Trash2, X, ChevronRight, Search, ChevronLeft } from "lucide-react";
+import { Plus, Wallet, ArrowRightLeft, CreditCard, Landmark, Smartphone, Banknote, MoreVertical, Pencil, Trash2, X, ChevronRight, Search, ChevronLeft, Calendar } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ACCOUNT_ICONS, ACCOUNT_TYPES, PRESET_ACCOUNTS } from "@/lib/constants";
 import { addAccount, updateAccount, deleteAccount, getTransferHistory } from "@/app/actions/accounts";
 import { addTransaction } from "@/app/actions/transactions";
 import { toast } from "sonner";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import { formatRupiah, unformatRupiah } from "@/lib/format";
 import { createPortal } from "react-dom";
@@ -143,16 +143,31 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
     }
     
     const cleanAmount = Number(unformatRupiah(transferAmount));
-    if (!cleanAmount || isNaN(cleanAmount)) {
+    if (!cleanAmount || isNaN(cleanAmount) || cleanAmount <= 0) {
       toast.error("Nominal transfer tidak valid");
       return;
     }
+
+    const senderAcc = accounts.find(a => a.id === fromAccount);
+    if (senderAcc && cleanAmount > (senderAcc.balance || 0)) {
+      toast.error(`Saldo ${senderAcc.name} tidak mencukupi (Tersedia: Rp ${(senderAcc.balance || 0).toLocaleString('id-ID')})`);
+      return;
+    }
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const localDateStr = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 
     setIsSubmitting(true);
     const res = await addTransaction({
       amount: cleanAmount,
       description: transferDesc || `Transfer dari ${accounts.find(a => a.id === fromAccount)?.name} ke ${accounts.find(a => a.id === toAccount)?.name}`,
-      date: new Date().toISOString(),
+      date: localDateStr,
       type: 'TRANSFER',
       accountId: fromAccount,
       destinationAccountId: toAccount
@@ -223,7 +238,8 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
           <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto">
             <button 
               onClick={() => {
-                setFromMember("");
+                const defaultSender = currentMember !== "all" ? currentMember : (members[0]?.id || "");
+                setFromMember(defaultSender);
                 setFromAccount("");
                 setToMember("");
                 setToAccount("");
@@ -341,35 +357,15 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
             <h2 className="text-xl md:text-2xl font-black text-gray-800 dark:text-white tracking-tight">Riwayat Transfer</h2>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3 bg-white dark:bg-[#1E1E2D] p-1 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto overflow-hidden">
-            <div className="flex p-0.5 md:p-1 bg-gray-50 dark:bg-gray-800/50 rounded-lg md:rounded-xl border border-gray-100/50 dark:border-gray-700/50">
-              <button
-                onClick={() => { setTransferViewMode("monthly"); setTransferPage(1); }}
-                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'monthly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Bln
-              </button>
-              <button
-                onClick={() => { setTransferViewMode("yearly"); setTransferPage(1); }}
-                className={`text-[8px] md:text-[9px] px-3 md:px-4 py-1.5 md:py-2 rounded-md md:rounded-lg font-black uppercase tracking-widest transition-all ${transferViewMode === 'yearly' ? 'bg-slate-700 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
-              >
-                Thn
-              </button>
+          <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
+            <button onClick={() => changeTransferPeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
+            <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
+              <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+                {transferViewMode === "monthly" ? format(transferDate, "MMMM yyyy", { locale: id }) : format(transferDate, "yyyy", { locale: id })}
+              </span>
+              <Calendar className="w-3.5 h-3.5 text-gray-400" />
             </div>
-
-            <div className="flex items-center gap-0.5 md:gap-1 flex-1 sm:flex-none justify-center">
-              <button onClick={() => changeTransferPeriod(-1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
-                <ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4" />
-              </button>
-              <div className="px-1 md:px-2 min-w-[80px] md:min-w-[100px] text-center">
-                <span className="font-bold text-[9px] md:text-[10px] text-gray-900 dark:text-white tracking-widest uppercase">
-                  {transferViewMode === "monthly" ? format(transferDate, "MMM yyyy", { locale: id }) : format(transferDate, "yyyy", { locale: id })}
-                </span>
-              </div>
-              <button onClick={() => changeTransferPeriod(1)} className="p-1.5 md:p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90 text-gray-400 hover:text-gray-600">
-                <ChevronRight className="w-3.5 h-3.5 md:w-4 h-4" />
-              </button>
-            </div>
+            <button onClick={() => changeTransferPeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
           </div>
         </div>
 
@@ -394,7 +390,18 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                             Transfer
                           </span>
                           <span className="text-[10px] md:text-xs font-bold text-gray-400 whitespace-nowrap">
-                            {format(new Date(transfer.date), "dd MMM yyyy", { locale: id })}
+                            {(() => {
+                              // Split date string to extract parts directly to avoid Date constructor timezone shifts
+                              if (typeof transfer.date === 'string') {
+                                const parts = transfer.date.split('T')[0].split('-');
+                                if (parts.length === 3) {
+                                  // parts = [YYYY, MM, DD]
+                                  const localDateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                                  return format(localDateObj, "dd MMM yyyy", { locale: id });
+                                }
+                              }
+                              return format(new Date(transfer.date), "dd MMM yyyy", { locale: id });
+                            })()}
                           </span>
                         </div>
                       </div>
@@ -628,19 +635,26 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                 <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Dari Rekening</h3>
                 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
-                  <select
-                    value={fromMember}
-                    onChange={(e) => {
-                      setFromMember(e.target.value);
-                      setFromAccount(""); // Reset account when member changes
-                    }}
-                    required
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
-                  >
-                    <option value="">Pilih Anggota Pengirim</option>
-                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
+                  <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Anggota Pengirim</label>
+                  {currentMember !== "all" ? (
+                    <div className="w-full px-5 py-4 bg-gray-100 dark:bg-[#1A1825] border border-gray-200 dark:border-gray-800 rounded-2xl font-bold text-gray-800 dark:text-white text-sm flex items-center justify-between">
+                      <span>{members.find(m => m.id === fromMember)?.name || "Anggota Terpilih"}</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Pengirim</span>
+                    </div>
+                  ) : (
+                    <select
+                      value={fromMember}
+                      onChange={(e) => {
+                        setFromMember(e.target.value);
+                        setFromAccount(""); // Reset account when member changes
+                      }}
+                      required
+                      className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                    >
+                      <option value="">Pilih Anggota Pengirim</option>
+                      {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    </select>
+                  )}
                 </div>
 
                 <div className="space-y-2">

@@ -83,10 +83,10 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
         and(
           eq(budgetPeriods.userId, userId),
           eq(budgetPeriods.month, prevMonth.toString()),
-          eq(budgetPeriods.year, prevYear.toString()),
-          memberId ? eq(budgetPeriods.memberId, memberId) : sql`${budgetPeriods.memberId} IS NULL`
+          eq(budgetPeriods.year, prevYear.toString())
         )
       )
+      .orderBy(sql`CASE WHEN ${budgetPeriods.memberId} = ${memberId || ''} THEN 1 WHEN ${budgetPeriods.memberId} IS NULL THEN 2 ELSE 3 END`)
       .limit(1)
       .execute();
 
@@ -99,6 +99,16 @@ export async function createBudgetPeriod(month: string, year: string, copyFromPr
         .execute();
     }
   }
+
+  // Remove any existing empty period for this month/year first to prevent duplication
+  await db.delete(budgetPeriods).where(
+    and(
+      eq(budgetPeriods.userId, userId),
+      eq(budgetPeriods.month, month),
+      eq(budgetPeriods.year, year),
+      memberId ? eq(budgetPeriods.memberId, memberId) : sql`${budgetPeriods.memberId} IS NULL`
+    )
+  ).execute();
 
   await db.insert(budgetPeriods).values({
     id: periodId,
@@ -136,6 +146,19 @@ export async function updateBudgetPeriodTotal(periodId: string, totalBudget: num
     .set({ totalBudget: totalBudget.toString() })
     .where(eq(budgetPeriods.id, periodId))
     .execute();
+
+  revalidatePath("/dashboard/budget");
+}
+
+export async function deleteBudgetPeriod(periodId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) throw new Error("Unauthorized");
+
+  await db.delete(budgetItems).where(eq(budgetItems.periodId, periodId)).execute();
+  await db.delete(budgetPeriods).where(eq(budgetPeriods.id, periodId)).execute();
 
   revalidatePath("/dashboard/budget");
 }

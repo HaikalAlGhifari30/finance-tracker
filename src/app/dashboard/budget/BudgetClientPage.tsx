@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { id } from "date-fns/locale";
 import { 
@@ -21,7 +22,7 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { getBudgetPeriod, createBudgetPeriod, getCategoryExpensesForPeriod, upsertBudgetItems } from "@/app/actions/budget";
+import { getBudgetPeriod, createBudgetPeriod, getCategoryExpensesForPeriod, upsertBudgetItems, deleteBudgetPeriod } from "@/app/actions/budget";
 import BudgetActionModal from "./BudgetActionModal";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { MemberFilter } from "@/components/MemberFilter";
@@ -56,6 +57,11 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   const [isResetFinalConfirmOpen, setIsResetFinalConfirmOpen] = useState(false);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [generateAmount, setGenerateAmount] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const monthStr = (currentDate.getMonth() + 1).toString();
   const yearStr = currentDate.getFullYear().toString();
@@ -150,7 +156,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
     
     setLoading(true);
     try {
-      await upsertBudgetItems(budgetPeriod.id, []);
+      await deleteBudgetPeriod(budgetPeriod.id);
       toast.success("Alokasi berhasil dikosongkan");
       fetchBudgetData();
     } catch (error) {
@@ -158,6 +164,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
     } finally {
       setLoading(false);
       setIsResetFinalConfirmOpen(false);
+      setIsResetConfirmOpen(false);
     }
   };
 
@@ -218,7 +225,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in text-left pb-10">
       {/* Header Area */}
-      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
         <div className="text-center lg:text-left">
           <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Alokasi Dana 🎯</h1>
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">
@@ -226,7 +233,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           </p>
         </div>
 
-        <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-center">
           <MemberFilter members={members} className="w-full sm:w-auto" hideAll={true} />
           
           {/* Month Navigation Datepicker */}
@@ -280,36 +287,36 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-        <GlassCard className="p-5 bg-[#1E1E2D]/40 border border-gray-800/80 rounded-2xl flex items-center gap-4">
+        <GlassCard className="p-5 bg-white dark:bg-[#1E1E2D]/40 border border-gray-100 dark:border-gray-800/80 rounded-2xl flex items-center gap-4">
           <div className="bg-purple-500/10 text-purple-500 p-3 rounded-2xl shrink-0">
             <Target className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Budget Alokasi</p>
-            <h4 className="text-lg font-black text-white mt-0.5">Rp {budgetStats.totalBudget.toLocaleString("id-ID")}</h4>
-            <p className="text-[9px] text-gray-500 mt-0.5">Total rencana anggaran</p>
+            <p className="text-gray-400 dark:text-gray-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Budget Alokasi</p>
+            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {budgetStats.totalBudget.toLocaleString("id-ID")}</h4>
+            <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Total rencana anggaran</p>
           </div>
         </GlassCard>
 
-        <GlassCard className="p-5 bg-[#1E1E2D]/40 border border-gray-800/80 rounded-2xl flex items-center gap-4">
+        <GlassCard className="p-5 bg-white dark:bg-[#1E1E2D]/40 border border-gray-100 dark:border-gray-800/80 rounded-2xl flex items-center gap-4">
           <div className="bg-rose-500/10 text-rose-500 p-3 rounded-2xl shrink-0">
             <ArrowUpRight className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Terpakai</p>
+            <p className="text-gray-400 dark:text-gray-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Terpakai</p>
             <h4 className="text-lg font-black text-rose-500 mt-0.5">Rp {budgetStats.totalSpent.toLocaleString("id-ID")}</h4>
-            <p className="text-[9px] text-gray-500 mt-0.5">Total pengeluaran dari alokasi</p>
+            <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Total pengeluaran dari alokasi</p>
           </div>
         </GlassCard>
 
-        <GlassCard className="p-5 bg-[#1E1E2D]/40 border border-gray-800/80 rounded-2xl flex items-center gap-4">
+        <GlassCard className="p-5 bg-white dark:bg-[#1E1E2D]/40 border border-gray-100 dark:border-gray-800/80 rounded-2xl flex items-center gap-4">
           <div className="bg-blue-500/10 text-blue-500 p-3 rounded-2xl shrink-0">
             <PiggyBank className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-gray-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Sisa Budget</p>
-            <h4 className="text-lg font-black text-white mt-0.5">Rp {Math.max(0, budgetStats.totalBudget - budgetStats.totalSpent).toLocaleString("id-ID")}</h4>
-            <p className="text-[9px] text-gray-500 mt-0.5">Masih bisa digunakan</p>
+            <p className="text-gray-400 dark:text-gray-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Sisa Budget</p>
+            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {Math.max(0, budgetStats.totalBudget - budgetStats.totalSpent).toLocaleString("id-ID")}</h4>
+            <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Masih bisa digunakan</p>
           </div>
         </GlassCard>
       </div>
@@ -320,7 +327,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
             <div key={i} className="h-20 bg-gray-100 dark:bg-gray-800/40 animate-pulse rounded-2xl" />
           ))}
         </div>
-      ) : !budgetPeriod ? (
+      ) : (!budgetPeriod || budgetPeriod.items.length === 0) ? (
         <GlassCard className="p-8 md:p-16 text-center flex flex-col items-center gap-6 bg-white dark:bg-gray-900/40 border-dashed border-2 border-gray-200 dark:border-gray-800">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center">
             <Calendar className="w-8 h-8 md:w-10 md:h-10 text-amber-500" />
@@ -386,30 +393,30 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
               const isOver = spent > item.amount;
 
               return (
-                <GlassCard key={item.id} className={`p-4 md:p-5 bg-[#1E1E2D]/40 border border-gray-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-y-[-2px] ${isOver ? 'border-rose-500/50' : ''}`}>
+                <GlassCard key={item.id} className={`p-4 md:p-5 bg-white dark:bg-[#1E1E2D]/40 border border-gray-100 dark:border-gray-800/80 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:translate-y-[-2px] ${isOver ? 'border-rose-500/50 dark:border-rose-500/50' : ''}`}>
                   {/* Category Name */}
                   <div className="flex items-center gap-3 min-w-[200px]">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getCategoryColor(item.categoryName)}`}>
                       <span className="text-lg">{getCategoryIcon(item.categoryName)}</span>
                     </div>
                     <div>
-                      <h4 className="text-base font-black text-white leading-tight">{item.categoryName}</h4>
+                      <h4 className="text-base font-black text-gray-900 dark:text-white leading-tight">{item.categoryName}</h4>
                     </div>
                   </div>
 
                   {/* Columns */}
                   <div className="grid grid-cols-3 gap-2 flex-1 max-w-xl">
                     <div>
-                      <span className="text-gray-500 text-[10px] uppercase block">Budget</span>
-                      <span className="font-bold text-white text-sm">Rp {item.amount.toLocaleString("id-ID")}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase block">Budget</span>
+                      <span className="font-bold text-gray-900 dark:text-white text-sm">Rp {item.amount.toLocaleString("id-ID")}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500 text-[10px] uppercase block">Terpakai</span>
-                      <span className="font-bold text-white text-sm">Rp {spent.toLocaleString("id-ID")}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase block">Terpakai</span>
+                      <span className="font-bold text-gray-900 dark:text-white text-sm">Rp {spent.toLocaleString("id-ID")}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500 text-[10px] uppercase block">Sisa</span>
-                      <span className={`font-bold text-sm ${remaining < 0 ? 'text-rose-500' : 'text-emerald-400'}`}>
+                      <span className="text-gray-400 dark:text-gray-500 text-[10px] uppercase block">Sisa</span>
+                      <span className={`font-bold text-sm ${remaining < 0 ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
                         Rp {remaining.toLocaleString("id-ID")}
                       </span>
                     </div>
@@ -417,13 +424,13 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
 
                   {/* Progress Column */}
                   <div className="flex items-center gap-3 min-w-[150px]">
-                    <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden p-0.5">
+                    <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden p-0.5">
                       <div 
                         className={`h-full rounded-full transition-all duration-1000 ${isOver ? 'bg-rose-500' : 'bg-emerald-500'}`}
                         style={{ width: `${progress}%` }}
                       />
                     </div>
-                    <span className={`text-xs font-black shrink-0 ${isOver ? 'text-rose-500' : 'text-emerald-400'}`}>
+                    <span className={`text-xs font-black shrink-0 ${isOver ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
                       {progress.toFixed(0)}%
                     </span>
                   </div>
@@ -481,9 +488,9 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
       />
 
       {/* Generate Otomatis Modal */}
-      {showGenerateModal && (
+      {showGenerateModal && mounted && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-[12px]" onClick={() => setShowGenerateModal(false)} />
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-[12px] animate-in fade-in duration-300" onClick={() => setShowGenerateModal(false)} />
           <GlassCard className="relative w-full max-w-md bg-white dark:bg-[#1E1E2D] p-8 shadow-2xl animate-in zoom-in-95 duration-300 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 text-left">
             <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Generate Alokasi Otomatis</h3>
             <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mt-1 mb-6">Nominal akan dibagi rata ke setiap kategori</p>
@@ -532,7 +539,8 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
               </div>
             </form>
           </GlassCard>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
