@@ -27,6 +27,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
   const [accountId, setAccountId] = useState("");
   const [goalId, setGoalId] = useState(""); // Destination Goal
   const [sourceGoalId, setSourceGoalId] = useState(""); // Source Goal
+  const [fromBudget, setFromBudget] = useState(false); // Whether this saving should reduce budget allocation
   const [date, setDate] = useState(() => {
     const now = new Date();
     const offset = now.getTimezoneOffset();
@@ -44,6 +45,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
     setAccountId("");
     setGoalId(""); // Default to "Tabungan Umum" (Empty)
     setSourceGoalId(""); // Default to "Tabungan Umum" (Empty)
+    setFromBudget(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -130,6 +132,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
         destinationAccountId: mode === "WITHDRAWAL" ? accountId : undefined,
         goalId: goalId,
         memberId: memberId,
+        fromBudget: mode === "SAVING" ? fromBudget : undefined,
       };
 
       if (mode === "WITHDRAWAL") {
@@ -407,6 +410,39 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               </div>
             </div>
+
+            {/* Toggle: Potong dari Budget Alokasi? (only for SAVING mode) */}
+            {mode === 'SAVING' && (
+              <button
+                type="button"
+                onClick={() => setFromBudget(v => !v)}
+                className={`w-full flex items-center justify-between gap-4 px-5 py-4 rounded-[20px] border-2 transition-all duration-300 ${
+                  fromBudget
+                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+                    : 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900'
+                }`}
+              >
+                <div className="text-left">
+                  <p className={`font-black text-xs uppercase tracking-widest ${
+                    fromBudget ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'
+                  }`}>Potong dari Budget Alokasi?</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {fromBudget
+                      ? 'Tabungan ini akan mengurangi Budget Alokasi bulan ini'
+                      : 'Tabungan dari pemasukan tambahan, tidak mempengaruhi budget'
+                    }
+                  </p>
+                </div>
+                <div className={`relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 ${
+                  fromBudget ? 'bg-amber-500' : 'bg-gray-200 dark:bg-gray-700'
+                }`}>
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all duration-300 ${
+                    fromBudget ? 'left-[calc(100%-1.375rem)]' : 'left-0.5'
+                  }`} />
+                </div>
+              </button>
+            )}
+
           </div>
 
           <div className="pt-6 md:pt-8 flex flex-col sm:flex-row gap-3 md:gap-4">

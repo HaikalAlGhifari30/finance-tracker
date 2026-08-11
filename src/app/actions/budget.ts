@@ -236,6 +236,7 @@ export async function getBudgetPeriodSavings(month: string, year: string, member
   const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
   const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
 
+  // Only count savings that were explicitly taken from budget (marked with [DARI_BUDGET] prefix)
   const savings = await db
     .select({
       type: transactions.type,
@@ -247,6 +248,7 @@ export async function getBudgetPeriodSavings(month: string, year: string, member
         eq(transactions.userId, userId),
         sql`${transactions.type} IN ('SAVING', 'WITHDRAWAL')`,
         sql`${transactions.date} >= ${startDate} AND ${transactions.date} <= ${endDate}`,
+        sql`${transactions.description} LIKE '[DARI_BUDGET]%'`,
         memberId ? eq(transactions.memberId, memberId) : undefined
       )
     )
@@ -263,4 +265,3 @@ export async function getBudgetPeriodSavings(month: string, year: string, member
 
   return { totalSavings, totalWithdrawals };
 }
-

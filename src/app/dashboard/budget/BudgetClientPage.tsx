@@ -190,9 +190,35 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
     return budgetPeriod.items.reduce((sum: number, item: any) => sum + item.amount, 0);
   }, [budgetPeriod]);
 
+  // Budget Alokasi = totalBudget minus only savings explicitly from budget ([DARI_BUDGET])
   const adjustedTotalBudget = useMemo(() => {
     return Math.max(0, (budgetPeriod?.totalBudget || 0) - netSavings);
   }, [budgetPeriod?.totalBudget, netSavings]);
+
+  // Proportionally scale each category's budget amount to match adjustedTotalBudget
+  // so the category list total is always consistent with the budget summary card
+  const adjustedItems = useMemo(() => {
+    if (!budgetPeriod) return [];
+    if (allocatedSum === 0 || adjustedTotalBudget === 0) return budgetPeriod.items;
+
+    const scale = adjustedTotalBudget / allocatedSum;
+    let distributed = 0;
+
+    return budgetPeriod.items.map((item: any, idx: number) => {
+      const isLast = idx === budgetPeriod.items.length - 1;
+      let adjustedAmount: number;
+
+      if (isLast) {
+        adjustedAmount = Math.max(0, adjustedTotalBudget - distributed);
+      } else {
+        adjustedAmount = Math.round((item.amount * scale) / 1000) * 1000;
+        if (adjustedAmount < 0) adjustedAmount = 0;
+        distributed += adjustedAmount;
+      }
+
+      return { ...item, amount: adjustedAmount };
+    });
+  }, [budgetPeriod, allocatedSum, adjustedTotalBudget]);
 
   const allocatedPercent = useMemo(() => {
     if (adjustedTotalBudget === 0) return 0;
@@ -393,7 +419,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
 
           {/* Category List - Horizontal Row Cards */}
           <div className="flex flex-col gap-4">
-            {budgetPeriod.items.map((item: any) => {
+            {adjustedItems.map((item: any) => {
               const spent = categoryExpenses[item.categoryId] || 0;
               const remaining = item.amount - spent;
               const progress = item.amount > 0 ? Math.min((spent / item.amount) * 100, 100) : 0;
@@ -469,7 +495,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           allCategories={allCategories.filter(c => c.type === 'EXPENSE')}
           existingItems={budgetPeriod.items}
           onSuccess={fetchBudgetData}
-          totalBudget={adjustedTotalBudget}
+          totalBudget={budgetPeriod.totalBudget}
           totalSpent={budgetStats.totalSpent}
           availableBalance={availableBalance}
         />

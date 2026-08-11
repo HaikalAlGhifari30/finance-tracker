@@ -18,6 +18,7 @@ export async function addTransaction(data: {
   goalId?: string;
   destinationGoalId?: string;
   memberId?: string;
+  fromBudget?: boolean; // If true, this saving is deducted from budget allocation
 }) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -25,11 +26,55 @@ export async function addTransaction(data: {
 
   if (!session?.user) return { error: "Unauthorized" };
 
+  if (data.type === 'SAVING' && data.fromBudget) {
+    try {
+      const txDate = typeof data.date === 'string' && data.date.includes('T')
+        ? new Date(data.date)
+        : new Date(`${data.date}T00:00:00`);
+      
+      const monthStr = (txDate.getMonth() + 1).toString();
+      const yearStr = txDate.getFullYear().toString();
+      
+      const { getBudgetPeriod, getCategoryExpensesForPeriod, getBudgetPeriodSavings } = await import("./budget");
+      const period = await getBudgetPeriod(monthStr, yearStr, data.memberId || undefined);
+      
+      if (period) {
+        const [expenses, savingsData] = await Promise.all([
+          getCategoryExpensesForPeriod(monthStr, yearStr, data.memberId || undefined),
+          getBudgetPeriodSavings(monthStr, yearStr, data.memberId || undefined)
+        ]);
+        
+        const totalBudget = Number(period.totalBudget) || 0;
+        let totalSpent = 0;
+        period.items.forEach((item: any) => {
+          totalSpent += expenses[item.categoryId] || 0;
+        });
+        
+        const netSavings = (savingsData?.totalSavings || 0) - (savingsData?.totalWithdrawals || 0);
+        const adjustedTotalBudget = Math.max(0, totalBudget - netSavings);
+        const sisaBudget = adjustedTotalBudget - totalSpent;
+        
+        if (data.amount > sisaBudget) {
+          return { 
+            error: `Dana yang dapat dialihkan hanya Rp ${Math.max(0, sisaBudget).toLocaleString("id-ID")} karena Rp ${totalSpent.toLocaleString("id-ID")} sudah terpakai.` 
+          };
+        }
+      }
+    } catch (err) {
+      console.error("Validation error inside addTransaction:", err);
+    }
+  }
+
   try {
+    // Prefix description with [DARI_BUDGET] if this saving is from budget allocation
+    const finalDescription = data.type === 'SAVING' && data.fromBudget
+      ? `[DARI_BUDGET] ${data.description || ''}`.trim()
+      : (data.description || null);
+
     await db.insert(transactions).values({
       id: crypto.randomUUID(),
       amount: data.amount.toString(),
-      description: data.description || null,
+      description: finalDescription,
       date: typeof data.date === 'string' && data.date.includes('T')
         ? new Date(data.date)
         : new Date(`${data.date}T00:00:00`),
