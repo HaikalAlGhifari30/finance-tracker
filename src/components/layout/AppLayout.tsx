@@ -306,9 +306,9 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             </Link>
             
             <div className="flex-1 flex justify-center items-center min-h-[44px]">
-              <Link href="/dashboard" className="w-10 h-10 rounded-[12px] bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white flex flex-col items-center justify-center shadow-md shadow-emerald-500/10 dark:shadow-emerald-950/20 active:scale-95 transition-all">
-                <Home className="w-4.5 h-4.5 stroke-[2.5px]" />
-                <span className="text-[6px] font-black uppercase tracking-wider mt-0.5">Home</span>
+              <Link href="/dashboard" className="-translate-y-4 w-14 h-14 rounded-[18px] bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white flex flex-col items-center justify-center shadow-lg shadow-emerald-500/30 dark:shadow-emerald-950/30 active:scale-95 transition-all ring-4 ring-white dark:ring-[#1E1E2D]">
+                <Home className="w-6 h-6 stroke-[2.5px]" />
+                <span className="text-[7px] font-black uppercase tracking-wider mt-0.5">Home</span>
               </Link>
             </div>
 

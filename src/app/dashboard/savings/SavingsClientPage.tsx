@@ -90,7 +90,8 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
           <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Satu saldo untuk berbagai tujuan masa depan Anda.</p>
         </div>
         <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
+          {/* Date filter: hidden on mobile, shown on desktop in header */}
+          <div className="hidden md:flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
             <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
             <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
               <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
@@ -116,9 +117,10 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                   <ArrowDownCircle className="w-4 h-4 md:w-5 md:h-5" />
                   <span>Tarik</span>
               </button>
+              {/* Goal Baru: hidden on mobile, shown on desktop in header */}
               <button 
                   onClick={() => setIsGoalModalOpen(true)}
-                  className="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 md:py-4 rounded-2xl md:rounded-[24px] text-xs md:text-sm font-black shadow-xl shadow-amber-500/20 hover:opacity-90 transition-all flex items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
+                  className="hidden md:flex w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 md:py-4 rounded-2xl md:rounded-[24px] text-xs md:text-sm font-black shadow-xl shadow-amber-500/20 hover:opacity-90 transition-all items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
               >
                   <Plus className="w-4 h-4 md:w-5 md:h-5" />
                   <span>Goal Baru</span>
@@ -171,7 +173,15 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                     <Target className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
                     Tujuan Tabungan
                 </h3>
-                <div className="flex items-center justify-between sm:justify-end gap-4">
+                <div className="flex items-center justify-between sm:justify-end gap-3">
+                    {/* Goal Baru: only visible on mobile here */}
+                    <button 
+                        onClick={() => setIsGoalModalOpen(true)}
+                        className="md:hidden flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-2 rounded-xl text-[10px] font-black shadow-md shadow-amber-500/20 hover:opacity-90 transition-all active:scale-95 whitespace-nowrap"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Goal Baru</span>
+                    </button>
                     <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl">
                         <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
                         <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Set Utama</span>
@@ -336,10 +346,23 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
 
       {/* Transaction History */}
       <div className="space-y-4 md:space-y-6">
-        <h3 className="font-black text-lg md:text-xl text-gray-900 dark:text-white flex items-center gap-3 px-2">
-            <History className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
-            Riwayat Tabungan
-        </h3>
+        <div className="flex items-center justify-between gap-3 px-2">
+          <h3 className="font-black text-lg md:text-xl text-gray-900 dark:text-white flex items-center gap-3">
+              <History className="w-5 h-5 md:w-6 md:h-6 text-amber-500" />
+              Riwayat Tabungan
+          </h3>
+          {/* Date filter: only shown on mobile here, desktop shows it in header */}
+          <div className="flex md:hidden items-center gap-1.5 bg-gray-50/80 dark:bg-gray-900/60 p-1 rounded-[16px] border border-gray-100 dark:border-gray-800 shadow-sm">
+            <button onClick={() => changePeriod(-1)} className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 text-gray-600" /></button>
+            <div className="px-2 text-center flex items-center justify-center gap-1.5">
+              <span className="font-bold text-[9px] text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
+                {format(currentDate, "MMM yyyy", { locale: id })}
+              </span>
+              <Calendar className="w-3 h-3 text-gray-400" />
+            </div>
+            <button onClick={() => changePeriod(1)} className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 text-gray-600" /></button>
+          </div>
+        </div>
         <GlassCard className="p-0 overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm">
             {history.length === 0 ? (
                 <div className="p-10 md:p-20 text-center">
