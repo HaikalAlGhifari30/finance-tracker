@@ -57,8 +57,6 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
              email,
              password,
              name,
-             // Optional: Set role default to SUPERADMIN for the very first user
-             // or keep default to USER from schema.
          });
          
          if (error) {
@@ -70,6 +68,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
         const { data, error } = await authClient.signIn.email({
           email,
           password,
+          rememberMe: false,
         });
 
         if (error) {

@@ -48,7 +48,7 @@ export default async function ForgotPasswordPage() {
       </div>
 
       <div className="absolute bottom-8 text-white/20 text-[9px] font-bold uppercase tracking-[0.2em]">
-         LACAK KEUANGAN, AMANKAN MASA DEPAN
+         AMANKAN MASA DEPAN
       </div>
     </div>
   );

@@ -27,8 +27,8 @@ export default function LoginPage() {
             </div>
             <h1 className="text-xl font-black text-white tracking-tight leading-none">FinTrack</h1>
           </div>
-          <p className="text-[9px] font-bold tracking-[0.18em] text-emerald-400/80 uppercase mt-2.5 text-center">
-            Lacak Keuangan, Amankan Masa Depan
+          <p className="text-[9px] font-bold tracking-[0.25em] text-emerald-400/80 uppercase mt-3.5 text-center">
+            Amankan masa depan
           </p>
         </div>
         <LoginForm initialMode={isRegisterMode} />

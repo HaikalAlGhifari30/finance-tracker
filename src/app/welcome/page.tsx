@@ -46,8 +46,8 @@ export default function WelcomePage() {
             </div>
             <h1 className="text-white font-black text-2xl tracking-tight leading-none">FinTrack</h1>
           </div>
-          <p className="text-[9px] font-bold tracking-[0.3em] text-emerald-400/80 uppercase mt-2.5 pl-1 mb-8 md:mb-12">
-            Finance Tracking
+          <p className="text-[9px] font-bold tracking-[0.25em] text-emerald-400/80 uppercase mt-3.5 pl-1 mb-8 md:mb-12">
+            Amankan masa depan
           </p>
 
           <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white leading-tight mb-4">

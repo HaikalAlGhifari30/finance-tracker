@@ -56,15 +56,15 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* Brand */}
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3">
           <h1 className="splash-title text-white font-black text-3xl tracking-tight leading-none">
             FinTrack
           </h1>
           <p
-            className="splash-subtitle text-[10px] font-bold tracking-[0.32em] uppercase"
+            className="splash-subtitle text-[10px] font-bold tracking-[0.25em] uppercase"
             style={{ color: "rgba(52,211,153,0.75)" }}
           >
-            Finance Tracking
+            Amankan masa depan
           </p>
         </div>
       </div>
