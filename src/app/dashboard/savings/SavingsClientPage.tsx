@@ -7,7 +7,7 @@ import { id } from "date-fns/locale";
 import { 
   Plus, Target, TrendingUp, History, CreditCard, ChevronRight, Trophy, Star, 
   Wallet, Edit2, ArrowUpCircle, ArrowDownCircle, ArrowRightLeft, 
-  ChevronLeft, Calendar, Filter 
+  ChevronLeft, Calendar, Filter, Eye, EyeOff 
 } from "lucide-react";
 import GoalModal from "./GoalModal";
 import SavingsActionModal from "./SavingsActionModal";
@@ -26,6 +26,11 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
   const [isPending, startTransition] = useTransition();
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showBalances, setShowBalances] = useState(false);
+
+  const renderBalance = (amount: number, prefix: string = "Rp ") => {
+    return showBalances ? `${prefix}${amount.toLocaleString("id-ID")}` : `${prefix}•••••••`;
+  };
 
   const changePeriod = (amount: number) => {
     const newDate = new Date(currentDate);
@@ -129,16 +134,25 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
               <Trophy className="w-32 md:w-40 h-32 md:h-40 rotate-12" />
            </div>
             <div className="relative z-10">
-               <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                 <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
-                     <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-200 fill-yellow-200" />
-                 </div>
-                 <p className="text-amber-100 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Tabungan</p>
-               </div>
-               <h3 className="text-3xl md:text-5xl font-black tracking-tighter">Rp {totalSavingsPool.toLocaleString("id-ID")}</h3>
+               <div className="flex items-center justify-between md:justify-start gap-3 mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
+                        <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-200 fill-yellow-200" />
+                    </div>
+                    <p className="text-amber-100 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] opacity-90">Total Tabungan</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowBalances(!showBalances)} 
+                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all cursor-pointer flex items-center justify-center active:scale-95 border border-white/5"
+                    title={showBalances ? "Sembunyikan Saldo" : "Tampilkan Saldo"}
+                  >
+                    {showBalances ? <Eye className="w-3.5 h-3.5 text-white" /> : <EyeOff className="w-3.5 h-3.5 text-white" />}
+                  </button>
+                </div>
+               <h3 className="text-3xl md:text-5xl font-black tracking-tighter">{renderBalance(totalSavingsPool)}</h3>
                <div className="mt-3 md:mt-4 flex items-center justify-center md:justify-start gap-2">
                  <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full backdrop-blur-md border border-white/10 ${periodStats.totalActivity >= 0 ? 'bg-emerald-500/30 text-emerald-100' : 'bg-rose-500/30 text-rose-100'}`}>
-                    {periodStats.totalActivity >= 0 ? '+' : ''} Rp {periodStats.totalActivity.toLocaleString("id-ID")} ({viewMode === 'monthly' ? 'Bulan Ini' : 'Tahun Ini'})
+                    {periodStats.totalActivity >= 0 ? '+' : ''} {renderBalance(periodStats.totalActivity)} ({viewMode === 'monthly' ? 'Bulan Ini' : 'Tahun Ini'})
                  </span>
                </div>
             </div>
@@ -184,9 +198,9 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                             <div className="space-y-1">
                                 <span className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest block">Total Tersedia</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xl md:text-2xl font-black text-amber-600 tracking-tight">Rp {totalSavingsPool.toLocaleString("id-ID")}</span>
+                                    <span className="text-xl md:text-2xl font-black text-amber-600 tracking-tight">{renderBalance(totalSavingsPool)}</span>
                                     <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${periodStats.totalActivity >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                        {periodStats.totalActivity >= 0 ? '+' : ''} {periodStats.totalActivity.toLocaleString("id-ID")}
+                                        {periodStats.totalActivity >= 0 ? '+' : ''} {renderBalance(periodStats.totalActivity, "")}
                                     </span>
                                 </div>
                             </div>
@@ -200,12 +214,12 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                               <div className="flex flex-wrap gap-1.5">
                                 {goals.filter(g => Number(g.balance || 0) > 0).map(g => (
                                   <div key={g.id} className="text-[9px] font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg">
-                                    {g.name}: Rp {Number(g.balance).toLocaleString("id-ID")}
+                                    {g.name}: {renderBalance(Number(g.balance))}
                                   </div>
                                 ))}
                                 {unallocatedSavings > 0 && (
                                   <div className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-lg">
-                                    Belum Dialokasikan: Rp {unallocatedSavings.toLocaleString("id-ID")}
+                                    Belum Dialokasikan: {renderBalance(unallocatedSavings)}
                                   </div>
                                 )}
                               </div>
@@ -288,7 +302,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                 <div className="space-y-1 text-left">
                                     <span className="text-[9px] md:text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest block">Terkumpul</span>
                                     <div className="flex flex-wrap items-baseline gap-1 md:gap-2">
-                                        <span className="text-xl md:text-2xl font-black text-amber-600 dark:text-amber-500 tracking-tight">Rp {goalBalance.toLocaleString("id-ID")}</span>
+                                        <span className="text-xl md:text-2xl font-black text-amber-600 dark:text-amber-500 tracking-tight">{renderBalance(goalBalance)}</span>
                                         <span className="text-[9px] md:text-[10px] font-bold text-gray-400">/ Rp {targetAmount.toLocaleString("id-ID")}</span>
                                     </div>
                                 </div>

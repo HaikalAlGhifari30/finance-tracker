@@ -14,7 +14,7 @@ export default async function BudgetPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   const now = new Date();
   const currentMonth = (now.getMonth() + 1).toString();

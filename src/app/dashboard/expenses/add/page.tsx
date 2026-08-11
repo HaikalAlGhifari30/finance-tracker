@@ -12,7 +12,7 @@ export default async function AddExpensePage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   const userCats = await db
     .select()

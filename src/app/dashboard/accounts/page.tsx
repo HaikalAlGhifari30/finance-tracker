@@ -13,7 +13,7 @@ export default async function AccountsPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   const accounts = await getAccounts();
   const members = await getMembers();

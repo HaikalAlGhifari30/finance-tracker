@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   });
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/");
   }
 
   if ((session?.user as any)?.role === "SUPERADMIN") {

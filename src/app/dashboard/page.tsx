@@ -19,7 +19,7 @@ export default async function DashboardPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   const userId = session.user.id;
 

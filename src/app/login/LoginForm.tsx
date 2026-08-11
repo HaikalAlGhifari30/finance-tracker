@@ -114,7 +114,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
             className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-white/[0.02] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm border-gray-100 dark:border-white/[0.08] focus:border-emerald-500 dark:focus:border-emerald-500 ${
               fieldErrors.name ? "border-red-500 dark:border-red-500" : ""
             }`}
-            placeholder="John Doe"
+            placeholder="Nama lengkap sesuai identitas"
           />
           {fieldErrors.name && (
             <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium">
@@ -126,7 +126,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
 
       <div>
         <label className="block text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase mb-1.5 px-0.5">
-          Email <span className="text-red-500">*</span>
+          Alamat Email <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
@@ -140,7 +140,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
           className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-white/[0.02] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm border-gray-100 dark:border-white/[0.08] focus:border-emerald-500 dark:focus:border-emerald-500 shadow-sm ${
             fieldErrors.email ? "border-red-500 dark:border-red-500" : ""
           }`}
-          placeholder="admin@example.com"
+          placeholder="nama@email.com"
         />
         {fieldErrors.email && (
           <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium">
@@ -151,7 +151,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
 
       <div>
         <label className="block text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase mb-1.5 px-0.5">
-          Password <span className="text-red-500">*</span>
+          Kata Sandi <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <input
@@ -184,7 +184,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
         {!isRegister && (
           <div className="flex justify-end mt-2">
             <Link href="/forgot-password" className="text-[11px] font-bold text-emerald-400 hover:underline">
-              Lupa password?
+              Lupa Kata Sandi?
             </Link>
           </div>
         )}
@@ -193,19 +193,19 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
       <button
         type="submit"
         disabled={loading}
-        className="w-full mt-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold py-3.5 px-4 rounded-2xl transition-all disabled:opacity-70 flex justify-center items-center gap-2 shadow-md hover:shadow-lg text-sm"
+        className="w-full mt-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold py-3.5 px-4 rounded-2xl transition-all disabled:opacity-70 flex justify-center items-center gap-2 shadow-md hover:shadow-lg text-sm cursor-pointer"
       >
         {loading && <Loader2 className="animate-spin h-5 w-5" />}
-        {loading ? "Memproses..." : (isRegister ? "Daftar" : "Masuk")}
+        {loading ? "Memverifikasi..." : (isRegister ? "Mulai Sekarang (Gratis)" : "Masuk ke Dashboard")}
       </button>
 
       <div className="text-center mt-4">
         <button
           type="button"
           onClick={() => setIsRegister(!isRegister)}
-          className="text-sm text-emerald-400 hover:underline font-medium"
+          className="text-sm text-emerald-400 hover:underline font-medium cursor-pointer"
         >
-          {isRegister ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
+          {isRegister ? "Sudah terdaftar? Masuk ke akun Anda" : "Belum memiliki akun? Daftar gratis sekarang"}
         </button>
       </div>
     </form>

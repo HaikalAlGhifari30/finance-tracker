@@ -14,7 +14,7 @@ export default async function SavingsPage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   const userId = session.user.id;
 

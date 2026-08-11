@@ -13,7 +13,7 @@ export default async function AdminLayout({
   });
 
   if (!session || (session.user as any).role !== "SUPERADMIN") {
-    redirect("/login");
+    redirect("/");
   }
 
   return <AppLayout user={session.user as any}>{children}</AppLayout>;

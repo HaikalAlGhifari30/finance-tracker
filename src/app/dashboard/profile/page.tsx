@@ -8,7 +8,7 @@ export default async function ProfilePage() {
     headers: await headers(),
   });
 
-  if (!session?.user) redirect("/login");
+  if (!session?.user) redirect("/");
 
   return (
     <div className="max-w-xl mx-auto py-8">
