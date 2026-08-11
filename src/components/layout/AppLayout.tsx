@@ -27,6 +27,68 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     }
   }, []);
 
+  // Session Timeout Guard (Mobile/PWA only)
+  useEffect(() => {
+    if (!user) return;
+
+    const checkMobileOrPWA = () => {
+      return window.innerWidth < 768 || window.matchMedia("(display-mode: standalone)").matches;
+    };
+
+    if (!checkMobileOrPWA()) return;
+
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetInactivityTimer = () => {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      // Inactivity timeout: 5 minutes
+      inactivityTimer = setTimeout(async () => {
+        await authClient.signOut();
+        window.location.replace("/");
+      }, 300000);
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === "hidden") {
+        localStorage.setItem("bg_timestamp", Date.now().toString());
+      } else if (document.visibilityState === "visible") {
+        const bgTimestampStr = localStorage.getItem("bg_timestamp");
+        if (bgTimestampStr) {
+          const bgTimestamp = parseInt(bgTimestampStr, 10);
+          const elapsed = Date.now() - bgTimestamp;
+          
+          // Background timeout: 10 seconds
+          if (elapsed > 10000) {
+            localStorage.removeItem("bg_timestamp");
+            await authClient.signOut();
+            window.location.replace("/");
+          } else {
+            localStorage.removeItem("bg_timestamp");
+          }
+        }
+        resetInactivityTimer();
+      }
+    };
+
+    const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    
+    activityEvents.forEach((event) => {
+      document.addEventListener(event, resetInactivityTimer);
+    });
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    
+    resetInactivityTimer();
+
+    return () => {
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      activityEvents.forEach((event) => {
+        document.removeEventListener(event, resetInactivityTimer);
+      });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [user]);
+
   useEffect(() => {
     // Disable auto-hide on important form/profile pages so it doesn't get in the way
     const isFormPage = pathname.includes('/add') || pathname.includes('/edit') || pathname.includes('/profile');
