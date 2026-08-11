@@ -129,7 +129,7 @@ export default function CategoryModal({ isOpen, onClose, categories }: Props) {
                       </div>
                       <button
                         onClick={() => handleDelete(cat.id)}
-                        className="text-gray-400 hover:text-rose-500 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all opacity-0 group-hover:opacity-100"
+                        className="text-gray-400 hover:text-rose-500 p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all opacity-80 hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

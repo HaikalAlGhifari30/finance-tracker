@@ -224,3 +224,43 @@ export async function getCategoryExpensesForPeriod(month: string, year: string, 
     return acc;
   }, {} as Record<string, number>);
 }
+
+export async function getBudgetPeriodSavings(month: string, year: string, memberId?: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) throw new Error("Unauthorized");
+  const userId = session.user.id;
+
+  const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+  const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+
+  const savings = await db
+    .select({
+      type: transactions.type,
+      totalAmount: sql<string>`sum(${transactions.amount})`.as("totalAmount"),
+    })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.userId, userId),
+        sql`${transactions.type} IN ('SAVING', 'WITHDRAWAL')`,
+        sql`${transactions.date} >= ${startDate} AND ${transactions.date} <= ${endDate}`,
+        memberId ? eq(transactions.memberId, memberId) : undefined
+      )
+    )
+    .groupBy(transactions.type)
+    .execute();
+
+  let totalSavings = 0;
+  let totalWithdrawals = 0;
+
+  savings.forEach(item => {
+    if (item.type === 'SAVING') totalSavings = Number(item.totalAmount);
+    if (item.type === 'WITHDRAWAL') totalWithdrawals = Number(item.totalAmount);
+  });
+
+  return { totalSavings, totalWithdrawals };
+}
+

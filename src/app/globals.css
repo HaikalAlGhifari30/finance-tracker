@@ -39,6 +39,72 @@ body {
       transform: translateY(0);
     }
   }
+
+  /* === Splash Screen Animations === */
+
+  .splash-logo {
+    animation: splashLogoIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+  }
+
+  .splash-title {
+    animation: splashTextIn 0.5s ease-out 0.4s both;
+  }
+
+  .splash-subtitle {
+    animation: splashTextIn 0.5s ease-out 0.65s both;
+  }
+
+  .splash-exit {
+    animation: splashFadeOut 0.4s ease-in 1.3s both;
+  }
+
+  @keyframes splashLogoIn {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes splashTextIn {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes splashFadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* Welcome page fade in */
+  .welcome-fade-in {
+    animation: welcomeFadeIn 0.5s ease-out forwards;
+  }
+
+  @keyframes welcomeFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Fix Chrome autofill background color */
@@ -80,6 +146,10 @@ input[type="date"]::-webkit-datetime-edit {
 }
 input[type="date"]::-webkit-datetime-edit-fields-wrapper {
     padding-left: 0;
+}
+input[type="date"]::-webkit-date-and-time-value {
+    padding-left: 2.25rem;
+    text-align: left;
 }
 
 /* Custom Scrollbar Styles */

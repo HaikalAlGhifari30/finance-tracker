@@ -17,6 +17,7 @@ interface BudgetActionModalProps {
   existingItems: any[];
   onSuccess: () => void;
   totalBudget: number;
+  totalSpent: number;
   availableBalance: number;
 }
 
@@ -28,6 +29,7 @@ export default function BudgetActionModal({
   existingItems,
   onSuccess,
   totalBudget,
+  totalSpent,
   availableBalance
 }: BudgetActionModalProps) {
   const [isPending, startTransition] = useTransition();
@@ -218,8 +220,9 @@ export default function BudgetActionModal({
     e.preventDefault();
     
     const targetBudgetVal = parseFloat(unformatRupiah(localTotalBudget)) || 0;
-    if (targetBudgetVal > availableBalance) {
-      toast.error(`Total budget melebihi saldo tersedia (Tersedia: Rp ${availableBalance.toLocaleString('id-ID')})`);
+    const maxAllowed = availableBalance + totalSpent;
+    if (targetBudgetVal > maxAllowed) {
+      toast.error(`Total budget melebihi saldo tersedia (Maksimal: Rp ${maxAllowed.toLocaleString('id-ID')})`);
       return;
     }
 

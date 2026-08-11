@@ -5,7 +5,7 @@ import { format, isSameMonth, isSameYear, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight, Trophy, Sparkles,
-  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus, Eye, EyeOff
+  CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus, Eye, EyeOff, ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -26,6 +26,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showBalances, setShowBalances] = useState(false);
+  const [isHistoryExpanded, setIsHistoryExpanded] = useState(false);
 
   const renderBalance = (amount: number, prefix: string = "Rp ") => {
     return showBalances ? `${prefix}${amount.toLocaleString("id-ID")}` : `${prefix}•••••••`;
@@ -121,8 +122,8 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
       <div className="hidden md:block space-y-8 md:space-y-12 animate-fade-in text-left pb-10">
       <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
         <div className="text-center xl:text-left">
-          <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Halo, {user.name}! 👋</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-sm md:text-base">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Halo, {user.name}! 👋</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 text-xs md:text-sm">
             Pantau perkembangan aset dan rekening Anda <span className="text-slate-900 dark:text-slate-200 font-bold">
               {viewMode === "monthly" ? format(currentDate, "MMMM yyyy", { locale: id }) : format(currentDate, "yyyy", { locale: id })}
             </span>.
@@ -370,23 +371,23 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         {/* Header (Greeting & Date) */}
         <div className="flex justify-between items-end px-2">
           <div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Halo, {user.name}!</h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium text-[11px] tracking-wide mt-1">
+            <h1 className="text-lg font-black text-gray-900 dark:text-white tracking-tight">Halo, {user.name}! 👋</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-[10px] tracking-wide mt-0.5">
               {format(new Date(), "EEEE, dd MMM yyyy", { locale: id })}
             </p>
           </div>
         </div>
 
         {/* Mobile ATM/Bank Card */}
-        <div className="relative p-6 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-2xl shadow-slate-900/30 overflow-hidden">
+        <div className="relative p-5 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xl shadow-slate-900/25 overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-5">
             <Sparkles className="w-32 h-32" />
           </div>
-          <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+          <div className="relative z-10 flex flex-col h-full justify-between gap-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-1">Total Aset Bersih</p>
-                <h3 className={`text-3xl font-black tracking-tighter ${overallTotalAssets < 0 && showBalances ? 'text-rose-400' : 'text-white'}`}>
+                <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest mb-1">Total Aset Bersih</p>
+                <h3 className={`text-2xl md:text-3xl font-black tracking-tighter ${overallTotalAssets < 0 && showBalances ? 'text-rose-400' : 'text-white'}`}>
                   {renderBalance(overallTotalAssets)}
                 </h3>
               </div>
@@ -394,62 +395,79 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                 onClick={() => setShowBalances(!showBalances)}
                 className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all text-white/80 active:scale-95"
               >
-                {showBalances ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             
-            <div className="flex flex-col gap-3 mt-2">
-              {memberBalances.map(m => (
-                 <div key={m.id} className="flex gap-4 items-center bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-sm">
-                   <div className="flex-1">
-                     <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Saldo {m.name}</p>
-                     <p className="text-xs font-bold mt-1 text-slate-100">{renderBalance(m.balance)}</p>
-                   </div>
-                 </div>
-              ))}
-              <div className="flex gap-4 items-center bg-amber-500/10 rounded-2xl p-4 border border-amber-500/20 backdrop-blur-sm">
-                 <div className="flex-1">
-                   <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest">Tabungan Bersama</p>
-                   <p className="text-xs font-bold mt-1 text-amber-100">{renderBalance(totalSavingsPool)}</p>
-                 </div>
+            <div className="flex flex-col gap-2 mt-1">
+              <div className="grid grid-cols-2 gap-2">
+                {memberBalances.map(m => (
+                   <Link 
+                     key={m.id} 
+                     href={`/dashboard/accounts?member=${m.id}`}
+                     className="flex gap-2 items-center bg-white/5 hover:bg-white/10 rounded-xl p-3 border border-white/10 backdrop-blur-sm transition-all active:scale-[0.98] hover:-translate-y-0.5 group min-w-0"
+                   >
+                     <div className="flex-1 min-w-0">
+                       <div className="flex justify-between items-center gap-1">
+                         <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest truncate">Saldo {m.name.split(' ')[0]}</p>
+                         <span className="text-[8px] text-slate-500 group-hover:text-slate-300 transition-colors shrink-0">→</span>
+                       </div>
+                       <p className="text-xs font-bold mt-0.5 text-slate-100 truncate">{renderBalance(m.balance)}</p>
+                     </div>
+                   </Link>
+                ))}
               </div>
+              <Link 
+                href="/dashboard/savings"
+                className="flex gap-4 items-center bg-amber-500/10 hover:bg-amber-500/15 rounded-xl p-3 border border-amber-500/20 backdrop-blur-sm transition-all active:scale-[0.98] hover:-translate-y-0.5 group"
+              >
+                 <div className="flex-1 min-w-0">
+                   <div className="flex justify-between items-center gap-1">
+                     <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest truncate">Tabungan Bersama</p>
+                     <span className="text-[8px] text-amber-500/60 group-hover:text-amber-400 transition-colors shrink-0">Detail →</span>
+                   </div>
+                   <p className="text-xs font-bold mt-0.5 text-amber-100 truncate">{renderBalance(totalSavingsPool)}</p>
+                 </div>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Quick Action Grid */}
-        <div className="grid grid-cols-5 gap-y-6 gap-x-2 px-1 py-4">
-          <Link href="/dashboard/accounts" className="flex flex-col items-center gap-2 group">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 flex items-center justify-center active:scale-95 transition-all">
-              <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Rekening</span>
-          </Link>
-          <Link href="/dashboard/income" className="flex flex-col items-center gap-2 group">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center active:scale-95 transition-all">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Masuk</span>
-          </Link>
-          <Link href="/dashboard/budget" className="flex flex-col items-center gap-2 group">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 flex items-center justify-center active:scale-95 transition-all">
-              <List className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Alokasi</span>
-          </Link>
-          <Link href="/dashboard/expenses" className="flex flex-col items-center gap-2 group">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-rose-50 dark:bg-rose-900/20 text-rose-600 flex items-center justify-center active:scale-95 transition-all">
-              <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Keluar</span>
-          </Link>
-          <Link href="/dashboard/savings" className="flex flex-col items-center gap-2 group">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-amber-50 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center active:scale-95 transition-all">
-              <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-gray-600 dark:text-gray-400 line-clamp-1">Tabungan</span>
-          </Link>
-        </div>
+        {/* Quick Action Card */}
+        <GlassCard className="p-4 rounded-[28px] bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none">
+          <div className="grid grid-cols-5 gap-x-1">
+            <Link href="/dashboard/accounts" className="flex flex-col items-center gap-2 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-emerald-500/20 dark:shadow-emerald-950/30 group-hover:shadow-md group-hover:scale-105">
+                <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">Rekening</span>
+            </Link>
+            <Link href="/dashboard/income" className="flex flex-col items-center gap-2 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-blue-500/20 dark:shadow-blue-950/30 group-hover:shadow-md group-hover:scale-105">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">Masuk</span>
+            </Link>
+            <Link href="/dashboard/budget" className="flex flex-col items-center gap-2 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-indigo-500/20 dark:shadow-indigo-950/30 group-hover:shadow-md group-hover:scale-105">
+                <List className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">Alokasi</span>
+            </Link>
+            <Link href="/dashboard/expenses" className="flex flex-col items-center gap-2 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-rose-600 to-pink-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-rose-500/20 dark:shadow-rose-950/30 group-hover:shadow-md group-hover:scale-105">
+                <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">Keluar</span>
+            </Link>
+            <Link href="/dashboard/savings" className="flex flex-col items-center gap-2 group">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-amber-500 to-orange-400 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-amber-500/20 dark:shadow-amber-950/30 group-hover:shadow-md group-hover:scale-105">
+                <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 line-clamp-1">Tabungan</span>
+            </Link>
+          </div>
+        </GlassCard>
 
         {/* Ringkasan Bulanan (Compact) */}
         <div className="grid grid-cols-2 gap-3">
@@ -514,48 +532,56 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         )}
 
         {/* Recent Transactions */}
-        <div className="bg-white dark:bg-gray-800/40 rounded-3xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
-           <div className="flex justify-between items-center mb-5">
-             <h3 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-tight">Riwayat Terakhir</h3>
+        <div className="bg-white dark:bg-gray-800/40 rounded-3xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300">
+           <div className="flex justify-between items-center">
+             <button 
+               onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+               className="flex items-center gap-2 text-gray-900 dark:text-gray-100 select-none active:opacity-80 transition-opacity"
+             >
+               <h3 className="font-black text-sm tracking-tight">Riwayat Terakhir</h3>
+               <ChevronDown className={`w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-300 ${isHistoryExpanded ? 'rotate-180' : ''}`} />
+             </button>
              <Link href="/dashboard/expenses" className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-lg active:scale-95 transition-all">Lihat Semua</Link>
            </div>
            
-           <div className="space-y-4">
-             {filteredActivities.slice(0, 5).map((act, i) => (
-               <div key={i} className="flex items-center justify-between gap-3">
-                 <div className="flex items-center gap-3">
-                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
-                     {act.type === 'INCOME' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-                   </div>
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-1">{act.description}</p>
-                        {act.memberName && (
-                          <span className="text-[6px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                            {act.memberName}
-                          </span>
-                        )}
+           {isHistoryExpanded && (
+             <div className="space-y-4 mt-5 animate-fade-in">
+               {filteredActivities.slice(0, 5).map((act, i) => (
+                 <div key={i} className="flex items-center justify-between gap-3">
+                   <div className="flex items-center gap-3">
+                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
+                       {act.type === 'INCOME' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                     </div>
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-1">{act.description}</p>
+                          {act.memberName && (
+                            <span className="text-[6px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                              {act.memberName}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">
+                          {format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName || (act.type === 'SAVING' ? 'Tabungan' : 'Umum')}
+                        </p>
                       </div>
-                      <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">
-                        {format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName || (act.type === 'SAVING' ? 'Tabungan' : 'Umum')}
-                      </p>
-                    </div>
+                   </div>
+                   <span className={`text-xs font-black whitespace-nowrap ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
+                     {act.type === 'INCOME' ? '+' : '-'}Rp {Number(act.amount).toLocaleString("id-ID")}
+                   </span>
                  </div>
-                 <span className={`text-xs font-black whitespace-nowrap ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
-                   {act.type === 'INCOME' ? '+' : '-'}Rp {Number(act.amount).toLocaleString("id-ID")}
-                 </span>
-               </div>
-             ))}
-             {filteredActivities.length === 0 && (
-               <div className="text-center py-6 text-gray-400 text-xs font-bold">
-                 Belum ada transaksi
-               </div>
-             )}
-           </div>
+               ))}
+               {filteredActivities.length === 0 && (
+                 <div className="text-center py-6 text-gray-400 text-xs font-bold">
+                   Belum ada transaksi
+                 </div>
+               )}
+             </div>
+           )}
         </div>
       </div>
 
-      {/* FAB Mobile */}
+      {/* FAB Mobile (Hidden by user request, uncomment to restore)
       <div className="md:hidden fixed bottom-[calc(env(safe-area-inset-bottom)+24px)] right-6 z-50">
          <Link href="/dashboard/expenses">
             <button className="w-14 h-14 bg-gradient-to-br from-rose-400 to-red-500 text-white rounded-[20px] flex items-center justify-center shadow-lg shadow-rose-500/40 hover:from-rose-500 hover:to-red-600 active:scale-90 transition-all">
@@ -563,6 +589,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
             </button>
          </Link>
       </div>
+      */}
     </>
   );
 }

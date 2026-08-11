@@ -22,7 +22,7 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { getBudgetPeriod, createBudgetPeriod, getCategoryExpensesForPeriod, upsertBudgetItems, deleteBudgetPeriod } from "@/app/actions/budget";
+import { getBudgetPeriod, createBudgetPeriod, getCategoryExpensesForPeriod, upsertBudgetItems, deleteBudgetPeriod, getBudgetPeriodSavings } from "@/app/actions/budget";
 import BudgetActionModal from "./BudgetActionModal";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { MemberFilter } from "@/components/MemberFilter";
@@ -51,6 +51,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   const [currentDate, setCurrentDate] = useState(new Date(parseInt(initialYear), parseInt(initialMonth) - 1));
   const [budgetPeriod, setBudgetPeriod] = useState<any>(null);
   const [categoryExpenses, setCategoryExpenses] = useState<Record<string, number>>({});
+  const [netSavings, setNetSavings] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
@@ -80,12 +81,14 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
     setLoading(true);
     try {
       const targetMemberId = currentMember === "all" ? undefined : currentMember;
-      const [period, expenses] = await Promise.all([
+      const [period, expenses, savingsData] = await Promise.all([
         getBudgetPeriod(monthStr, yearStr, targetMemberId),
-        getCategoryExpensesForPeriod(monthStr, yearStr, targetMemberId)
+        getCategoryExpensesForPeriod(monthStr, yearStr, targetMemberId),
+        getBudgetPeriodSavings(monthStr, yearStr, targetMemberId)
       ]);
       setBudgetPeriod(period);
       setCategoryExpenses(expenses);
+      setNetSavings((savingsData?.totalSavings || 0) - (savingsData?.totalWithdrawals || 0));
     } catch (error) {
       toast.error("Gagal mengambil data alokasi");
     } finally {
@@ -187,19 +190,23 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
     return budgetPeriod.items.reduce((sum: number, item: any) => sum + item.amount, 0);
   }, [budgetPeriod]);
 
+  const adjustedTotalBudget = useMemo(() => {
+    return Math.max(0, (budgetPeriod?.totalBudget || 0) - netSavings);
+  }, [budgetPeriod?.totalBudget, netSavings]);
+
   const allocatedPercent = useMemo(() => {
-    if (budgetStats.totalBudget === 0) return 0;
-    return Math.min((allocatedSum / budgetStats.totalBudget) * 100, 100);
-  }, [allocatedSum, budgetStats.totalBudget]);
+    if (adjustedTotalBudget === 0) return 0;
+    return Math.min((allocatedSum / adjustedTotalBudget) * 100, 100);
+  }, [allocatedSum, adjustedTotalBudget]);
 
   const unallocatedAmount = useMemo(() => {
-    return Math.max(0, availableBalance - budgetStats.totalBudget);
-  }, [availableBalance, budgetStats.totalBudget]);
+    return Math.max(0, availableBalance - adjustedTotalBudget);
+  }, [availableBalance, adjustedTotalBudget]);
 
   const unallocatedPercent = useMemo(() => {
-    if (budgetStats.totalBudget === 0) return 0;
-    return Math.min((unallocatedAmount / budgetStats.totalBudget) * 100, 100);
-  }, [unallocatedAmount, budgetStats.totalBudget]);
+    if (adjustedTotalBudget === 0) return 0;
+    return Math.min((unallocatedAmount / adjustedTotalBudget) * 100, 100);
+  }, [unallocatedAmount, adjustedTotalBudget]);
 
   const getCategoryIcon = (name: string) => {
     const lower = name.toLowerCase();
@@ -293,7 +300,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           </div>
           <div>
             <p className="text-gray-400 dark:text-gray-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Budget Alokasi</p>
-            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {budgetStats.totalBudget.toLocaleString("id-ID")}</h4>
+            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {adjustedTotalBudget.toLocaleString("id-ID")}</h4>
             <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Total rencana anggaran</p>
           </div>
         </GlassCard>
@@ -315,7 +322,7 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           </div>
           <div>
             <p className="text-gray-400 dark:text-gray-500 text-[9px] md:text-[10px] font-black uppercase tracking-widest">Sisa Budget</p>
-            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {Math.max(0, budgetStats.totalBudget - budgetStats.totalSpent).toLocaleString("id-ID")}</h4>
+            <h4 className="text-lg font-black text-gray-900 dark:text-white mt-0.5">Rp {Math.max(0, adjustedTotalBudget - budgetStats.totalSpent).toLocaleString("id-ID")}</h4>
             <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Masih bisa digunakan</p>
           </div>
         </GlassCard>
@@ -462,7 +469,8 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
           allCategories={allCategories.filter(c => c.type === 'EXPENSE')}
           existingItems={budgetPeriod.items}
           onSuccess={fetchBudgetData}
-          totalBudget={budgetPeriod.totalBudget}
+          totalBudget={adjustedTotalBudget}
+          totalSpent={budgetStats.totalSpent}
           availableBalance={availableBalance}
         />
       )}

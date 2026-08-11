@@ -6,8 +6,8 @@ import { authClient } from "@/lib/auth-client";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginForm() {
-  const [isRegister, setIsRegister] = useState(false);
+export default function LoginForm({ initialMode = false }: { initialMode?: boolean }) {
+  const [isRegister, setIsRegister] = useState(initialMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

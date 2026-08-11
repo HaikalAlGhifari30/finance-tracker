@@ -172,7 +172,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                     <div className="flex justify-between items-start mb-4 md:mb-6">
                         <div className="space-y-1">
                             <h4 className="font-black text-lg md:text-xl text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors">Tabungan Umum</h4>
-                            <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Dana Belum Dialokasikan</p>
+                            <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Seluruh Dana Tabungan</p>
                         </div>
                         <div className="p-2.5 md:p-3 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600">
                             <Wallet className="w-4 h-4 md:w-5 md:h-5" />
@@ -184,13 +184,37 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                             <div className="space-y-1">
                                 <span className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest block">Total Tersedia</span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xl md:text-2xl font-black text-amber-600 tracking-tight">Rp {unallocatedSavings.toLocaleString("id-ID")}</span>
-                                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${periodStats.unallocatedActivity >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                        {periodStats.unallocatedActivity >= 0 ? '+' : ''} {periodStats.unallocatedActivity.toLocaleString("id-ID")}
+                                    <span className="text-xl md:text-2xl font-black text-amber-600 tracking-tight">Rp {totalSavingsPool.toLocaleString("id-ID")}</span>
+                                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-md ${periodStats.totalActivity >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                        {periodStats.totalActivity >= 0 ? '+' : ''} {periodStats.totalActivity.toLocaleString("id-ID")}
                                     </span>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Allocations breakdown */}
+                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800/80">
+                          {goals.filter(g => Number(g.balance || 0) > 0).length > 0 ? (
+                            <div className="space-y-2">
+                              <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest block">Pembagian Alokasi:</span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {goals.filter(g => Number(g.balance || 0) > 0).map(g => (
+                                  <div key={g.id} className="text-[9px] font-bold bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg">
+                                    {g.name}: Rp {Number(g.balance).toLocaleString("id-ID")}
+                                  </div>
+                                ))}
+                                {unallocatedSavings > 0 && (
+                                  <div className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-lg">
+                                    Belum Dialokasikan: Rp {unallocatedSavings.toLocaleString("id-ID")}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-[9px] text-gray-400 dark:text-gray-500 italic">Belum ada dana yang dialokasikan ke goal spesifik.</p>
+                          )}
+                        </div>
+
                         <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50 flex items-center justify-between gap-3">
                             <p className="text-[9px] md:text-[10px] font-bold text-gray-400 italic leading-tight">
                                 Alokasikan dana ke goal tertentu kapan saja.

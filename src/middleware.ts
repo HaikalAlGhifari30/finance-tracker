@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request: any) {
-  if (request.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  // Routing is handled client-side via SplashScreen in page.tsx.
+  // No redirect needed here.
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/'],
+  matcher: [], // No paths intercepted
 };

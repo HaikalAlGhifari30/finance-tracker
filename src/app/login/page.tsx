@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const isRegisterMode = searchParams.get("mode") === "register";
+
   // Force light mode on login page
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
     if (isDark) {
       document.documentElement.classList.remove('dark');
     }
-    // We don't necessarily want to overwrite localStorage here 
-    // in case they just navigated to login without logging out,
-    // but the request says "halaman login selalu menggunakan light mode".
-    // So we just ensure the class is removed for this view.
   }, []);
 
   return (
@@ -36,8 +36,9 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-gray-800">Sistem Keuangan</h1>
           <p className="text-sm font-medium text-gray-500 mt-1">Lacak dan kelola pengeluaran Anda</p>
         </div>
-        <LoginForm />
+        <LoginForm initialMode={isRegisterMode} />
       </div>
     </div>
   );
 }
+
