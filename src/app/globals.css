@@ -55,7 +55,7 @@ body {
   }
 
   .splash-exit {
-    animation: splashFadeOut 0.4s ease-in 1.3s both;
+    animation: splashFadeOut 0.4s ease-in 3.6s both;
   }
 
   @keyframes splashLogoIn {

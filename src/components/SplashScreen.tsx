@@ -10,9 +10,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    // Start exit animation at 1.3s, call onComplete after fade at 1.7s
-    const exitTimer = setTimeout(() => setExiting(true), 1300);
-    const completeTimer = setTimeout(() => onComplete(), 1700);
+    // Start exit animation at 3.6s, call onComplete after fade at 4.0s
+    const exitTimer = setTimeout(() => setExiting(true), 3600);
+    const completeTimer = setTimeout(() => onComplete(), 4000);
     return () => {
       clearTimeout(exitTimer);
       clearTimeout(completeTimer);
