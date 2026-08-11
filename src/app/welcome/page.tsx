@@ -34,21 +34,21 @@ export default function WelcomePage() {
         }}
       >
         {/* Top Header branding */}
-        <div className="flex flex-col items-center gap-3 mt-4">
-          <div 
-            className="w-16 h-16 rounded-[22px] overflow-hidden border border-emerald-500/10"
-            style={{
-              boxShadow: "0 0 30px rgba(16,185,129,0.15), 0 16px 40px rgba(0,0,0,0.5)"
-            }}
-          >
-            <img src="/logo.png" alt="FinTrack" className="w-full h-full object-cover" />
+        <div className="flex flex-col items-center mt-4">
+          <div className="flex items-center gap-3.5">
+            <div 
+              className="w-12 h-12 rounded-[16px] overflow-hidden border border-emerald-500/10"
+              style={{
+                boxShadow: "0 0 20px rgba(16,185,129,0.12), 0 8px 24px rgba(0,0,0,0.5)"
+              }}
+            >
+              <img src="/logo.png" alt="FinTrack" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="text-white font-black text-2xl tracking-tight leading-none">FinTrack</h1>
           </div>
-          <div className="text-center">
-            <h1 className="text-white font-black text-xl tracking-tight leading-none">FinTrack</h1>
-            <p className="text-[9px] font-bold tracking-[0.3em] text-emerald-400/80 uppercase mt-1">
-              Finance Tracking
-            </p>
-          </div>
+          <p className="text-[9px] font-bold tracking-[0.3em] text-emerald-400/80 uppercase mt-2.5">
+            Finance Tracking
+          </p>
         </div>
 
         {/* Center Welcome Message with beautiful glass card */}

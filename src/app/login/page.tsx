@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import LoginForm from "./LoginForm";
 
@@ -8,33 +7,29 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const isRegisterMode = searchParams.get("mode") === "register";
 
-  // Force light mode on login page
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-500 px-4 py-10 sm:py-0">
+    <div className="dark min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#13111C] px-4 py-10 sm:py-0">
       
-      {/* Subtle Grid Pattern */}
-      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-      
-      {/* Glow kiri atas */}
-      <div className="absolute top-[-120px] left-[-120px] w-[400px] h-[400px] bg-emerald-400 opacity-20 blur-3xl rounded-full" />
+      {/* Premium organic background glows */}
+      <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(16,185,129,0.06)_0%,transparent_75%)] blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[50%] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_75%)] blur-3xl pointer-events-none" />
 
-      {/* Glow kanan bawah */}
-      <div className="absolute bottom-[-120px] right-[-120px] w-[400px] h-[400px] bg-teal-400 opacity-20 blur-3xl rounded-full" />
-
-      <div className="relative z-10 w-full max-w-sm rounded-[3rem] border border-gray-200/50 bg-white backdrop-blur-md p-8 sm:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-4 overflow-hidden">
-             <img src="/logo.png" alt="FinTrack Logo" className="w-full h-full object-cover" />
+      <div className="relative z-10 w-full max-w-sm bg-white/[0.02] border border-white/[0.05] backdrop-blur-xl p-8 sm:p-10 rounded-[32px] shadow-[0_24px_50px_rgba(0,0,0,0.35)]">
+        <div className="mb-8 flex flex-col items-center">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-[12px] overflow-hidden border border-emerald-500/10"
+              style={{
+                boxShadow: "0 0 15px rgba(16,185,129,0.12), 0 4px 12px rgba(0,0,0,0.5)"
+              }}
+            >
+              <img src="/logo.png" alt="FinTrack Logo" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="text-xl font-black text-white tracking-tight leading-none">FinTrack</h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Sistem Keuangan</h1>
-          <p className="text-sm font-medium text-gray-500 mt-1">Lacak dan kelola pengeluaran Anda</p>
+          <p className="text-[9px] font-bold tracking-[0.25em] text-emerald-400/80 uppercase mt-2.5">
+            Sistem Keuangan
+          </p>
         </div>
         <LoginForm initialMode={isRegisterMode} />
       </div>

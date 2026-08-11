@@ -90,19 +90,19 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
     } finally {
       setLoading(false);
     }
-  };
-
-  return (
+  };  return (
     <form onSubmit={handleAuth} className="flex flex-col space-y-5" noValidate>
       {error && (
-        <div className="p-3 bg-red-100 text-red-600 rounded-xl text-sm text-center">
+        <div className="p-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-sm text-center">
           {error}
         </div>
       )}
       
       {isRegister && (
         <div>
-          <label className="block text-[11px] font-bold tracking-wider text-gray-700 uppercase mb-1.5 px-0.5">Nama Lengkap <span className="text-red-500">*</span></label>
+          <label className="block text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase mb-1.5 px-0.5">
+            Nama Lengkap <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             value={name}
@@ -111,17 +111,23 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
               if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: undefined });
             }}
             required={isRegister}
-            className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm ${fieldErrors.name ? 'border-red-500 focus:border-red-500' : 'border-gray-100 focus:border-emerald-500'}`}
+            className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-white/[0.02] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm border-gray-100 dark:border-white/[0.08] focus:border-emerald-500 dark:focus:border-emerald-500 ${
+              fieldErrors.name ? "border-red-500 dark:border-red-500" : ""
+            }`}
             placeholder="John Doe"
           />
           {fieldErrors.name && (
-            <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium"><span className="mr-1">⚠️</span> {fieldErrors.name}</p>
+            <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium">
+              <span className="mr-1">⚠️</span> {fieldErrors.name}
+            </p>
           )}
         </div>
       )}
 
       <div>
-        <label className="block text-[11px] font-bold tracking-wider text-gray-700 uppercase mb-1.5 px-0.5">Email <span className="text-red-500">*</span></label>
+        <label className="block text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase mb-1.5 px-0.5">
+          Email <span className="text-red-500">*</span>
+        </label>
         <input
           type="email"
           value={email}
@@ -131,16 +137,22 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
           }}
           required
           autoComplete="email"
-          className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm shadow-sm ${fieldErrors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-100 focus:border-emerald-500'}`}
+          className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-white/[0.02] text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-medium text-sm border-gray-100 dark:border-white/[0.08] focus:border-emerald-500 dark:focus:border-emerald-500 shadow-sm ${
+            fieldErrors.email ? "border-red-500 dark:border-red-500" : ""
+          }`}
           placeholder="admin@example.com"
         />
         {fieldErrors.email && (
-          <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium"><span className="mr-1">⚠️</span> {fieldErrors.email}</p>
+          <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium">
+            <span className="mr-1">⚠️</span> {fieldErrors.email}
+          </p>
         )}
       </div>
 
       <div>
-        <label className="block text-[11px] font-bold tracking-wider text-gray-700 uppercase mb-1.5 px-0.5">Password <span className="text-red-500">*</span></label>
+        <label className="block text-[11px] font-bold tracking-wider text-gray-700 dark:text-gray-400 uppercase mb-1.5 px-0.5">
+          Password <span className="text-red-500">*</span>
+        </label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -150,24 +162,28 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
               if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: undefined });
             }}
             required
-            className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-gray-100 focus:outline-none transition-all pr-12 font-medium text-sm shadow-sm ${fieldErrors.password ? 'border-red-500 focus:border-red-500' : 'border-gray-100 focus:border-emerald-500'}`}
+            className={`w-full px-4 py-3.5 rounded-2xl border-2 bg-white dark:bg-white/[0.02] text-gray-900 dark:text-gray-100 focus:outline-none transition-all pr-12 font-medium text-sm border-gray-100 dark:border-white/[0.08] focus:border-emerald-500 dark:focus:border-emerald-500 shadow-sm ${
+              fieldErrors.password ? "border-red-500 dark:border-red-500" : ""
+            }`}
             placeholder="••••••••"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
             tabIndex={-1}
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </div>
         {fieldErrors.password && (
-          <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium"><span className="mr-1">⚠️</span> {fieldErrors.password}</p>
+          <p className="text-red-500 text-xs mt-1.5 flex items-center font-medium">
+            <span className="mr-1">⚠️</span> {fieldErrors.password}
+          </p>
         )}
         {!isRegister && (
           <div className="flex justify-end mt-2">
-            <Link href="/forgot-password" className="text-[11px] font-bold text-emerald-600 hover:underline">
+            <Link href="/forgot-password" className="text-[11px] font-bold text-emerald-400 hover:underline">
               Lupa password?
             </Link>
           </div>
@@ -184,8 +200,12 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
       </button>
 
       <div className="text-center mt-4">
-        <button type="button" onClick={() => setIsRegister(!isRegister)} className="text-sm text-emerald-600 hover:underline font-medium">
-           {isRegister ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
+        <button
+          type="button"
+          onClick={() => setIsRegister(!isRegister)}
+          className="text-sm text-emerald-400 hover:underline font-medium"
+        >
+          {isRegister ? "Sudah punya akun? Masuk" : "Belum punya akun? Daftar"}
         </button>
       </div>
     </form>
