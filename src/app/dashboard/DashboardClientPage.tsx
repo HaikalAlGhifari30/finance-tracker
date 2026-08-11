@@ -281,14 +281,14 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                 <GlassCard className={`h-full p-8 border-none shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-all bg-gradient-to-br ${
                   isCompleted 
                     ? 'from-amber-400 to-yellow-600 text-white shadow-amber-500/20' 
-                    : 'from-indigo-600 to-violet-700 text-white'
+                    : 'from-emerald-600 to-teal-700 text-white shadow-emerald-500/10'
                 }`}>
                     <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-120 transition-all">
                         <Trophy className="w-32 h-32" />
                     </div>
                     <div className="relative z-10 flex flex-col h-full justify-between gap-6">
                        <div>
-                          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>Target Prioritas</p>
+                          <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isCompleted ? 'text-amber-100' : 'text-emerald-200'}`}>Target Prioritas</p>
                           <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                             {mainGoal.name}
                             {isCompleted && <Sparkles className="w-5 h-5 text-yellow-200 animate-pulse" />}
@@ -297,15 +297,15 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
 
                        {/* New Balance Display */}
                        <div className="space-y-1">
-                          <span className={`text-[10px] font-black uppercase tracking-widest block ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>Terkumpul Saat Ini</span>
+                          <span className={`text-[10px] font-black uppercase tracking-widest block ${isCompleted ? 'text-amber-100' : 'text-emerald-200'}`}>Terkumpul Saat Ini</span>
                           <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-black text-white tracking-tight">Rp {Number(mainGoal.balance).toLocaleString("id-ID")}</span>
-                              <span className={`text-[10px] font-bold ${isCompleted ? 'text-amber-100/80' : 'text-indigo-200'}`}>/ Rp {Number(mainGoal.targetAmount).toLocaleString("id-ID")}</span>
+                              <span className="text-2xl font-black text-white tracking-tight">{renderBalance(Number(mainGoal.balance))}</span>
+                              <span className={`text-[10px] font-bold ${isCompleted ? 'text-amber-100/80' : 'text-emerald-200'}`}>/ {renderBalance(Number(mainGoal.targetAmount))}</span>
                           </div>
                        </div>
 
                        <div className="mt-auto">
-                          <div className={`flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 ${isCompleted ? 'text-amber-100' : 'text-indigo-200'}`}>
+                          <div className={`flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 ${isCompleted ? 'text-amber-100' : 'text-emerald-200'}`}>
                              <span>Progres</span>
                              <span>{progress.toFixed(0)}%</span>
                           </div>
@@ -506,11 +506,11 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         {/* Progress Tabungan (Mobile simplified) */}
         {mainGoal && (
           <Link href="/dashboard/savings" className="block active:scale-[0.98] transition-transform">
-            <div className={`p-5 rounded-2xl relative overflow-hidden bg-gradient-to-br ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'from-amber-400 to-yellow-600' : 'from-indigo-600 to-violet-700'}`}>
+            <div className={`p-5 rounded-2xl relative overflow-hidden bg-gradient-to-br ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'from-amber-400 to-yellow-600' : 'from-emerald-600 to-teal-700'}`}>
                <div className="relative z-10">
                  <div className="flex justify-between items-start mb-4">
                    <div>
-                     <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-indigo-200'}`}>Target Aktif</p>
+                     <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-emerald-200'}`}>Target Aktif</p>
                      <h3 className="text-sm font-bold text-white">{mainGoal.name}</h3>
                    </div>
                    <Trophy className="w-6 h-6 text-white/50" />
@@ -522,8 +522,8 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                       style={{ width: `${Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100)}%` }}
                     />
                  </div>
-                 <div className={`mt-2 flex justify-between text-[9px] font-bold tracking-widest ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-indigo-200'}`}>
-                    <span>Rp {Number(mainGoal.balance).toLocaleString("id-ID")}</span>
+                 <div className={`mt-2 flex justify-between text-[9px] font-bold tracking-widest ${Number(mainGoal.balance) >= Number(mainGoal.targetAmount) ? 'text-amber-100' : 'text-emerald-200'}`}>
+                    <span>{renderBalance(Number(mainGoal.balance))}</span>
                     <span>{Math.min((Number(mainGoal.balance) / Number(mainGoal.targetAmount)) * 100, 100).toFixed(0)}%</span>
                  </div>
                </div>

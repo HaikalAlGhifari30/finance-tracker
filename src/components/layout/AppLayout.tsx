@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export function AppLayout({ children, user }: { children: React.ReactNode, user?: any }) {
   const pathname = usePathname();
+  const hasBottomNav = pathname !== "/dashboard";
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [isClient, setIsClient] = useState(false);
@@ -27,66 +28,11 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     }
   }, []);
 
-  // Session Timeout Guard (Mobile/PWA only)
+  // Set session active flag in sessionStorage upon mounting dashboard layout
   useEffect(() => {
-    if (!user) return;
-
-    const checkMobileOrPWA = () => {
-      return window.innerWidth < 768 || window.matchMedia("(display-mode: standalone)").matches;
-    };
-
-    if (!checkMobileOrPWA()) return;
-
-    let inactivityTimer: NodeJS.Timeout;
-
-    const resetInactivityTimer = () => {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      // Inactivity timeout: 5 minutes
-      inactivityTimer = setTimeout(async () => {
-        await authClient.signOut();
-        window.location.replace("/");
-      }, 300000);
-    };
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === "hidden") {
-        localStorage.setItem("bg_timestamp", Date.now().toString());
-      } else if (document.visibilityState === "visible") {
-        const bgTimestampStr = localStorage.getItem("bg_timestamp");
-        if (bgTimestampStr) {
-          const bgTimestamp = parseInt(bgTimestampStr, 10);
-          const elapsed = Date.now() - bgTimestamp;
-          
-          // Background timeout: 10 seconds
-          if (elapsed > 10000) {
-            localStorage.removeItem("bg_timestamp");
-            await authClient.signOut();
-            window.location.replace("/");
-          } else {
-            localStorage.removeItem("bg_timestamp");
-          }
-        }
-        resetInactivityTimer();
-      }
-    };
-
-    const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
-    
-    activityEvents.forEach((event) => {
-      document.addEventListener(event, resetInactivityTimer);
-    });
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    
-    resetInactivityTimer();
-
-    return () => {
-      if (inactivityTimer) clearTimeout(inactivityTimer);
-      activityEvents.forEach((event) => {
-        document.removeEventListener(event, resetInactivityTimer);
-      });
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+    if (user) {
+      sessionStorage.setItem("pwa_session_active", "true");
+    }
   }, [user]);
 
   useEffect(() => {
@@ -304,7 +250,13 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 p-4 pb-[calc(env(safe-area-inset-bottom)+100px)] md:p-10 md:pb-10 min-h-[100dvh] flex flex-col transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'}`}>
+      <main className={`flex-1 p-4 md:p-10 md:pb-10 min-h-[100dvh] flex flex-col transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'md:ml-[280px]' : 'md:ml-[120px]'
+      } ${
+        hasBottomNav 
+          ? 'pb-[calc(env(safe-area-inset-bottom)+80px)]' 
+          : 'pb-[calc(env(safe-area-inset-bottom)+20px)]'
+      }`}>
         
         {/* Top Header */}
         <header className="hidden md:flex justify-end items-center mb-12 gap-4 relative">
