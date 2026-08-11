@@ -51,7 +51,7 @@ export default function ProfileContent({ user }: { user: any }) {
     localStorage.setItem('theme', 'light');
     document.documentElement.classList.remove('dark');
     await authClient.signOut();
-    router.push("/welcome");
+    router.push("/");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

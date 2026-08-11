@@ -62,7 +62,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     localStorage.setItem('theme', 'light');
     document.documentElement.classList.remove('dark');
     await authClient.signOut();
-    router.push("/welcome");
+    router.push("/");
   };
 
   const role = user?.role || "USER";
