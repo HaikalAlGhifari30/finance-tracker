@@ -59,10 +59,8 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
   }, [pathname]);
 
   const handleLogout = async () => {
-    localStorage.setItem('theme', 'light');
-    document.documentElement.classList.remove('dark');
     await authClient.signOut();
-    router.push("/");
+    window.location.replace("/");
   };
 
   const role = user?.role || "USER";

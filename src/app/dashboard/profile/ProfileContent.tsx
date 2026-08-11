@@ -48,10 +48,8 @@ export default function ProfileContent({ user }: { user: any }) {
   };
 
   const handleLogout = async () => {
-    localStorage.setItem('theme', 'light');
-    document.documentElement.classList.remove('dark');
     await authClient.signOut();
-    router.push("/");
+    window.location.replace("/");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
