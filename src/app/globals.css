@@ -18,6 +18,11 @@
   }
 }
 
+/* Prevent blank white flash during page transitions on mobile */
+html {
+  background: #13111C;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);

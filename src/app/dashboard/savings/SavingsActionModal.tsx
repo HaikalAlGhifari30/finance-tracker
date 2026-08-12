@@ -159,42 +159,46 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
   };
 
   const content = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 text-left">
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-[12px] animate-in fade-in duration-500" onClick={onClose} />
+    <div className="fixed inset-0 z-[99999] flex items-end md:items-center justify-center md:p-4 text-left">
+      <div className="fixed inset-0 bg-black/75 backdrop-blur-[12px] animate-in fade-in duration-300" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg bg-white dark:bg-[#1E1E2D] rounded-[32px] md:rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
-        <div className="px-6 md:px-10 py-6 md:py-10 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
-          <div className="flex items-center gap-5">
-            <div className={`p-4 rounded-[24px] transition-all duration-500 shadow-lg ${mode === 'SAVING' ? 'bg-amber-500 text-white shadow-amber-500/20' :
+      <div className="relative w-full md:max-w-lg bg-white dark:bg-[#1E1E2D] rounded-t-[32px] md:rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in slide-in-from-bottom md:zoom-in-95 duration-300 flex flex-col max-h-[85dvh] md:max-h-[90vh]">
+        {/* Mobile drag handle */}
+        <div className="md:hidden flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600/80" />
+        </div>
+        <div className="px-5 md:px-10 py-3.5 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+          <div className="flex items-center gap-3 md:gap-5">
+            <div className={`p-2.5 md:p-4 rounded-[16px] md:rounded-[24px] transition-all duration-500 shadow-lg ${mode === 'SAVING' ? 'bg-amber-500 text-white shadow-amber-500/20' :
               mode === 'WITHDRAWAL' ? 'bg-blue-600 text-white shadow-blue-500/20' :
                 'bg-emerald-600 text-white shadow-emerald-500/20'
               }`}>
-              {mode === 'SAVING' ? <ArrowUpCircle className="w-6 h-6" /> :
-                mode === 'WITHDRAWAL' ? <ArrowDownCircle className="w-6 h-6" /> :
-                  <ArrowRightLeft className="w-6 h-6" />}
+              {mode === 'SAVING' ? <ArrowUpCircle className="w-4 h-4 md:w-6 md:h-6" /> :
+                mode === 'WITHDRAWAL' ? <ArrowDownCircle className="w-4 h-4 md:w-6 md:h-6" /> :
+                  <ArrowRightLeft className="w-4 h-4 md:w-6 md:h-6" />}
             </div>
             <div>
-              <h3 className="font-black text-2xl text-gray-900 dark:text-gray-100 tracking-tight">
+              <h3 className="font-black text-base md:text-2xl text-gray-900 dark:text-gray-100 tracking-tight">
                 {mode === "SAVING" ? "Menabung" : mode === "WITHDRAWAL" ? "Tarik Tabungan" : "Alokasikan Dana"}
               </h3>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
+              <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">
                 {mode === "ALLOCATE" ? "Internal Tabungan" : "Pengelolaan Dana Goals"}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl">
-            <X className="w-7 h-7" />
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 md:p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl">
+            <X className="w-5 h-5 md:w-7 md:h-7" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 overflow-y-auto custom-scrollbar">
-          <div className="space-y-6 md:space-y-8">
-            <div className="space-y-3">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
+        <form onSubmit={handleSubmit} className="p-5 md:p-10 space-y-4 md:space-y-6 overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <div className="space-y-3.5 md:space-y-6">
+            <div className="space-y-1.5 md:space-y-3">
+              <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
               <div className="relative group">
                 <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
                   <Banknote className={`hidden sm:block w-7 h-7 text-gray-300 transition-colors ${mode === 'SAVING' ? 'group-hover:text-amber-400' : 'group-hover:text-blue-400'}`} />
-                  <span className={`font-black text-xl md:text-2xl group-focus-within:opacity-100 transition-colors opacity-30 ${mode === 'SAVING' ? 'text-amber-600' : 'text-blue-600'}`}>Rp</span>
+                  <span className={`font-black text-base md:text-2xl group-focus-within:opacity-100 transition-colors ${mode === 'SAVING' ? 'text-amber-500' : 'text-blue-500'}`}>Rp</span>
                 </div>
                 <input
                   type="text"
@@ -203,7 +207,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder="0"
-                  className={`w-full pl-[3.5rem] sm:pl-24 pr-6 md:pr-8 py-4 md:py-6 rounded-[24px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-2xl md:text-3xl shadow-inner ${mode === 'SAVING' ? 'text-amber-600 focus:border-amber-500/50' : 'text-blue-600 focus:border-blue-500/50'}`}
+                  className={`w-full pl-14 sm:pl-24 pr-4 md:pr-8 py-3 md:py-5 rounded-[18px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-xl md:text-3xl shadow-inner ${mode === 'SAVING' ? 'text-amber-600 focus:border-amber-500/50' : 'text-blue-600 focus:border-blue-500/50'}`}
                 />
               </div>
             </div>
@@ -233,38 +237,15 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
               {mode === "ALLOCATE" ? (
                 <>
                   <div className="space-y-3">
-                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Dari Sumber</label>
-                    <div className="relative group">
-                      <select
-                        value={sourceGoalId}
-                        onChange={(e) => setSourceGoalId(e.target.value)}
-                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                      >
-                        <option value="">Tabungan Umum (Rp {unallocatedSavings.toLocaleString("id-ID")})</option>
-                        {goals.map(goal => (
-                          <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
-                        ))}
-                      </select>
-                      <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center -my-4 relative z-10">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg border-4 border-white dark:border-[#1E1E2D]">
-                      <ArrowRightLeft className="w-5 h-5 rotate-90" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Ke Tujuan</label>
+                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Alokasi ke Target Goal</label>
                     <div className="relative group">
                       <select
                         value={goalId}
+                        required
                         onChange={(e) => setGoalId(e.target.value)}
                         className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                       >
-                        <option value="">Tabungan Umum (Pindahkan Balik)</option>
+                        <option value="" disabled>Pilih Target Goal</option>
                         {goals.map(goal => (
                           <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
                         ))}
@@ -273,112 +254,73 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                     </div>
                   </div>
+
+                  {memberId && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Sumber Rekening (Opsional)</label>
+                      <div className="relative group">
+                        <select
+                          value={accountId}
+                          onChange={(e) => setAccountId(e.target.value)}
+                          className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                        >
+                          <option value="" disabled>Pilih Rekening</option>
+                          {filteredAccounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
+                          ))}
+                        </select>
+                        <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
-                  {mode === 'WITHDRAWAL' ? (
-                    <>
-                      {/* Tarik dari Goal (Source) */}
-                      <div className="space-y-3">
-                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                          Tarik dari Goal
-                        </label>
-                        <div className="relative group">
-                          <select
-                            value={goalId}
-                            onChange={(e) => setGoalId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                          >
-                            <option value="">
-                              Tabungan Umum (Rp {unallocatedSavings.toLocaleString('id-ID')})
-                            </option>
-                            {goals.map(goal => (
-                              <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
-                            ))}
-                          </select>
-                          <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                        </div>
+                  {memberId && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                        Sumber Dana (Rekening)
+                      </label>
+                      <div className="relative group">
+                        <select
+                          value={accountId}
+                          required
+                          onChange={(e) => setAccountId(e.target.value)}
+                          className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                        >
+                          <option value="" disabled>Pilih Rekening</option>
+                          {filteredAccounts.map(acc => (
+                            <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
+                          ))}
+                        </select>
+                        <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       </div>
-
-                      <div className="flex justify-center -my-4 relative z-10">
-                        <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg border-4 border-white dark:border-[#1E1E2D]">
-                          <ArrowRightLeft className="w-5 h-5 rotate-90" />
-                        </div>
-                      </div>
-
-                      {/* Pindahkan ke Rekening (Destination) */}
-                      {memberId && (
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                          <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                            Pindahkan ke Rekening
-                          </label>
-                          <div className="relative group">
-                            <select
-                              value={accountId}
-                              required
-                              onChange={(e) => setAccountId(e.target.value)}
-                              className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                            >
-                              <option value="" disabled>Pilih Rekening</option>
-                              {filteredAccounts.map(acc => (
-                                <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
-                              ))}
-                            </select>
-                            <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      {memberId && (
-                        <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                          <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                            Sumber Dana (Rekening)
-                          </label>
-                          <div className="relative group">
-                            <select
-                              value={accountId}
-                              required
-                              onChange={(e) => setAccountId(e.target.value)}
-                              className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                            >
-                              <option value="" disabled>Pilih Rekening</option>
-                              {filteredAccounts.map(acc => (
-                                <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
-                              ))}
-                            </select>
-                            <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="space-y-3">
-                        <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-                          {mode === 'SAVING' ? "Tujuan Tabungan (Goal) - Opsional" : "Pindahkan ke Goal"}
-                        </label>
-                        <div className="relative group">
-                          <select
-                            value={goalId}
-                            onChange={(e) => setGoalId(e.target.value)}
-                            className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                          >
-                            <option value="">
-                              {mode === 'SAVING' ? "Tabungan Umum (Tanpa Alokasi)" : `Tabungan Umum (Pindahkan Balik)`}
-                            </option>
-                            {goals.map(goal => (
-                              <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
-                            ))}
-                          </select>
-                          <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                        </div>
-                      </div>
-                    </>
+                    </div>
                   )}
+
+                  <div className="space-y-3">
+                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                      {mode === 'SAVING' ? "Tujuan Tabungan (Goal) - Opsional" : "Pindahkan ke Goal"}
+                    </label>
+                    <div className="relative group">
+                      <select
+                        value={goalId}
+                        onChange={(e) => setGoalId(e.target.value)}
+                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                      >
+                        <option value="">
+                          {mode === 'SAVING' ? "Tabungan Umum (Tanpa Alokasi)" : `Tabungan Umum (Pindahkan Balik)`}
+                        </option>
+                        {goals.map(goal => (
+                          <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
+                        ))}
+                      </select>
+                      <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                    </div>
+                  </div>
                 </>
               )}
             </div>
@@ -418,15 +360,15 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                 onClick={() => setFromBudget(v => !v)}
                 className={`w-full flex items-center justify-between gap-4 px-5 py-4 rounded-[20px] border-2 transition-all duration-300 ${
                   fromBudget
-                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
-                    : 'border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900'
+                    ? 'border-amber-500/40 bg-amber-500/5 dark:bg-amber-500/10'
+                    : 'border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50'
                 }`}
               >
                 <div className="text-left">
-                  <p className={`font-black text-xs uppercase tracking-widest ${
-                    fromBudget ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'
-                  }`}>Potong dari Budget Alokasi?</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">
+                  <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                    Potong dari Budget Alokasi?
+                  </p>
+                  <p className="text-[10px] text-gray-400 font-medium mt-0.5">
                     {fromBudget
                       ? 'Tabungan ini akan mengurangi Budget Alokasi bulan ini'
                       : 'Tabungan dari pemasukan tambahan, tidak mempengaruhi budget'
@@ -445,18 +387,18 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
 
           </div>
 
-          <div className="pt-6 md:pt-8 flex flex-col sm:flex-row gap-3 md:gap-4">
+          <div className="pt-3 md:pt-6 flex flex-row gap-3 md:gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-4 md:py-6 rounded-[20px] md:rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
+              className="flex-1 px-4 py-3 md:py-5 rounded-[16px] md:rounded-[28px] border-2 border-gray-100 dark:border-gray-800 font-black text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 md:py-6 rounded-[20px] md:rounded-[28px] shadow-2xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
+              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 md:py-5 rounded-[16px] md:rounded-[28px] shadow-xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
             >
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Konfirmasi Transaksi"}
             </button>

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { format, isSameMonth, isSameYear, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
+import { getMemberTagClass } from "@/lib/memberColors";
 import {
   TrendingUp, TrendingDown, Wallet, ArrowRight, Trophy, Sparkles,
   CreditCard, Calendar, List, ChevronLeft, ChevronRight, Star, Landmark, Smartphone, Banknote, Plus, Eye, EyeOff, ChevronDown
@@ -65,6 +66,45 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
         return dateB.getTime() - dateA.getTime();
       });
   }, [initialActivities, viewMode, currentDate]);
+
+  const previewAccounts = useMemo(() => {
+    if (!accounts || accounts.length === 0) return [];
+
+    const getScore = (acc: any) => {
+      let score = Number(acc.balance) * 10;
+      if (acc.type === "BANK") score += 1000;
+      const lowerName = (acc.name || "").toLowerCase();
+      if (["bca", "mandiri", "bni", "bri", "bsi"].some(b => lowerName.includes(b))) {
+        score += 500;
+      }
+      return score;
+    };
+
+    const memberIds = Array.from(new Set(accounts.map(a => a.memberId).filter(Boolean)));
+    if (memberIds.length > 1) {
+      const picked: any[] = [];
+      const perMemberLimit = Math.ceil(4 / memberIds.length);
+
+      memberIds.forEach(mId => {
+        const memberAccs = accounts
+          .filter(a => a.memberId === mId)
+          .sort((a, b) => getScore(b) - getScore(a));
+        picked.push(...memberAccs.slice(0, perMemberLimit));
+      });
+
+      if (picked.length < 4) {
+        const pickedIds = new Set(picked.map(p => p.id));
+        const remaining = [...accounts]
+          .filter(a => !pickedIds.has(a.id))
+          .sort((a, b) => getScore(b) - getScore(a));
+        picked.push(...remaining.slice(0, 4 - picked.length));
+      }
+
+      return picked.sort((a, b) => getScore(b) - getScore(a)).slice(0, 4);
+    }
+
+    return [...accounts].sort((a, b) => getScore(b) - getScore(a)).slice(0, 4);
+  }, [accounts]);
 
   // Calculate all stats for the selected period
   const stats = useMemo(() => {
@@ -168,7 +208,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                 onClick={() => setShowBalances(!showBalances)}
                 className="hidden md:flex p-2 md:p-3 mt-4 md:mt-0 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all text-white/80 active:scale-95 items-center justify-center"
               >
-                {showBalances ? <EyeOff className="w-5 h-5 md:w-6 md:h-6" /> : <Eye className="w-5 h-5 md:w-6 md:h-6" />}
+                {showBalances ? <Eye className="w-5 h-5 md:w-6 md:h-6" /> : <EyeOff className="w-5 h-5 md:w-6 md:h-6" />}
               </button>
             </div>
             <div>
@@ -242,23 +282,31 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
            </div>
            
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {accounts.length === 0 ? (
+              {previewAccounts.length === 0 ? (
                 <div className="col-span-2 py-8 text-center bg-gray-50 dark:bg-gray-900 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
                    <p className="text-sm font-bold text-gray-400">Belum ada rekening terdaftar</p>
                 </div>
               ) : (
-                accounts.slice(0, 4).map((acc) => {
+                previewAccounts.map((acc) => {
                   const config = getAccountIcon(acc.name, acc.type);
                   const Icon = config.icon;
+                  const memberObj = members?.find(m => m.id === acc.memberId);
                   return (
                     <div key={acc.id} className="flex items-center gap-4 p-4 bg-white/60 dark:bg-gray-900/40 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30 hover:border-emerald-500/30 transition-all group shadow-sm">
                        <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform`}>
                           <Icon className="w-6 h-6" style={{ color: config.color }} />
                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">
-                            {acc.name} {members?.find(m => m.id === acc.memberId) ? `(${members.find(m => m.id === acc.memberId).name})` : ''}
-                          </p>
+                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate">
+                              {acc.name}
+                            </p>
+                            {memberObj && (
+                              <span className={getMemberTagClass(memberObj.name)}>
+                                {memberObj.name}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-lg font-black text-gray-800 dark:text-gray-100 tracking-tight truncate">
                              {renderBalance(acc.balance)}
                           </p>
@@ -395,7 +443,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                 onClick={() => setShowBalances(!showBalances)}
                 className="p-2 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-sm transition-all text-white/80 active:scale-95"
               >
-                {showBalances ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showBalances ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
               </button>
             </div>
             
@@ -556,7 +604,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                         <div className="flex items-center gap-1.5 mb-0.5">
                           <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-1">{act.description}</p>
                           {act.memberName && (
-                            <span className="text-[6px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                            <span className={getMemberTagClass(act.memberName)}>
                               {act.memberName}
                             </span>
                           )}

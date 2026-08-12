@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { getMemberTagClass } from "@/lib/memberColors";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { format, parseISO, isSameMonth, isSameYear } from "date-fns";
 import { id } from "date-fns/locale";
@@ -371,7 +372,7 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
                              {item.accountName || "Utama"}
                              {currentMember === "all" && item.memberName && (
-                               <span className="ml-2 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                               <span className={`ml-2 ${getMemberTagClass(item.memberName)}`}>
                                  {item.memberName}
                                </span>
                              )}
@@ -420,7 +421,7 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
                             </p>
                             {currentMember === "all" && item.memberName && (
                               <div className="mt-1">
-                                <span className="text-[7px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-full">
+                                <span className={getMemberTagClass(item.memberName)}>
                                   {item.memberName}
                                 </span>
                               </div>

@@ -29,6 +29,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         opacity: exiting ? 0 : 1,
         transition: exiting ? "opacity 0.4s ease-in" : "none",
         pointerEvents: exiting ? "none" : "auto",
+        visibility: exiting ? "hidden" : "visible",
       }}
     >
       {/* Ambient glow */}

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { TrendingUp, TrendingDown, Calendar, List, ArrowRightLeft, Wallet } from "lucide-react";
+import { getMemberTagClass } from "@/lib/memberColors";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Pagination } from "@/components/ui/Pagination";
 
@@ -68,7 +69,7 @@ export default function ActivityLogClient({ activities }: { activities: any[] })
                          'Pengeluaran'}
                     </span>
                     {tx.memberName && (
-                      <span className="text-[7px] md:text-[8px] font-black px-1.5 md:px-2 py-0.5 rounded-full uppercase tracking-tighter bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700 flex items-center gap-1">
+                      <span className={getMemberTagClass(tx.memberName, "sm")}>
                         {tx.memberName}
                       </span>
                     )}

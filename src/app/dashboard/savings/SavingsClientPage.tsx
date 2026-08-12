@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { getMemberTagClass } from "@/lib/memberColors";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -436,7 +437,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                                 {item.description || "-"}
                                             </span>
                                             {item.memberName && (
-                                                <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 shrink-0">
+                                                <span className={getMemberTagClass(item.memberName)}>
                                                     {item.memberName}
                                                 </span>
                                             )}
