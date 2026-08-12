@@ -85,14 +85,17 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-        <div className="text-center lg:text-left">
-          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Tabungan & Goals</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Satu saldo untuk berbagai tujuan masa depan Anda.</p>
+      {/* Header Breadcrumb */}
+      <div className="pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Tabungan & Goals 🏆</h2>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">Satu saldo untuk berbagai tujuan masa depan Anda.</p>
         </div>
-        <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
-          {/* Date filter: hidden on mobile, shown on desktop in header */}
-          <div className="hidden md:flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
+      </div>
+
+      {/* Control Action Panel */}
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
             <button onClick={() => changePeriod(-1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronLeft className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
             <div className="px-3 md:px-4 min-w-[100px] md:min-w-[140px] text-center flex items-center justify-center gap-2">
               <span className="font-bold text-[10px] md:text-xs text-gray-900 dark:text-white tracking-tight uppercase whitespace-nowrap">
@@ -124,10 +127,8 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                   className="hidden md:flex w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-6 py-3 md:py-4 rounded-2xl md:rounded-[24px] text-xs md:text-sm font-black shadow-xl shadow-amber-500/20 hover:opacity-90 transition-all items-center justify-center gap-2 active:scale-95 whitespace-nowrap"
               >
                   <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                  <span>Goal Baru</span>
               </button>
           </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">

@@ -13,39 +13,45 @@ interface MemberFilterProps {
   members: Member[];
   className?: string;
   hideAll?: boolean;
+  value?: string;
+  onChange?: (id: string) => void;
 }
 
-export function MemberFilter({ members, className = "", hideAll = false }: MemberFilterProps) {
+export function MemberFilter({ members, className = "", hideAll = false, value, onChange }: MemberFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentMember = searchParams.get("member") || (hideAll ? (members[0]?.id || "") : "all");
+  const currentMember = value !== undefined ? value : (searchParams.get("member") || (hideAll ? (members[0]?.id || "") : "all"));
   const [isOpen, setIsOpen] = useState(false);
 
   const handleMemberChange = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (id === "all") {
-      params.delete("member");
+    if (onChange) {
+      onChange(id);
     } else {
-      params.set("member", id);
+      const params = new URLSearchParams(searchParams.toString());
+      if (id === "all") {
+        params.delete("member");
+      } else {
+        params.set("member", id);
+      }
+      router.push(`${pathname}?${params.toString()}`);
     }
-    router.push(`${pathname}?${params.toString()}`);
     setIsOpen(false);
   };
 
-  const currentLabel = currentMember === "all" ? "Semua Anggota" : (members.find(m => m.id === currentMember)?.name || "Pilih Anggota");
+  const currentLabel = currentMember === "all" ? "Semua" : (members.find(m => m.id === currentMember)?.name || "Pilih Anggota");
 
   return (
     <div className={`relative ${className} z-30`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center gap-3 px-5 py-3 rounded-2xl bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all text-sm font-bold text-gray-700 dark:text-gray-300 min-w-[200px] justify-between"
+        className="w-full flex items-center gap-2 md:gap-3 px-3 md:px-5 py-3 rounded-2xl bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all text-xs md:text-sm font-bold text-gray-700 dark:text-gray-300 min-w-0 justify-between"
       >
-        <div className="flex items-center gap-2">
-          {currentMember === "all" ? <Users className="w-4 h-4 text-emerald-500" /> : <User className="w-4 h-4 text-blue-500" />}
-          <span>{currentLabel}</span>
+        <div className="flex items-center gap-1.5 md:gap-2 min-w-0 overflow-hidden">
+          {currentMember === "all" ? <Users className="w-4 h-4 text-emerald-500 shrink-0" /> : <User className="w-4 h-4 text-blue-500 shrink-0" />}
+          <span className="truncate">{currentLabel}</span>
         </div>
-        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

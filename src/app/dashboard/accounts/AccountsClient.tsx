@@ -227,15 +227,18 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
-        <div className="text-center lg:text-left">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-800 dark:text-white tracking-tight leading-tight">Rekening & Transfer</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Atur sumber dana dan pantau saldo Anda secara real-time.</p>
+      {/* Header Breadcrumb */}
+      <div className="pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Rekening & Transfer 💳</h1>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">Atur sumber dana dan pantau saldo Anda secara real-time.</p>
         </div>
-        <div className="flex flex-col items-center lg:items-end gap-4 w-full lg:w-auto">
-          <MemberFilter members={members} className="w-full sm:w-auto" />
-          <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto">
+      </div>
+
+      {/* Control Panel */}
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-4 pb-4 border-b border-gray-100 dark:border-gray-800/60">
+        <MemberFilter members={members} className="w-full sm:w-auto" />
+        <div className="flex items-center gap-2 md:gap-3 w-full lg:w-auto justify-end">
             <button 
               onClick={() => {
                 const defaultSender = currentMember !== "all" ? currentMember : (members[0]?.id || "");
@@ -266,7 +269,6 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
             </button>
           </div>
         </div>
-      </div>
 
       {/* Summary Card */}
       <GlassCard className="p-6 md:p-8 bg-gradient-to-br from-emerald-600 to-teal-600 border-none relative overflow-hidden group hover:scale-[1.01] transition-all duration-300">

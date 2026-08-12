@@ -258,16 +258,18 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in text-left pb-10">
       {/* Header Area */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
-        <div className="text-center lg:text-left">
-          <h1 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Alokasi Dana 🎯</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">
+      <div className="pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Alokasi Dana 🎯</h1>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">
             Atur batas pengeluaran per kategori untuk mengontrol keuangan Anda.
           </p>
         </div>
+      </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto justify-center">
-          <MemberFilter members={members} className="w-full sm:w-auto" hideAll={true} />
+      {/* Control Action Row */}
+      <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-between pb-4 border-b border-gray-100 dark:border-gray-800/60">
+        <MemberFilter members={members} className="w-full sm:w-auto" hideAll={true} />
           
           {/* Month Navigation Datepicker */}
           <div className="flex items-center gap-2 md:gap-3 bg-gray-50/50 dark:bg-gray-900/50 p-1.5 rounded-[20px] md:rounded-[24px] border border-gray-100 dark:border-gray-800 shadow-sm w-full sm:w-auto justify-center">
@@ -281,7 +283,6 @@ export default function BudgetClientPage({ allCategories, initialMonth, initialY
             <button onClick={() => changePeriod(1)} className="p-1.5 md:p-2 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all active:scale-90"><ChevronRight className="w-3.5 h-3.5 md:w-4 h-4 text-gray-600" /></button>
           </div>
         </div>
-      </div>
 
       {/* 🟪 HERO CARD - Hidden as requested */}
       {/*

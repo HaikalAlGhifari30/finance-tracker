@@ -198,16 +198,15 @@ export default function ExpensesClientPage({ initialExpenses, categories, goals,
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
-        <div className="text-center lg:text-left">
-          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Pengeluaran & Transaksi</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Catat dan pantau arus kas keluar harian Anda dengan mudah.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Pengeluaran 📉</h2>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">Catat dan pantau arus kas keluar harian Anda dengan mudah.</p>
         </div>
-        {/* MemberFilter moved down */}
       </div>
 
       {/* Control Panel */}
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800/60">
         <div className="flex items-center gap-2 md:gap-3 w-full lg:max-w-md">
           <div className="flex-1">
             <MemberFilter members={members} className="w-full" />

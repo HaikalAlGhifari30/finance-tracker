@@ -198,15 +198,14 @@ export default function IncomeClientPage({ initialIncome, categories, accounts, 
 
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in text-left pb-10">
-      <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start gap-6">
-        <div className="text-center lg:text-left">
-          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Manajemen Pemasukan</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm font-medium mt-1">Pantau dan kelola sumber pemasukan Anda secara teratur.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Pemasukan 📈</h2>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">Pantau dan kelola sumber pemasukan Anda secara teratur.</p>
         </div>
-        {/* MemberFilter moved down */}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6 items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800/60">
         <div className="flex items-center gap-2 md:gap-3 w-full lg:max-w-md">
           <div className="flex-1">
             <MemberFilter members={members} className="w-full" />

@@ -142,3 +142,24 @@ export const budgetItems = pgTable("budget_items", {
 	categoryId: text("categoryId").notNull().references(() => categories.id, { onDelete: "cascade" }),
 	amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
 });
+
+export const goldAssets = pgTable("gold_assets", {
+	id: text("id").primaryKey(),
+	userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+	memberId: text("memberId").notNull().references(() => members.id, { onDelete: "cascade" }),
+	type: text("type").notNull(), // LOGAM_MULIA | PERHIASAN
+	brand: text("brand"), // Antam, UBS, Lotus Archi, etc.
+	productName: text("productName"), // e.g. Antam 5 Gram
+	jewelryType: text("jewelryType"), // Cincin, Kalung, Gelang, Anting, etc.
+	purity: text("purity"), // e.g. 70%, 75%, 99.9%
+	weight: decimal("weight", { precision: 10, scale: 3 }).notNull(), // in grams
+	purchasePrice: decimal("purchasePrice", { precision: 15, scale: 2 }).notNull(), // in IDR
+	purchaseDate: timestamp("purchaseDate").notNull(),
+	status: text("status").notNull().default("OWNED"), // OWNED | SOLD
+	salePrice: decimal("salePrice", { precision: 15, scale: 2 }), // in IDR
+	saleDate: timestamp("saleDate"),
+	note: text("note"),
+	createdAt: timestamp("createdAt").notNull(),
+	updatedAt: timestamp("updatedAt").notNull(),
+});
+

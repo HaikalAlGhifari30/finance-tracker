@@ -89,7 +89,14 @@ export function MembersClient({ initialMembers }: { initialMembers: Member[] }) 
   };
 
   return (
-    <>
+    <div className="space-y-6 md:space-y-8 animate-fade-in text-left pb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="text-left">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight leading-tight">Anggota Keluarga 👥</h2>
+          <p className="text-xs md:text-sm font-bold text-gray-400 dark:text-gray-500 mt-1">Kelola anggota keluarga dan alokasi akun FinTrack Anda.</p>
+        </div>
+      </div>
+
       <div className="bg-white dark:bg-[#1E1E2D] rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
         <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-50 dark:border-gray-800/50">
           <div className="flex items-center gap-4">
@@ -213,6 +220,6 @@ export function MembersClient({ initialMembers }: { initialMembers: Member[] }) 
         message={memberToDelete ? `Apakah Anda yakin ingin menghapus anggota ${memberToDelete.name}?` : ""}
         confirmLabel="Ya, Hapus"
       />
-    </>
+    </div>
   );
 }

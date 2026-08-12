@@ -1,12 +1,13 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, Home, Users, List, PlusCircle, CreditCard, Moon, Sun, Settings, ChevronLeft, ChevronRight, TrendingUp, Trophy, TrendingDown, Wallet, X, Menu } from "lucide-react";
+import { LogOut, Home, Users, List, PlusCircle, CreditCard, Moon, Sun, Settings, ChevronLeft, ChevronRight, TrendingUp, Trophy, TrendingDown, Wallet, X, Menu, Coins, Sparkles } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useTheme } from "@/components/ThemeProvider";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { GoldBarIcon } from "@/components/icons/GoldBarIcon";
 
 export function AppLayout({ children, user }: { children: React.ReactNode, user?: any }) {
   const pathname = usePathname();
@@ -84,6 +85,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     { label: "Pengeluaran", href: "/dashboard/expenses", icon: TrendingDown },
     { label: "Rekening", href: "/dashboard/accounts", icon: Wallet },
     { label: "Tabungan", href: "/dashboard/savings", icon: Trophy },
+    { label: "Emas", href: "/dashboard/gold", icon: GoldBarIcon },
     { label: "Anggota", href: "/dashboard/members", icon: Users },
   ];
 
@@ -168,8 +170,8 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
          {showUserMenu && (
            <>
-             <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-             <div className="absolute top-full right-0 mt-3 w-48 md:w-56 bg-white dark:bg-[#1E1E2D] rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 z-50 animate-in fade-in zoom-in-95 duration-200">
+             <div className="fixed inset-0 z-[999]" onClick={() => setShowUserMenu(false)} />
+             <div className="absolute top-full right-0 mt-3 w-48 md:w-56 bg-white dark:bg-[#1E1E2D] rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 z-[1000] animate-in fade-in zoom-in-95 duration-200">
                 <div className="px-5 py-3 border-b border-gray-50 dark:border-gray-800/50 mb-2">
                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Akun Saya</p>
                    <p className="text-xs md:text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
@@ -195,13 +197,6 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                 >
                    <CreditCard className="w-3.5 h-3.5 md:w-4 md:h-4" /> Edit Profil
                 </Link>
-                <Link 
-                  href="/dashboard/members" 
-                  onClick={() => setShowUserMenu(false)}
-                  className="md:hidden flex items-center gap-3 px-5 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
-                >
-                   <Users className="w-3.5 h-3.5" /> Anggota
-                </Link>
                 <button 
                   onClick={() => {
                     setShowUserMenu(false);
@@ -222,7 +217,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     <div className="min-h-[100dvh] bg-[#F8F9FD] dark:bg-[#13111C] flex flex-col md:flex-row transition-colors duration-300">
       
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-3 z-[30] border-b border-gray-200/60 dark:border-gray-800/60">
+      <div className="md:hidden flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),16px)] pb-3 z-[100] relative border-b border-gray-200/60 dark:border-gray-800/60">
         <div className="flex items-center gap-3">
           <Link href="/dashboard" className="flex items-center gap-2 active:scale-95 transition-transform">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden">
