@@ -273,8 +273,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
       </main>
 
       {/* Mobile Bottom Navigation */}
-      {pathname !== '/dashboard' && (
-        <div className={`md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out w-full max-w-md ${showMobileNav ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}>
+      <div className={`md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ease-in-out w-full max-w-md ${showMobileNav ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}>
           <div className="bg-white dark:bg-[#1E1E2D] border-t border-gray-100 dark:border-gray-800/80 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] rounded-t-[24px] px-3 pt-2.5 pb-[max(env(safe-area-inset-bottom),10px)] flex items-center justify-between">
             <Link 
               href="/dashboard/accounts" 
@@ -332,7 +331,6 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             </Link>
           </div>
         </div>
-      )}
     </div>
   );
 }

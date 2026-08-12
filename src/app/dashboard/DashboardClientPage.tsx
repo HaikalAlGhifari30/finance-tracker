@@ -491,65 +491,65 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
           </div>
         </div>
 
-        {/* Quick Action Card - Paged Snap Slider (Exactly 5 items on Page 1) */}
+        {/* Quick Action Card - Paged Snap Slider (Exactly 5 items per page) */}
         <GlassCard className="p-3.5 md:p-4 rounded-[28px] bg-white dark:bg-[#1E1E2D] border border-gray-100 dark:border-gray-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none overflow-hidden">
           <div 
             onScroll={handleQuickNavScroll}
             className="flex items-center overflow-x-auto snap-x snap-mandatory no-scrollbar w-full py-1"
           >
-            {/* Page 1: Exactly 5 items grid (No clipping) */}
-            <div className="w-full shrink-0 snap-start grid grid-cols-5 gap-1">
-              <Link href="/dashboard/accounts" className="flex flex-col items-center gap-2 group">
+            {/* Page 1: Exactly 5 items grid */}
+            <div className="w-full shrink-0 snap-start grid grid-cols-5 gap-1 text-center">
+              <Link href="/dashboard/accounts" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-emerald-500/20 dark:shadow-emerald-950/30 group-hover:shadow-md group-hover:scale-105">
                   <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Rekening</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Rekening</span>
               </Link>
-              <Link href="/dashboard/income" className="flex flex-col items-center gap-2 group">
+              <Link href="/dashboard/income" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-blue-500/20 dark:shadow-blue-950/30 group-hover:shadow-md group-hover:scale-105">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Masuk</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Masuk</span>
               </Link>
-              <Link href="/dashboard/budget" className="flex flex-col items-center gap-2 group">
+              <Link href="/dashboard/budget" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-indigo-500/20 dark:shadow-indigo-950/30 group-hover:shadow-md group-hover:scale-105">
                   <List className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Alokasi</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Alokasi</span>
               </Link>
-              <Link href="/dashboard/expenses" className="flex flex-col items-center gap-2 group">
+              <Link href="/dashboard/expenses" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-rose-600 to-pink-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-rose-500/20 dark:shadow-rose-950/30 group-hover:shadow-md group-hover:scale-105">
                   <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Keluar</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Keluar</span>
               </Link>
-              <Link href="/dashboard/savings" className="flex flex-col items-center gap-2 group">
+              <Link href="/dashboard/savings" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-amber-500 to-orange-400 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-amber-500/20 dark:shadow-amber-950/30 group-hover:shadow-md group-hover:scale-105">
                   <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Tabungan</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Tabungan</span>
               </Link>
             </div>
 
             {/* Page 2: Emas + Anggota items */}
-            <div className="w-full shrink-0 snap-start grid grid-cols-5 gap-1">
-              <Link href="/dashboard/gold" className="flex flex-col items-center gap-2 group">
+            <div className="w-full shrink-0 snap-start grid grid-cols-5 gap-1 text-center">
+              <Link href="/dashboard/gold" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-amber-400 to-yellow-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-amber-500/20 dark:shadow-amber-950/30 group-hover:shadow-md group-hover:scale-105">
                   <GoldBarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-amber-600 dark:text-amber-400 truncate">Emas</span>
+                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 truncate w-full">Emas</span>
               </Link>
-              <Link href="/dashboard/members" className="flex flex-col items-center gap-2 group">
+              <Link href="/dashboard/members" className="flex flex-col items-center gap-1.5 group">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-[16px] sm:rounded-[18px] bg-gradient-to-tr from-teal-500 to-cyan-500 text-white flex items-center justify-center active:scale-95 transition-all shadow-sm shadow-teal-500/20 dark:shadow-teal-950/30 group-hover:shadow-md group-hover:scale-105">
                   <Users className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 truncate">Anggota</span>
+                <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 truncate w-full">Anggota</span>
               </Link>
             </div>
           </div>
 
           {/* Slider Dots Indicator */}
-          <div className="flex justify-center items-center gap-1.5 pt-2.5">
+          <div className="flex justify-center items-center gap-1.5 pt-2">
             <div className={`h-1.5 rounded-full transition-all duration-300 ${quickNavIndex === 0 ? 'w-5 bg-emerald-500' : 'w-1.5 bg-gray-300 dark:bg-gray-700'}`} />
             <div className={`h-1.5 rounded-full transition-all duration-300 ${quickNavIndex === 1 ? 'w-5 bg-emerald-500' : 'w-1.5 bg-gray-300 dark:bg-gray-700'}`} />
           </div>
