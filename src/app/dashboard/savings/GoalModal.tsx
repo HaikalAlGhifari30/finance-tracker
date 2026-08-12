@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { X, Loader2, Target, DollarSign, Trophy } from "lucide-react";
 import { addGoal, updateGoal } from "@/app/actions/goals";
+import { formatRupiah } from "@/lib/format";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { useEffect } from "react";
@@ -35,9 +36,13 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Silakan isi nama goal / tujuan terlebih dahulu");
+      return;
+    }
     const cleanAmount = Number(targetAmount.replace(/\D/g, ""));
-    if (!cleanAmount || isNaN(cleanAmount)) {
-      toast.error("Target nominal tidak valid");
+    if (!targetAmount || !cleanAmount || isNaN(cleanAmount) || cleanAmount <= 0) {
+      toast.error("Silakan isi target nominal (Rp) dengan benar");
       return;
     }
 
@@ -58,22 +63,16 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, "");
-    if (val) {
-      setTargetAmount(parseInt(val, 10).toLocaleString("id-ID"));
-    } else {
-      setTargetAmount("");
-    }
+    setTargetAmount(formatRupiah(e.target.value));
   };
 
   const content = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-[10px] animate-in fade-in duration-300" onClick={onClose} />
-      
-      <div className="relative w-full max-w-md bg-white dark:bg-[#1E1E2D] rounded-[32px] md:rounded-[40px] shadow-[0_30px_70px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-300">
-        <div className="px-6 md:px-10 py-6 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-amber-50/50 dark:bg-amber-900/10">
-          <div className="flex items-center gap-4 text-left">
-            <div className="p-3 bg-amber-100 dark:bg-amber-900/40 text-amber-600 rounded-2xl">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-[8px] animate-in fade-in duration-300" onClick={onClose} />
+      <div className="relative w-full max-w-md bg-white dark:bg-[#1E1E2D] rounded-[32px] md:rounded-[40px] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800 animate-in zoom-in-95 duration-200">
+        <div className="p-6 md:p-8 border-b border-gray-100 dark:border-gray-800/80 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/20">
               <Trophy className="w-6 h-6" />
             </div>
             <div>
@@ -86,7 +85,7 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 text-left">
+        <form noValidate onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6 md:space-y-8 text-left">
           <div className="space-y-4 md:space-y-6">
             <div className="space-y-2">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest px-1">Nama Goal / Tujuan</label>

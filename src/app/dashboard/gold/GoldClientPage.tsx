@@ -10,6 +10,8 @@ import GoldModal from "./GoldModal";
 import SellGoldModal from "./SellGoldModal";
 import GoldDetailModal from "./GoldDetailModal";
 import { deleteGoldAsset } from "@/app/actions/gold";
+import { getGoldAssetIcon } from "@/lib/goldIcons";
+import { GoldCoinIcon, GoldRingIcon } from "@/components/icons/GoldAssetIcons";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { createPortal } from "react-dom";
 
@@ -174,9 +176,9 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
         </p>
       </div>
 
-      {/* 2. Member Filter + Tambah Emas (IN ONE SINGLE ROW: Tambah Emas wider than Member Filter) */}
-      <div className="flex items-center gap-2 md:gap-3 w-full pb-3 border-b border-gray-100 dark:border-gray-800/60">
-        <div className="flex-1 min-w-0">
+      {/* 2. Member Filter + Tambah Emas (Responsive Row: Full width on mobile, Compact & Aligned on Desktop) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="w-full sm:w-64">
           <MemberFilter
             members={members}
             value={selectedMember}
@@ -186,23 +188,23 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
         </div>
         <button
           onClick={handleOpenAdd}
-          className="flex-[1.3] min-w-0 flex items-center justify-center gap-1.5 md:gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black px-3.5 md:px-5 py-3 rounded-2xl shadow-md shadow-amber-500/20 transition-all active:scale-95 text-xs whitespace-nowrap"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black px-6 py-3 rounded-2xl shadow-md shadow-amber-500/20 transition-all active:scale-95 text-xs whitespace-nowrap"
         >
           <Plus className="w-4 h-4 stroke-[3] shrink-0" />
-          <span className="truncate">+ Tambah Emas</span>
+          <span>+ Tambah Emas</span>
         </button>
       </div>
 
       {/* 3. HERO SUMMARY CARD (PORTFOLIO SUMMARY - Dynamic Auto-Fitting 3D Card Flip) */}
       <div
         onClick={() => setIsSummaryFlipped(!isSummaryFlipped)}
-        className={`w-full cursor-pointer select-none [perspective:1000px] transition-all duration-300 group ${
-          isSummaryFlipped ? "min-h-[175px]" : "min-h-[115px]"
+        className={`w-full max-w-3xl cursor-pointer select-none [perspective:1000px] transition-all duration-300 group my-1 md:my-2 ${
+          isSummaryFlipped ? "min-h-[200px]" : "min-h-[115px]"
         }`}
       >
         <div
           className={`w-full relative transition-all duration-500 [transform-style:preserve-3d] ${
-            isSummaryFlipped ? "[transform:rotateY(180deg)] min-h-[175px]" : "[transform:rotateY(0deg)] min-h-[115px]"
+            isSummaryFlipped ? "[transform:rotateY(180deg)] min-h-[200px]" : "[transform:rotateY(0deg)] min-h-[115px]"
           }`}
         >
           {/* FRONT FACE (TOTAL EMAS OVERVIEW - Compact & Tight 115px) */}
@@ -235,13 +237,13 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
             </div>
           </div>
 
-          {/* BACK FACE (RINCIAN KATEGORI & DANA PEMBELIAN - Spacious 175px with Bottom Padding) */}
-          <div className="w-full min-h-[175px] absolute inset-0 bg-gradient-to-br from-[#1E1E2D] via-[#242436] to-[#1E1E2D] rounded-[24px] md:rounded-[32px] p-4 md:p-5 border border-amber-500/30 shadow-lg overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] text-white flex flex-col justify-between">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center border-b border-gray-700/60 pb-1.5">
+          {/* BACK FACE (RINCIAN KATEGORI & DANA PEMBELIAN - Generous 200px height & bottom padding) */}
+          <div className="w-full min-h-[200px] absolute inset-0 bg-gradient-to-br from-[#1E1E2D] via-[#242436] to-[#1E1E2D] rounded-[24px] md:rounded-[32px] p-4 md:p-6 border border-amber-500/30 shadow-lg overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)] text-white flex flex-col justify-between pb-6">
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-center border-b border-gray-700/60 pb-2">
                 <div>
                   <p className="text-[10px] md:text-[11px] font-black text-amber-400 uppercase tracking-[0.2em]">Rincian Kategori Emas</p>
-                  <p className="text-[10px] font-bold text-gray-300 mt-0.5">
+                  <p className="text-[10px] md:text-[11px] font-bold text-gray-300 mt-0.5">
                     Dana Pembelian: <span className="text-amber-400 font-black">Rp {summaryMetrics.totalPurchaseCost.toLocaleString("id-ID")}</span>
                   </p>
                 </div>
@@ -250,35 +252,35 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
                 </span>
               </div>
 
-              <div className="space-y-1.5 pt-0.5 pb-1">
+              <div className="space-y-2 pt-1 pb-2">
                 {/* Logam Mulia Breakdown */}
-                <div className="flex items-center justify-between p-2 md:p-2.5 rounded-xl bg-gray-900/70 border border-amber-500/20">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">🪙</span>
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-xl bg-gray-900/70 border border-amber-500/20">
+                  <div className="flex items-center gap-2.5">
+                    <GoldCoinIcon className="w-5 h-5 shrink-0" />
                     <div>
-                      <span className="text-xs font-black text-white">Logam Mulia</span>
-                      <span className="text-[10px] font-bold text-gray-400 ml-1.5">
+                      <span className="text-xs md:text-sm font-black text-white">Logam Mulia</span>
+                      <span className="text-[10px] md:text-xs font-bold text-gray-400 ml-1.5">
                         ({breakdownMetrics.lmCount} aset · {breakdownMetrics.lmWeight.toLocaleString("id-ID", { maximumFractionDigits: 3 })}g)
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs font-black text-amber-400">
+                  <p className="text-xs md:text-sm font-black text-amber-400">
                     Rp {breakdownMetrics.lmCost.toLocaleString("id-ID")}
                   </p>
                 </div>
 
                 {/* Perhiasan Breakdown */}
-                <div className="flex items-center justify-between p-2 md:p-2.5 rounded-xl bg-gray-900/70 border border-amber-500/20">
-                  <div className="flex items-center gap-2">
-                    <span className="text-base">💍</span>
+                <div className="flex items-center justify-between p-2.5 md:p-3 rounded-xl bg-gray-900/70 border border-amber-500/20">
+                  <div className="flex items-center gap-2.5">
+                    <GoldRingIcon className="w-5 h-5 shrink-0" />
                     <div>
-                      <span className="text-xs font-black text-white">Perhiasan</span>
-                      <span className="text-[10px] font-bold text-gray-400 ml-1.5">
+                      <span className="text-xs md:text-sm font-black text-white">Perhiasan</span>
+                      <span className="text-[10px] md:text-xs font-bold text-gray-400 ml-1.5">
                         ({breakdownMetrics.pCount} aset · {breakdownMetrics.pWeight.toLocaleString("id-ID", { maximumFractionDigits: 3 })}g)
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs font-black text-amber-400">
+                  <p className="text-xs md:text-sm font-black text-amber-400">
                     Rp {breakdownMetrics.pCost.toLocaleString("id-ID")}
                   </p>
                 </div>
@@ -409,7 +411,7 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
                 <div className="flex justify-between items-start gap-2">
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl shrink-0">
-                      {asset.type === "LOGAM_MULIA" ? "🪙" : "💍"}
+                      {getGoldAssetIcon(asset)}
                     </span>
                     <div>
                       <h4 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-tight group-hover:text-amber-500 transition-colors">

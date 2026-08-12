@@ -274,7 +274,7 @@ export default function BudgetActionModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 flex flex-col space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 flex flex-col space-y-6">
           {/* Total Budget Input */}
           <div className="p-5 bg-emerald-50/50 dark:bg-emerald-950/10 rounded-3xl border border-emerald-100 dark:border-emerald-900/30 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">

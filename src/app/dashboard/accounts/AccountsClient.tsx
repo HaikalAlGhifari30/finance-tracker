@@ -74,9 +74,17 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Silakan isi nama rekening terlebih dahulu");
+      return;
+    }
+    if (!editingAccount && !memberId) {
+      toast.error("Silakan pilih anggota pemilik rekening");
+      return;
+    }
     setIsSubmitting(true);
     const res = editingAccount 
-      ? await updateAccount(editingAccount.id, name, type, accountNumber) // note: memberId is usually not updated
+      ? await updateAccount(editingAccount.id, name, type, accountNumber)
       : await addAccount(name, type, memberId, accountNumber);
     
     if (res.success) {
@@ -137,6 +145,22 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!fromMember) {
+      toast.error("Silakan pilih anggota pengirim terlebih dahulu");
+      return;
+    }
+    if (!fromAccount) {
+      toast.error("Silakan pilih rekening asal terlebih dahulu");
+      return;
+    }
+    if (!toMember) {
+      toast.error("Silakan pilih anggota penerima terlebih dahulu");
+      return;
+    }
+    if (!toAccount) {
+      toast.error("Silakan pilih rekening tujuan terlebih dahulu");
+      return;
+    }
     if (fromAccount === toAccount) {
       toast.error("Rekening asal dan tujuan tidak boleh sama");
       return;
@@ -144,7 +168,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
     
     const cleanAmount = Number(unformatRupiah(transferAmount));
     if (!cleanAmount || isNaN(cleanAmount) || cleanAmount <= 0) {
-      toast.error("Nominal transfer tidak valid");
+      toast.error("Silakan isi nominal transfer (Rp) dengan benar");
       return;
     }
 
@@ -517,7 +541,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </button>
             </div>
             
-            <form onSubmit={handleAddAccount} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+            <form noValidate onSubmit={handleAddAccount} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
               {!editingAccount && (
                 currentMember === "all" ? (
                   <div className="space-y-2">
@@ -632,7 +656,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </button>
             </div>
             
-            <form onSubmit={handleTransfer} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
+            <form noValidate onSubmit={handleTransfer} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
                 <h3 className="text-sm font-black text-gray-800 dark:text-gray-200 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2">Dari Rekening</h3>
                 

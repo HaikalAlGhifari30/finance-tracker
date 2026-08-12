@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Sparkles, Award, Scale, Banknote, Calendar, User, FileText, Trash2, Edit3, DollarSign, TrendingUp, TrendingDown, Info } from "lucide-react";
 import { getMemberTagClass } from "@/lib/memberColors";
+import { getGoldAssetIcon } from "@/lib/goldIcons";
 
 interface GoldDetailModalProps {
   isOpen: boolean;
@@ -55,7 +56,7 @@ export default function GoldDetailModal({
                 ? "bg-amber-50 dark:bg-amber-900/20 text-amber-500" 
                 : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500"
             }`}>
-              {asset.type === "LOGAM_MULIA" ? "🪙" : "💍"}
+              {getGoldAssetIcon(asset)}
             </div>
             <div>
               <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { X, Banknote, Calendar, FileText, Loader2, DollarSign, TrendingUp, TrendingDown, Info } from "lucide-react";
 import { sellGoldAsset } from "@/app/actions/gold";
 import { formatRupiah } from "@/lib/format";
+import { toast } from "sonner";
 
 interface SellGoldModalProps {
   isOpen: boolean;
@@ -23,12 +24,7 @@ export default function SellGoldModal({ isOpen, onClose, asset, onSuccess }: Sel
 
   useEffect(() => {
     setMounted(true);
-    if (asset) {
-      setSalePrice("");
-      setSaleDate(new Date().toISOString().split("T")[0]);
-      setNote("");
-    }
-  }, [asset]);
+  }, []);
 
   if (!isOpen || !mounted || !asset) return null;
 
@@ -43,8 +39,8 @@ export default function SellGoldModal({ isOpen, onClose, asset, onSuccess }: Sel
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isNaN(rawSalePrice) || rawSalePrice <= 0) {
-      alert("Mohon masukkan harga jual dengan benar.");
+    if (!salePrice || isNaN(rawSalePrice) || rawSalePrice <= 0) {
+      toast.error("Silakan masukkan harga jual (Rp) dengan benar.");
       return;
     }
 
@@ -56,10 +52,11 @@ export default function SellGoldModal({ isOpen, onClose, asset, onSuccess }: Sel
       });
 
       if (res.success) {
+        toast.success("Penjualan emas berhasil dicatat!");
         if (onSuccess) onSuccess();
         onClose();
       } else {
-        alert(res.error || "Gagal mencatat penjualan emas");
+        toast.error(res.error || "Gagal mencatat penjualan emas");
       }
     });
   };
@@ -93,7 +90,7 @@ export default function SellGoldModal({ isOpen, onClose, asset, onSuccess }: Sel
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} autoComplete="off" className="p-5 md:p-10 space-y-4 md:space-y-6 text-left overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <form noValidate onSubmit={handleSubmit} autoComplete="off" className="p-5 md:p-10 space-y-4 md:space-y-6 text-left overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {/* Target Asset Summary Box */}
           <div className="p-4 bg-gray-50 dark:bg-gray-900/60 rounded-[20px] border border-gray-100 dark:border-gray-800 flex justify-between items-center">
             <div>

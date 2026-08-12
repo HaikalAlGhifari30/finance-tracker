@@ -44,7 +44,10 @@ export function MembersClient({ initialMembers }: { initialMembers: Member[] }) 
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      toast.error("Silakan isi nama panggilan terlebih dahulu");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -169,7 +172,7 @@ export function MembersClient({ initialMembers }: { initialMembers: Member[] }) 
               Masukkan nama panggilan untuk anggota ini.
             </p>
 
-            <form onSubmit={handleSave} className="space-y-4">
+            <form noValidate onSubmit={handleSave} className="space-y-4">
               {error && (
                 <div className="p-3 bg-rose-50 text-rose-600 rounded-xl text-sm font-medium">
                   {error}

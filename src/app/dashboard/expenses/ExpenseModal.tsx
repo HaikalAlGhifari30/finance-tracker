@@ -200,7 +200,7 @@ export default function ExpenseModal({ isOpen, onClose, mode, initialData, categ
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 md:p-10 space-y-4 md:space-y-6 text-left overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <form noValidate onSubmit={handleSubmit} className="p-5 md:p-10 space-y-4 md:space-y-6 text-left overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           <div className="space-y-3.5 md:space-y-6">
             <div className="space-y-1.5 md:space-y-3">
               <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>

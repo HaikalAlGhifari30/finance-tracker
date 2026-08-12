@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { X, Award, Banknote, Calendar, FileText, Loader2, Sparkles, User, Tag, ShieldCheck } from "lucide-react";
+import { X, Award, Banknote, Calendar, FileText, Loader2, Sparkles, User, Tag, ShieldCheck, AlertCircle } from "lucide-react";
 import { createGoldAsset, updateGoldAsset } from "@/app/actions/gold";
+import { GoldCoinIcon, GoldRingIcon } from "@/components/icons/GoldAssetIcons";
 import { formatRupiah } from "@/lib/format";
 
 interface GoldModalProps {
@@ -17,6 +18,7 @@ interface GoldModalProps {
 export default function GoldModal({ isOpen, onClose, members, initialData, onSuccess }: GoldModalProps) {
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const isEdit = Boolean(initialData);
 
@@ -26,7 +28,7 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
   const [productName, setProductName] = useState("");
   const [jewelryType, setJewelryType] = useState("Cincin");
   const STANDARD_PURITY_OPTIONS = [
-    "37.5%", "42%", "58.5%", "70%", "75%", "80%", "83.3%", "87.5%", "91.6%", "95.8%", "99.9%"
+    "37.5%", "42%", "58.5%", "62.5%", "70%", "75%", "80%", "83.3%", "87.5%", "91.6%", "95.8%", "99.9%"
   ];
 
   const [puritySelect, setPuritySelect] = useState("75%");
@@ -41,6 +43,7 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
   }, []);
 
   useEffect(() => {
+    setErrors({});
     if (initialData) {
       setMemberId(initialData.memberId || "");
       setType(initialData.type || "LOGAM_MULIA");
@@ -80,17 +83,36 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPurchasePrice(formatRupiah(e.target.value));
+    if (errors.purchasePrice) setErrors(prev => ({ ...prev, purchasePrice: "" }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const rawPrice = Number(purchasePrice.replace(/[^0-9]/g, ""));
-    const numWeight = Number(weight.replace(",", "."));
+    const newErrors: Record<string, string> = {};
 
-    if (!memberId || isNaN(rawPrice) || rawPrice <= 0 || isNaN(numWeight) || numWeight <= 0) {
-      alert("Mohon lengkapi data dengan benar.");
+    if (!memberId) {
+      newErrors.memberId = "Pemilik aset wajib dipilih";
+    }
+
+    const numWeight = Number(weight.replace(",", "."));
+    if (!weight.trim() || isNaN(numWeight) || numWeight <= 0) {
+      newErrors.weight = "Berat emas (gram) wajib diisi";
+    }
+
+    const rawPrice = Number(purchasePrice.replace(/[^0-9]/g, ""));
+    if (!purchasePrice.trim() || isNaN(rawPrice) || rawPrice <= 0) {
+      newErrors.purchasePrice = "Harga beli (Rp) wajib diisi";
+    }
+
+    if (type === "PERHIASAN" && puritySelect === "CUSTOM" && !customPurity.trim()) {
+      newErrors.customPurity = "Kadar emas custom wajib diisi";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
 
     startTransition(async () => {
       const finalPurity = puritySelect === "CUSTOM" ? (customPurity || "Karat Custom") : puritySelect;
@@ -128,32 +150,32 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
     <div className="fixed inset-0 z-[99999] flex items-end md:items-center justify-center md:p-4 text-left">
       <div className="fixed inset-0 bg-black/75 backdrop-blur-[12px] animate-in fade-in duration-300" onClick={onClose} />
 
-      <div className="relative w-full md:max-w-lg bg-white dark:bg-[#1E1E2D] rounded-t-[32px] md:rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in slide-in-from-bottom md:zoom-in-95 duration-300 flex flex-col max-h-[85dvh] md:max-h-[90vh]">
+      <div className="relative w-full md:max-w-lg bg-white dark:bg-[#1E1E2D] rounded-t-[32px] md:rounded-[40px] shadow-[0_40px_100px_rgba(0,0,0,0.5)] overflow-hidden border border-gray-100 dark:border-gray-800 animate-in slide-in-from-bottom md:zoom-in-95 duration-300 flex flex-col max-h-[90dvh] md:max-h-[92vh]">
         {/* Mobile drag handle */}
         <div className="md:hidden flex justify-center pt-3 pb-1">
           <div className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600/80" />
         </div>
 
         {/* Modal Header */}
-        <div className="px-5 md:px-10 py-3.5 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
-          <div className="flex items-center gap-3 md:gap-5">
-            <div className="p-2.5 md:p-4 rounded-[16px] md:rounded-[24px] bg-amber-500 text-white shadow-lg shadow-amber-500/20">
-              <Sparkles className="w-4 h-4 md:w-6 md:h-6" />
+        <div className="px-5 md:px-8 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30 shrink-0">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="p-2.5 md:p-3.5 rounded-[16px] md:rounded-[20px] bg-amber-500 text-white shadow-lg shadow-amber-500/20">
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
             </div>
             <div>
-              <h3 className="font-black text-base md:text-2xl text-gray-900 dark:text-gray-100 tracking-tight">
+              <h3 className="font-black text-base md:text-xl text-gray-900 dark:text-gray-100 tracking-tight">
                 {isEdit ? "Edit Aset Emas" : "Tambah Emas Physical"}
               </h3>
               <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">Physical Asset Tracker</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 md:p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl">
-            <X className="w-5 h-5 md:w-7 md:h-7" />
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl">
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} autoComplete="off" className="p-5 md:p-10 space-y-4 md:space-y-6 text-left overflow-y-auto custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <form noValidate onSubmit={handleSubmit} autoComplete="off" className="p-5 md:p-8 space-y-4 md:space-y-5 text-left overflow-y-auto custom-scrollbar pb-12 md:pb-16 flex-1">
           <div className="space-y-3.5 md:space-y-5">
 
             {/* Pilihan Jenis Emas */}
@@ -169,7 +191,8 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   }`}
                 >
-                  🪙 Logam Mulia
+                  <GoldCoinIcon className="w-4 h-4 shrink-0" />
+                  <span>Logam Mulia</span>
                 </button>
                 <button
                   type="button"
@@ -180,7 +203,8 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   }`}
                 >
-                  💍 Perhiasan
+                  <GoldRingIcon className="w-4 h-4 shrink-0" />
+                  <span>Perhiasan</span>
                 </button>
               </div>
             </div>
@@ -268,6 +292,7 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       <option value="37.5%">37.5% (9 Karat)</option>
                       <option value="42%">42% (10 Karat)</option>
                       <option value="58.5%">58.5% (14 Karat)</option>
+                      <option value="62.5%">62.5% (15 Karat)</option>
                       <option value="70%">70% (16-17 Karat)</option>
                       <option value="75%">75% (18 Karat)</option>
                       <option value="80%">80% (19 Karat)</option>
@@ -275,24 +300,25 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       <option value="87.5%">87.5% (21 Karat)</option>
                       <option value="91.6%">91.6% (22 Karat)</option>
                       <option value="95.8%">95.8% (23 Karat)</option>
-                      <option value="99.9%">99.9% (24 Karat - Murni)</option>
-                      <option value="CUSTOM">Lainnya (Input Sendiri)</option>
                     </select>
-
-                    {puritySelect === "CUSTOM" && (
-                      <input
-                        type="text"
-                        autoComplete="off"
-                        name="gold_custom_purity"
-                        value={customPurity}
-                        onChange={(e) => setCustomPurity(e.target.value)}
-                        placeholder="Masukkan Karat (cth: 85% atau 15 Karat)"
-                        className="w-full mt-2 px-4 py-3 md:py-3.5 rounded-[16px] md:rounded-[20px] border-2 border-amber-500/40 bg-amber-50/10 dark:bg-amber-900/10 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500 font-bold text-xs md:text-sm"
-                        required
-                      />
-                    )}
                   </div>
                 </div>
+
+                {puritySelect === "CUSTOM" && (
+                  <div className="space-y-1.5 md:space-y-2 pt-1">
+                    <label className="text-[10px] md:text-[11px] font-black text-amber-500 uppercase tracking-[0.2em] px-1">Kadar Custom (Input Sendiri)</label>
+                    <input
+                      type="text"
+                      autoComplete="off"
+                      name="gold_custom_purity"
+                      value={customPurity}
+                      onChange={(e) => setCustomPurity(e.target.value)}
+                      placeholder="cth: 85% atau 15 Karat"
+                      className="w-full px-4 py-3 md:py-3.5 rounded-[16px] md:rounded-[20px] border-2 border-amber-500/50 bg-amber-50/10 dark:bg-amber-900/10 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500 font-bold text-xs md:text-sm"
+                      required
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-1.5 md:space-y-2">
                   <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Brand / Toko (Opsional)</label>
