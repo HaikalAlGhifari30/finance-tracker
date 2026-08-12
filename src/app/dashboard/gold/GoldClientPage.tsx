@@ -13,6 +13,7 @@ import { deleteGoldAsset } from "@/app/actions/gold";
 import { getGoldAssetIcon } from "@/lib/goldIcons";
 import { GoldCoinIcon, GoldRingIcon } from "@/components/icons/GoldAssetIcons";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { formatPurityPercentage } from "@/lib/format";
 import { createPortal } from "react-dom";
 
 interface GoldClientPageProps {
@@ -160,8 +161,9 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
       {/* 1. Header Breadcrumb */}
       <div className="pb-2.5 border-b border-gray-100 dark:border-gray-800/60">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">
-            Emas 🪙
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
+            <span>Emas</span>
+            <GoldCoinIcon className="w-6 h-6 md:w-8 md:h-8 shrink-0" />
           </h1>
           <button
             onClick={() => setIsInfoModalOpen(true)}
@@ -176,9 +178,9 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
         </p>
       </div>
 
-      {/* 2. Member Filter + Tambah Emas (Responsive Row: Full width on mobile, Compact & Aligned on Desktop) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full pb-3 border-b border-gray-100 dark:border-gray-800/60">
-        <div className="w-full sm:w-64">
+      {/* 2. Member Filter + Tambah Emas (Side-by-side row on Mobile & Desktop) */}
+      <div className="flex items-center justify-between gap-2 md:gap-3 w-full pb-3 border-b border-gray-100 dark:border-gray-800/60">
+        <div className="flex-1 min-w-0 sm:max-w-[220px]">
           <MemberFilter
             members={members}
             value={selectedMember}
@@ -188,17 +190,17 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
         </div>
         <button
           onClick={handleOpenAdd}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black px-6 py-3 rounded-2xl shadow-md shadow-amber-500/20 transition-all active:scale-95 text-xs whitespace-nowrap"
+          className="flex-1 sm:flex-none min-w-0 flex items-center justify-center gap-1.5 md:gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black px-3.5 md:px-6 py-3 rounded-2xl shadow-md shadow-amber-500/20 transition-all active:scale-95 text-xs whitespace-nowrap"
         >
           <Plus className="w-4 h-4 stroke-[3] shrink-0" />
-          <span>+ Tambah Emas</span>
+          <span className="truncate">Tambah Emas</span>
         </button>
       </div>
 
       {/* 3. HERO SUMMARY CARD (PORTFOLIO SUMMARY - Dynamic Auto-Fitting 3D Card Flip) */}
       <div
         onClick={() => setIsSummaryFlipped(!isSummaryFlipped)}
-        className={`w-full max-w-3xl cursor-pointer select-none [perspective:1000px] transition-all duration-300 group my-1 md:my-2 ${
+        className={`w-full max-w-3xl cursor-pointer select-none [perspective:1000px] transition-all duration-300 group mt-1 mb-3 md:mt-2 md:mb-5 ${
           isSummaryFlipped ? "min-h-[200px]" : "min-h-[115px]"
         }`}
       >
@@ -291,7 +293,7 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
       </div>
 
       {/* 4. FILTER ROW (STATUS DROPDOWN PILL + JENIS EMAS FILTER PILL IN ONE ROW) */}
-      <div className="flex items-center justify-between gap-2.5 w-full">
+      <div className="flex items-center justify-between gap-2.5 w-full mt-2 md:mt-3">
         {/* Status Filter Dropdown Pill */}
         <div className="relative shrink-0">
           <button
@@ -379,7 +381,9 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
       {/* 6. INDIVIDUAL ASSET CARDS (NEUTRAL & COMPACT) */}
       {filteredAssets.length === 0 ? (
         <div className="bg-white dark:bg-[#1E1E2D] rounded-[24px] p-8 text-center border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
-          <div className="text-4xl">🪙</div>
+          <div className="flex justify-center">
+            <GoldCoinIcon className="w-10 h-10" />
+          </div>
           <div className="max-w-xs mx-auto space-y-1">
             <h3 className="font-black text-sm text-gray-900 dark:text-gray-100">Belum ada aset emas</h3>
             <p className="text-xs text-gray-400 font-medium">
@@ -418,7 +422,7 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
                         {asset.productName || (asset.type === "LOGAM_MULIA" ? `${asset.brand || 'Antam'} ${asset.weight}g` : `${asset.jewelryType || 'Perhiasan'} Emas`)}
                       </h4>
                       <p className="text-[10px] font-bold text-gray-400">
-                        {asset.type === "LOGAM_MULIA" ? `Logam Mulia • ${asset.brand || 'Antam'}` : `Perhiasan • ${asset.purity || '75%'}`}
+                        {asset.type === "LOGAM_MULIA" ? `Logam Mulia • ${asset.brand || 'Antam'}` : `Perhiasan • ${formatPurityPercentage(asset.purity || '75%')}`}
                       </p>
                     </div>
                   </div>
@@ -543,7 +547,9 @@ export default function GoldClientPage({ initialAssets, members }: GoldClientPag
                 onClick={() => setTempType("LOGAM_MULIA")}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all ${tempType === "LOGAM_MULIA" ? "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-500/30" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"}`}
               >
-                <span>🪙 Logam Mulia</span>
+                <span className="flex items-center gap-2">
+                  <GoldCoinIcon className="w-4 h-4" /> Logam Mulia
+                </span>
                 {tempType === "LOGAM_MULIA" && <CheckCircle2 className="w-4 h-4 text-amber-500" />}
               </button>
               <button

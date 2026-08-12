@@ -633,26 +633,26 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
            {isHistoryExpanded && (
              <div className="space-y-4 mt-5 animate-fade-in">
                {filteredActivities.slice(0, 5).map((act, i) => (
-                 <div key={i} className="flex items-center justify-between gap-3">
-                   <div className="flex items-center gap-3">
-                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
+                 <div key={i} className="flex items-center justify-between gap-2.5">
+                   <div className="flex items-center gap-3 min-w-0 flex-1">
+                     <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${act.type === 'INCOME' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
                        {act.type === 'INCOME' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight line-clamp-1">{act.description}</p>
-                          {act.memberName && (
-                            <span className={getMemberTagClass(act.memberName)}>
-                              {act.memberName}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase">
-                          {format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName || (act.type === 'SAVING' ? 'Tabungan' : 'Umum')}
-                        </p>
-                      </div>
+                     <div className="min-w-0 flex-1">
+                       <div className="flex items-center gap-2 mb-0.5 min-w-0">
+                         <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight truncate flex-1">{act.description}</p>
+                         {act.memberName && (
+                           <span className={`${getMemberTagClass(act.memberName)} shrink-0`}>
+                             {act.memberName}
+                           </span>
+                         )}
+                       </div>
+                       <p className="text-[9px] text-gray-400 font-medium tracking-wide uppercase truncate">
+                         {format(new Date(act.date), "dd MMM", { locale: id })} • {act.categoryName || (act.type === 'SAVING' ? 'Tabungan' : 'Umum')}
+                       </p>
+                     </div>
                    </div>
-                   <span className={`text-xs font-black whitespace-nowrap ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
+                   <span className={`text-xs font-black whitespace-nowrap shrink-0 ${act.type === 'INCOME' ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
                      {act.type === 'INCOME' ? '+' : '-'}Rp {Number(act.amount).toLocaleString("id-ID")}
                    </span>
                  </div>

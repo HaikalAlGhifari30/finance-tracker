@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { X, Sparkles, Award, Scale, Banknote, Calendar, User, FileText, Trash2, Edit3, DollarSign, TrendingUp, TrendingDown, Info } from "lucide-react";
 import { getMemberTagClass } from "@/lib/memberColors";
 import { getGoldAssetIcon } from "@/lib/goldIcons";
+import { formatPurityPercentage } from "@/lib/format";
 
 interface GoldDetailModalProps {
   isOpen: boolean;

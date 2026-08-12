@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { X, Award, Banknote, Calendar, FileText, Loader2, Sparkles, User, Tag, ShieldCheck, AlertCircle } from "lucide-react";
 import { createGoldAsset, updateGoldAsset } from "@/app/actions/gold";
 import { GoldCoinIcon, GoldRingIcon } from "@/components/icons/GoldAssetIcons";
-import { formatRupiah } from "@/lib/format";
+import { formatRupiah, formatPurityPercentage } from "@/lib/format";
 
 interface GoldModalProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
   const [productName, setProductName] = useState("");
   const [jewelryType, setJewelryType] = useState("Cincin");
   const STANDARD_PURITY_OPTIONS = [
-    "37.5%", "42%", "58.5%", "62.5%", "70%", "75%", "80%", "83.3%", "87.5%", "91.6%", "95.8%", "99.9%"
+    "25%", "37.5%", "42%", "58.5%", "62.5%", "70%", "75%", "80%", "83.3%", "87.5%", "91.6%", "95.8%", "99.9%"
   ];
 
   const [puritySelect, setPuritySelect] = useState("75%");
@@ -52,12 +52,54 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
       setJewelryType(initialData.jewelryType || "Cincin");
       
       const initPurity = initialData.purity || "75%";
-      if (STANDARD_PURITY_OPTIONS.includes(initPurity)) {
-        setPuritySelect(initPurity);
+      const normalizedInit = formatPurityPercentage(initPurity);
+      const pLower = initPurity.trim().toLowerCase();
+      
+      if (STANDARD_PURITY_OPTIONS.includes(normalizedInit)) {
+        setPuritySelect(normalizedInit);
+        setCustomPurity("");
+      } else if (pLower.includes("25") || pLower.includes("6 karat")) {
+        setPuritySelect("25%");
+        setCustomPurity("");
+      } else if (pLower.includes("62.5") || pLower.includes("15 karat")) {
+        setPuritySelect("62.5%");
+        setCustomPurity("");
+      } else if (pLower.includes("37.5") || pLower.includes("9 karat")) {
+        setPuritySelect("37.5%");
+        setCustomPurity("");
+      } else if (pLower.includes("42") || pLower.includes("10 karat")) {
+        setPuritySelect("42%");
+        setCustomPurity("");
+      } else if (pLower.includes("58.5") || pLower.includes("14 karat")) {
+        setPuritySelect("58.5%");
+        setCustomPurity("");
+      } else if (pLower.includes("70") || pLower.includes("16") || pLower.includes("17")) {
+        setPuritySelect("70%");
+        setCustomPurity("");
+      } else if (pLower.includes("75") || pLower.includes("18 karat")) {
+        setPuritySelect("75%");
+        setCustomPurity("");
+      } else if (pLower.includes("80") || pLower.includes("19 karat")) {
+        setPuritySelect("80%");
+        setCustomPurity("");
+      } else if (pLower.includes("83.3") || pLower.includes("20 karat")) {
+        setPuritySelect("83.3%");
+        setCustomPurity("");
+      } else if (pLower.includes("87.5") || pLower.includes("21 karat")) {
+        setPuritySelect("87.5%");
+        setCustomPurity("");
+      } else if (pLower.includes("91.6") || pLower.includes("22 karat")) {
+        setPuritySelect("91.6%");
+        setCustomPurity("");
+      } else if (pLower.includes("95.8") || pLower.includes("23 karat")) {
+        setPuritySelect("95.8%");
+        setCustomPurity("");
+      } else if (pLower.includes("99.9") || pLower.includes("24 karat")) {
+        setPuritySelect("99.9%");
         setCustomPurity("");
       } else {
         setPuritySelect("CUSTOM");
-        setCustomPurity(initPurity);
+        setCustomPurity(normalizedInit);
       }
 
       setWeight(initialData.weight ? String(initialData.weight) : "");
@@ -115,7 +157,8 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
     setErrors({});
 
     startTransition(async () => {
-      const finalPurity = puritySelect === "CUSTOM" ? (customPurity || "Karat Custom") : puritySelect;
+      const rawPurity = puritySelect === "CUSTOM" ? customPurity : puritySelect;
+      const finalPurity = formatPurityPercentage(rawPurity);
 
       const payload = {
         memberId,
@@ -289,6 +332,7 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       onChange={(e) => setPuritySelect(e.target.value)}
                       className="w-full px-4 py-3 md:py-4 rounded-[16px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-bold text-xs md:text-sm"
                     >
+                      <option value="25%">25% (6 Karat)</option>
                       <option value="37.5%">37.5% (9 Karat)</option>
                       <option value="42%">42% (10 Karat)</option>
                       <option value="58.5%">58.5% (14 Karat)</option>
@@ -300,6 +344,8 @@ export default function GoldModal({ isOpen, onClose, members, initialData, onSuc
                       <option value="87.5%">87.5% (21 Karat)</option>
                       <option value="91.6%">91.6% (22 Karat)</option>
                       <option value="95.8%">95.8% (23 Karat)</option>
+                      <option value="99.9%">99.9% (24 Karat)</option>
+                      <option value="CUSTOM">Custom (Input Sendiri)</option>
                     </select>
                   </div>
                 </div>
