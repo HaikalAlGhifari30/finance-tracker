@@ -24,8 +24,8 @@ export default function WelcomePage() {
       <div className="absolute top-[-20%] left-[-10%] w-[120%] h-[60%] bg-[radial-gradient(circle,rgba(16,185,129,0.06)_0%,transparent_75%)] blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[50%] bg-[radial-gradient(circle,rgba(20,184,166,0.04)_0%,transparent_75%)] blur-3xl pointer-events-none" />
 
-      {/* Top Header Branding — give it breathing room with pb-5 */}
-      <div className="w-full max-w-sm md:max-w-5xl flex justify-center items-center relative z-10 pt-2 pb-8">
+      {/* Top Header Branding */}
+      <div className="w-full max-w-sm md:max-w-5xl flex justify-center items-center relative z-10 pt-4 pb-4">
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-3">
             <div
@@ -44,7 +44,7 @@ export default function WelcomePage() {
 
       {/* ─── MOBILE: unified single card ─── */}
       <div
-        className="md:hidden relative z-10 w-full max-w-sm"
+        className="md:hidden relative z-10 w-full max-w-sm my-auto"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(16px)",
