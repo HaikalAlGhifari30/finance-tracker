@@ -209,7 +209,7 @@ export default function GoldDetailModal({
                 }}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl shadow-lg shadow-emerald-500/20 text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5"
               >
-                <DollarSign className="w-4 h-4" />
+                <Banknote className="w-4 h-4" />
                 <span>Jual Emas</span>
               </button>
             )}

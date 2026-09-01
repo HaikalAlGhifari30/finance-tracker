@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Loader2, Target, DollarSign, Trophy } from "lucide-react";
+import { X, Loader2, Target, Trophy } from "lucide-react";
 import { addGoal, updateGoal } from "@/app/actions/goals";
 import { formatRupiah } from "@/lib/format";
 import { createPortal } from "react-dom";
@@ -114,7 +114,7 @@ export default function GoalModal({ isOpen, onClose, initialData }: Props) {
                   placeholder="0"
                   className="w-full pl-12 pr-6 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all font-black text-xl text-amber-600 shadow-sm"
                 />
-                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-amber-500 text-sm">Rp</div>
               </div>
             </div>
           </div>

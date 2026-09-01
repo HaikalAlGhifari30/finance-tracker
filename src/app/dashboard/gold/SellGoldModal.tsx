@@ -75,7 +75,7 @@ export default function SellGoldModal({ isOpen, onClose, asset, onSuccess }: Sel
         <div className="px-5 md:px-10 py-3.5 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-emerald-50/50 dark:bg-emerald-900/10">
           <div className="flex items-center gap-3 md:gap-5">
             <div className="p-2.5 md:p-4 rounded-[16px] md:rounded-[24px] bg-emerald-600 text-white shadow-lg shadow-emerald-500/20">
-              <DollarSign className="w-4 h-4 md:w-6 md:h-6" />
+              <Banknote className="w-4 h-4 md:w-6 md:h-6" />
             </div>
             <div>
               <h3 className="font-black text-base md:text-2xl text-gray-900 dark:text-gray-100 tracking-tight">

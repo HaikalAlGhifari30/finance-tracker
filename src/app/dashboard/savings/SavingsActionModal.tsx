@@ -247,46 +247,24 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
               )}
 
               {mode === "ALLOCATE" ? (
-                <>
-                  <div className="space-y-3">
-                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Alokasi ke Target Goal</label>
-                    <div className="relative group">
-                      <select
-                        value={goalId}
-                        required
-                        onChange={(e) => setGoalId(e.target.value)}
-                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                      >
-                        <option value="" disabled>Pilih Target Goal</option>
-                        {goals.map(goal => (
-                          <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
-                        ))}
-                      </select>
-                      <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                    </div>
+                <div className="space-y-3">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Alokasi ke Target Goal</label>
+                  <div className="relative group">
+                    <select
+                      value={goalId}
+                      required
+                      onChange={(e) => setGoalId(e.target.value)}
+                      className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                    >
+                      <option value="" disabled>Pilih Target Goal</option>
+                      {goals.map(goal => (
+                        <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
+                      ))}
+                    </select>
+                    <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                   </div>
-
-                  {memberId && (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Sumber Rekening (Opsional)</label>
-                      <div className="relative group">
-                        <select
-                          value={accountId}
-                          onChange={(e) => setAccountId(e.target.value)}
-                          className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
-                        >
-                          <option value="" disabled>Pilih Rekening</option>
-                          {filteredAccounts.map(acc => (
-                            <option key={acc.id} value={acc.id}>{acc.name} (Rp {acc.balance.toLocaleString('id-ID')})</option>
-                          ))}
-                        </select>
-                        <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      </div>
-                    </div>
-                  )}
-                </>
+                </div>
               ) : (
                 <>
                   {memberId && (
