@@ -43,8 +43,8 @@ export async function GET() {
     await db.insert(account).values({
       id: crypto.randomUUID().replace(/-/g, "").substring(0, 32),
       userId: userId,
-      accountId: email,
-      providerId: "email-password",
+      accountId: userId,
+      providerId: "credential",
       password: hashed,
       createdAt: now,
       updatedAt: now,

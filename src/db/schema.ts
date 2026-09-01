@@ -10,7 +10,8 @@ export const user = pgTable("user", {
 	updatedAt: timestamp("updatedAt").notNull(),
 	role: text("role").default("USER"),
 	npwp: text("npwp"),
-	phoneNumber: text("phoneNumber")
+	phoneNumber: text("phoneNumber"),
+	isActive: boolean("isActive").default(true).notNull()
 });
 
 export const members = pgTable("members", {

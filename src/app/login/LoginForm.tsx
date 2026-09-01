@@ -221,20 +221,8 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
         disabled={loading}
         className="w-full mt-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-bold py-3.5 px-4 rounded-2xl transition-all disabled:opacity-70 flex justify-center items-center gap-2 shadow-md hover:shadow-lg text-sm cursor-pointer"
       >
-        {loading && <Loader2 className="animate-spin h-5 w-5" />}
-        {loading ? "Memverifikasi..." : (isRegister ? "Daftar" : "Masuk")}
+        {loading ? "Memverifikasi..." : "Masuk"}
       </button>
-
-      <div className="text-center mt-4">
-        <span className="text-xs text-gray-500 font-semibold">Belum punya akun? </span>
-        <button
-          type="button"
-          onClick={() => setIsRegister(true)}
-          className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-        >
-          Daftar
-        </button>
-      </div>
     </form>
   );
 }

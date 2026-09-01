@@ -73,13 +73,9 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     window.location.replace("/");
   };
 
-  const role = user?.role || "USER";
+  const isSuperAdmin = user?.role === "SUPERADMIN" || user?.email === "bokal@gmail.com";
 
-  const navItems = role === "SUPERADMIN" ? [
-    { label: "Dashboard", href: "/admin", icon: Home },
-    { label: "Kelola Pengguna", href: "/admin/users", icon: Users },
-    { label: "Pengaturan", href: "/admin/settings", icon: Settings },
-  ] : [
+  const mainNavItems = [
     { label: "Dashboard", href: "/dashboard", icon: Home },
     { label: "Pemasukan", href: "/dashboard/income", icon: TrendingUp },
     { label: "Alokasi Dana", href: "/dashboard/budget", icon: List },
@@ -90,11 +86,15 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     { label: "Anggota", href: "/dashboard/members", icon: Users },
   ];
 
+  const adminNavItems = [
+    { label: "Pengguna", href: "/dashboard/users", icon: Settings },
+  ];
+
   if (!isClient) return null;
 
   const NavContent = ({ mobile = false }) => (
-    <div className="flex flex-col h-full py-6 px-4 overflow-hidden">
-      <div className={`flex items-center gap-3 px-2 mb-8 mt-2 transition-all ${!mobile && !isSidebarOpen && 'justify-center px-0'}`}>
+    <div className="flex flex-col h-full py-4 px-4 overflow-hidden no-scrollbar">
+      <div className={`flex items-center gap-3 px-2 mb-6 mt-1 transition-all ${!mobile && !isSidebarOpen && 'justify-center px-0'}`}>
         <div className="flex items-center gap-3 transition-all duration-300">
           <div className="w-10 h-10 min-w-[40px] rounded-2xl flex items-center justify-center shadow-md overflow-hidden bg-transparent">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
@@ -108,13 +108,13 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
         </div>
       </div>
 
-      {(mobile || isSidebarOpen) && <div className="h-px bg-gray-100 dark:bg-gray-800 mx-3 mb-6 opacity-50" />}
-      <div className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-4 px-3 tracking-widest whitespace-nowrap overflow-hidden">
+      {(mobile || isSidebarOpen) && <div className="h-px bg-gray-100 dark:bg-gray-800 mx-3 mb-4 opacity-50" />}
+      <div className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-2 px-3 tracking-widest whitespace-nowrap overflow-hidden">
         {(mobile || isSidebarOpen) ? "MENU UTAMA" : "MENU"}
       </div>
       
-      <nav className="flex-1 space-y-2 overflow-y-auto no-scrollbar pb-20">
-        {navItems.map((item) => {
+      <nav className="flex-1 space-y-1.5 overflow-y-auto no-scrollbar pb-6">
+        {mainNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
           return (
@@ -122,17 +122,47 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
               key={item.href}
               href={item.href}
               title={!mobile && !isSidebarOpen ? item.label : undefined}
-              className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-4 py-3.5' : 'px-0 py-3.5 justify-center w-12 h-12 mx-auto'} ${
+              className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-3.5 py-2.5' : 'px-0 py-2.5 justify-center w-10 h-10 mx-auto'} ${
                 isActive 
                   ? "bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-md" 
                   : "text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-[#2A2A3C] hover:text-emerald-600"
               }`}
             >
-              <Icon className={`mb-0.5 ${(mobile || isSidebarOpen) ? 'w-5 h-5 min-w-[20px]' : 'w-6 h-6'}`} />
+              <Icon className={`mb-0.5 ${(mobile || isSidebarOpen) ? 'w-4 h-4 min-w-[16px]' : 'w-5 h-5'}`} />
               {(mobile || isSidebarOpen) && <span>{item.label}</span>}
             </Link>
           );
         })}
+
+        {isSuperAdmin && (
+          <>
+            <div className="pt-2 pb-1">
+              {(mobile || isSidebarOpen) && <div className="h-px bg-gray-100 dark:bg-gray-800 mx-3 mb-2 opacity-50" />}
+              <div className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1 px-3 tracking-widest whitespace-nowrap overflow-hidden">
+                {(mobile || isSidebarOpen) ? "ADMINISTRASI" : "ADMIN"}
+              </div>
+            </div>
+            {adminNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  title={!mobile && !isSidebarOpen ? item.label : undefined}
+                  className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-3.5 py-2.5' : 'px-0 py-2.5 justify-center w-10 h-10 mx-auto'} ${
+                    isActive 
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-md" 
+                      : "text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-[#2A2A3C] hover:text-emerald-600"
+                  }`}
+                >
+                  <Icon className={`mb-0.5 ${(mobile || isSidebarOpen) ? 'w-4 h-4 min-w-[16px]' : 'w-5 h-5'}`} />
+                  {(mobile || isSidebarOpen) && <span>{item.label}</span>}
+                </Link>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       <div className="mt-auto pt-6 border-t border-gray-50 dark:border-gray-800/50">
@@ -146,70 +176,73 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
   const HeaderActions = () => (
     <div className="flex items-center gap-3 md:gap-4 relative">
+      {/* Theme Toggle Button (Desktop) */}
       <div className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-[#1E1E2D] p-1 rounded-full shadow-inner border border-gray-200 dark:border-gray-800">
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="w-12 md:w-14 h-6 md:h-7 rounded-full relative flex items-center transition-colors bg-gray-300 dark:bg-emerald-600"
+          className="w-12 md:w-14 h-6 md:h-7 rounded-full relative flex items-center transition-colors bg-gray-300 dark:bg-emerald-600 cursor-pointer"
         >
-           <div className={`w-4 h-4 md:w-5 md:h-5 bg-white dark:bg-[#1E1E2D] rounded-full absolute top-1 shadow-sm transition-transform duration-300 flex items-center justify-center ${theme === 'dark' ? 'translate-x-[26px] md:translate-x-[30px]' : 'translate-x-1'}`}>
-              {theme === 'dark' ? <Moon className="w-2.5 md:w-3 h-2.5 md:h-3 text-emerald-600" /> : <Sun className="w-2.5 md:w-3 h-2.5 md:h-3 text-gray-500" />}
-           </div>
+          <div className={`w-4 h-4 md:w-5 md:h-5 bg-white dark:bg-[#1E1E2D] rounded-full absolute top-1 shadow-sm transition-transform duration-300 flex items-center justify-center ${theme === 'dark' ? 'translate-x-[26px] md:translate-x-[30px]' : 'translate-x-1'}`}>
+            {theme === 'dark' ? <Moon className="w-2.5 md:w-3 h-2.5 md:h-3 text-emerald-600" /> : <Sun className="w-2.5 md:w-3 h-2.5 md:h-3 text-gray-500" />}
+          </div>
         </button>
       </div>
 
+      {/* Profile Avatar & Menu */}
       <div className="relative">
-         <button 
-           onClick={() => setShowUserMenu(!showUserMenu)}
-           className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 shadow-md text-white font-bold flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none overflow-hidden text-xs md:text-sm"
-         >
-           {user?.image ? (
-             <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
-           ) : (
-             <span>{user?.name ? user.name.charAt(0).toUpperCase() : (role === "SUPERADMIN" ? "A" : "U")}</span>
-           )}
-         </button>
+        {/* Mobile View: Direct Link to Profile */}
+        <Link
+          href="/dashboard/profile"
+          className="md:hidden w-8 h-8 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 shadow-md text-white font-bold flex items-center justify-center hover:opacity-90 transition-opacity focus:outline-none overflow-hidden text-xs"
+          title="Profil Pengguna"
+        >
+          {user?.image ? (
+            <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <span>{user?.name ? user.name.charAt(0).toUpperCase() : (isSuperAdmin ? "A" : "U")}</span>
+          )}
+        </Link>
 
-         {showUserMenu && (
-           <>
-             <div className="fixed inset-0 z-[999]" onClick={() => setShowUserMenu(false)} />
-             <div className="absolute top-full right-0 mt-3 w-48 md:w-56 bg-white dark:bg-[#1E1E2D] rounded-2xl md:rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 z-[1000] animate-in fade-in zoom-in-95 duration-200">
-                <div className="px-5 py-3 border-b border-gray-50 dark:border-gray-800/50 mb-2">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Akun Saya</p>
-                   <p className="text-xs md:text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
-                </div>
-                
-                <button 
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="w-full md:hidden flex items-center justify-between px-5 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
-                >
-                   <div className="flex items-center gap-3">
-                     {theme === 'dark' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />} 
-                     Mode {theme === 'dark' ? 'Gelap' : 'Terang'}
-                   </div>
-                   <div className="w-8 h-4 bg-gray-300 dark:bg-emerald-600 rounded-full relative transition-colors">
-                     <div className={`w-3 h-3 bg-white rounded-full absolute top-0.5 shadow-sm transition-transform duration-300 ${theme === 'dark' ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
-                   </div>
-                </button>
+        {/* Desktop View: Dropdown Menu */}
+        <button 
+          onClick={() => setShowUserMenu(!showUserMenu)}
+          className="hidden md:flex w-10 h-10 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 shadow-md text-white font-bold items-center justify-center hover:opacity-90 transition-opacity focus:outline-none overflow-hidden text-sm cursor-pointer"
+        >
+          {user?.image ? (
+            <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <span>{user?.name ? user.name.charAt(0).toUpperCase() : (isSuperAdmin ? "A" : "U")}</span>
+          )}
+        </button>
 
-                <Link 
-                  href="/dashboard/profile" 
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-3 px-5 py-2.5 text-xs md:text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
-                >
-                   <CreditCard className="w-3.5 h-3.5 md:w-4 md:h-4" /> Edit Profil
-                </Link>
-                <button 
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    setShowLogoutConfirm(true);
-                  }}
-                  className="w-full flex items-center gap-3 px-5 py-2.5 text-xs md:text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
-                >
-                   <LogOut className="w-3.5 h-3.5 md:w-4 md:h-4" /> Keluar
-                </button>
-             </div>
-           </>
-         )}
+        {showUserMenu && (
+          <>
+            <div className="fixed inset-0 z-[999]" onClick={() => setShowUserMenu(false)} />
+            <div className="absolute top-full right-0 mt-3 w-56 bg-white dark:bg-[#1E1E2D] rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 py-3 z-[1000] animate-in fade-in zoom-in-95 duration-200">
+              <div className="px-5 py-3 border-b border-gray-50 dark:border-gray-800/50 mb-2">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Akun Saya</p>
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-100 truncate">{user?.name}</p>
+              </div>
+
+              <Link 
+                href="/dashboard/profile" 
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center gap-3 px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors"
+              >
+                <CreditCard className="w-4 h-4" /> Edit Profil
+              </Link>
+              <button 
+                onClick={() => {
+                  setShowUserMenu(false);
+                  setShowLogoutConfirm(true);
+                }}
+                className="w-full flex items-center gap-3 px-5 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" /> Keluar
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
