@@ -75,9 +75,9 @@ export async function addTransaction(data: {
       id: crypto.randomUUID(),
       amount: data.amount.toString(),
       description: finalDescription,
-      date: typeof data.date === 'string' && data.date.includes('T')
-        ? new Date(data.date)
-        : new Date(`${data.date}T00:00:00`),
+      date: typeof data.date === 'string'
+        ? (data.date.includes('T') ? new Date(data.date) : new Date(`${data.date}T12:00:00`))
+        : new Date(data.date),
       userId: session.user.id,
       type: data.type,
       categoryId: data.categoryId || null,
@@ -151,7 +151,9 @@ export async function updateTransaction(id: string, data: {
       .set({
         amount: data.amount.toString(),
         description: data.description || null,
-        date: new Date(data.date),
+        date: typeof data.date === 'string'
+          ? (data.date.includes('T') ? new Date(data.date) : new Date(`${data.date}T12:00:00`))
+          : new Date(data.date),
         type: data.type,
         categoryId: data.categoryId || null,
         accountId: data.accountId || null,

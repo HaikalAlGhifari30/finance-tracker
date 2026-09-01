@@ -47,11 +47,18 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
             setAmount("");
             setDescription("");
             setCategoryId(categories[0]?.id || "");
-            setAccountId("");
-            setMemberId(currentMember !== "all" ? currentMember : "");
+            const targetMember = currentMember !== "all" ? currentMember : (members[0]?.id || "");
+            setMemberId(targetMember);
+            
+            const targetAccounts = accounts.filter(acc => acc.memberId === targetMember);
+            const bcaAcc = targetAccounts.find(a => a.name.toLowerCase().includes("bca"));
+            setAccountId(bcaAcc ? bcaAcc.id : (targetAccounts[0]?.id || ""));
+
             const now = new Date();
-            const offset = now.getTimezoneOffset();
-            setDate(new Date(now.getTime() - (offset * 60 * 1000)).toISOString().split('T')[0]);
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+            setDate(`${year}-${month}-${day}`);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
@@ -59,12 +66,17 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
     const filteredAccounts = accounts.filter(acc => acc.memberId === memberId);
 
     useEffect(() => {
-        if (memberId && filteredAccounts.length > 0 && !filteredAccounts.find(a => a.id === accountId)) {
-            setAccountId(filteredAccounts[0].id);
+        if (!isOpen) return;
+        if (memberId && filteredAccounts.length > 0) {
+            const currentValid = filteredAccounts.find(a => a.id === accountId);
+            if (!currentValid) {
+                const bcaAcc = filteredAccounts.find(a => a.name.toLowerCase().includes("bca"));
+                setAccountId(bcaAcc ? bcaAcc.id : filteredAccounts[0].id);
+            }
         } else if (!memberId || filteredAccounts.length === 0) {
             setAccountId("");
         }
-    }, [memberId, accountId, accounts]);
+    }, [memberId, isOpen, accounts]);
 
     if (!isOpen || !mounted) return null;
 
@@ -159,36 +171,24 @@ export default function IncomeModal({ isOpen, onClose, mode, initialData, catego
                             </div>
                         </div>
 
-                        {(mode === "edit" || currentMember === "all") ? (
-                            <div className="space-y-1.5 md:space-y-3">
-                                <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
-                                <div className="relative group">
-                                    <select
-                                        value={memberId}
-                                        required
-                                        onChange={(e) => setMemberId(e.target.value)}
-                                        className="w-full pl-11 pr-8 py-3 md:py-4 rounded-[16px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm group-hover:border-blue-200 dark:group-hover:border-blue-800"
-                                    >
-                                        <option value="" disabled>Pilih Anggota</option>
-                                        {members.map(m => (
-                                            <option key={m.id} value={m.id}>{m.name}</option>
-                                        ))}
-                                    </select>
-                                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                                </div>
+                        <div className="space-y-1.5 md:space-y-3">
+                            <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
+                            <div className="relative group">
+                                <select
+                                    value={memberId}
+                                    required
+                                    onChange={(e) => setMemberId(e.target.value)}
+                                    className="w-full pl-11 pr-8 py-3 md:py-4 rounded-[16px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm group-hover:border-blue-200 dark:group-hover:border-blue-800"
+                                >
+                                    <option value="" disabled className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Anggota</option>
+                                    {members.map(m => (
+                                        <option key={m.id} value={m.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{m.name}</option>
+                                    ))}
+                                </select>
+                                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                             </div>
-                        ) : (
-                            <div className="space-y-1.5 md:space-y-3">
-                                <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Anggota</label>
-                                <div className="relative">
-                                    <div className="w-full pl-11 pr-8 py-3 md:py-4 rounded-[16px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-100/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 font-bold text-xs md:text-sm flex items-center">
-                                        <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                        {members.find(m => m.id === memberId)?.name || memberId}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        </div>
 
                         {memberId && (
                             <div className="space-y-1.5 md:space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">

@@ -41,8 +41,11 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
 
     setAmount("");
     setDescription("");
-    setMemberId("");
-    setAccountId("");
+    const targetMember = members[0]?.id || "";
+    setMemberId(targetMember);
+    const targetAccounts = accounts.filter(acc => acc.memberId === targetMember);
+    const bcaAcc = targetAccounts.find(a => a.name.toLowerCase().includes("bca"));
+    setAccountId(bcaAcc ? bcaAcc.id : (targetAccounts[0]?.id || ""));
     setGoalId(""); // Default to "Tabungan Umum" (Empty)
     setSourceGoalId(""); // Default to "Tabungan Umum" (Empty)
     setFromBudget(false);
@@ -52,8 +55,17 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
   const filteredAccounts = accounts.filter(acc => acc.memberId === memberId);
 
   useEffect(() => {
-    setAccountId("");
-  }, [memberId]);
+    if (!isOpen) return;
+    if (memberId && filteredAccounts.length > 0) {
+      const currentValid = filteredAccounts.find(a => a.id === accountId);
+      if (!currentValid) {
+        const bcaAcc = filteredAccounts.find(a => a.name.toLowerCase().includes("bca"));
+        setAccountId(bcaAcc ? bcaAcc.id : filteredAccounts[0].id);
+      }
+    } else {
+      setAccountId("");
+    }
+  }, [memberId, isOpen, accounts]);
 
   if (!isOpen || !mounted) return null;
 

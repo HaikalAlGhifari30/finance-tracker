@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { Plus, Wallet, ArrowRightLeft, CreditCard, Landmark, Smartphone, Banknote, MoreVertical, Pencil, Trash2, X, ChevronRight, Search, ChevronLeft, Calendar } from "lucide-react";
+import { Plus, Wallet, ArrowRightLeft, CreditCard, Landmark, Smartphone, Banknote, MoreVertical, Pencil, Trash2, X, ChevronRight, Search, ChevronLeft, Calendar, ChevronDown } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ACCOUNT_ICONS, ACCOUNT_TYPES, PRESET_ACCOUNTS } from "@/lib/constants";
 import { addAccount, updateAccount, deleteAccount, getTransferHistory } from "@/app/actions/accounts";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
 import { formatRupiah, unformatRupiah } from "@/lib/format";
+import { getMemberTagClass } from "@/lib/memberColors";
 import { createPortal } from "react-dom";
 import { MemberFilter } from "@/components/MemberFilter";
 import { useSearchParams } from "next/navigation";
@@ -348,13 +349,16 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
               </div>
 
               <div>
-                <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 truncate">
-                  {acc.name}
-                  {currentMember === "all" && members.find(m => m.id === acc.memberId) && (
-                    <span className="ml-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                      {members.find(m => m.id === acc.memberId)?.name}
-                    </span>
-                  )}
+                <h3 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1 truncate flex items-center justify-between gap-2">
+                  <span className="truncate">{acc.name}</span>
+                  {currentMember === "all" && members.find(m => m.id === acc.memberId) && (() => {
+                    const memberObj = members.find(m => m.id === acc.memberId);
+                    return (
+                      <span className={`shrink-0 ${getMemberTagClass(memberObj?.name || "", "sm")}`}>
+                        {memberObj?.name}
+                      </span>
+                    );
+                  })()}
                 </h3>
                 <p className="text-[11px] md:text-sm text-gray-500 dark:text-gray-400 font-medium mb-3 md:mb-4">
                   {acc.type === 'BANK' ? 'Rekening Bank' : acc.type === 'EWALLET' ? 'E-Wallet' : 'Tunai'}
@@ -438,7 +442,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                           <div className="flex items-center gap-1.5">
                             <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.fromAccountName}</span>
                             {transfer.fromMemberName && (
-                              <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
+                              <span className={`shrink-0 ${getMemberTagClass(transfer.fromMemberName, "sm")}`}>
                                 {transfer.fromMemberName}
                               </span>
                             )}
@@ -447,7 +451,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                           <div className="flex items-center gap-1.5">
                             <span className="text-[11px] md:text-sm font-black text-gray-700 dark:text-gray-200 truncate max-w-[120px] md:max-w-none">{transfer.toAccountName}</span>
                             {transfer.toMemberName && (
-                              <span className="text-[6px] md:text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                              <span className={`shrink-0 ${getMemberTagClass(transfer.toMemberName, "sm")}`}>
                                 {transfer.toMemberName}
                               </span>
                             )}
@@ -543,29 +547,23 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
             
             <form noValidate onSubmit={handleAddAccount} className="p-6 space-y-5 overflow-y-auto custom-scrollbar">
               {!editingAccount && (
-                currentMember === "all" ? (
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
+                  <div className="relative">
                     <select
                       value={memberId}
                       onChange={(e) => setMemberId(e.target.value)}
                       required
-                      className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                      className="w-full px-5 py-4 pr-12 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none cursor-pointer"
                     >
-                      <option value="">Pilih Anggota Pemilik Rekening</option>
+                      <option value="" disabled className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Anggota Pemilik Rekening</option>
                       {members.map(m => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
+                        <option key={m.id} value={m.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{m.name}</option>
                       ))}
                     </select>
+                    <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
-                ) : (
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
-                    <div className="w-full px-5 py-4 bg-gray-100/50 dark:bg-[#13111C]/50 border border-gray-100 dark:border-gray-800 rounded-2xl text-gray-600 dark:text-gray-400 font-bold text-base">
-                      {members.find(m => m.id === memberId)?.name || memberId}
-                    </div>
-                  </div>
-                )
+                </div>
               )}
               
               <div className="space-y-2">
@@ -662,12 +660,7 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Anggota Pengirim</label>
-                  {currentMember !== "all" ? (
-                    <div className="w-full px-5 py-4 bg-gray-100 dark:bg-[#1A1825] border border-gray-200 dark:border-gray-800 rounded-2xl font-bold text-gray-800 dark:text-white text-sm flex items-center justify-between">
-                      <span>{members.find(m => m.id === fromMember)?.name || "Anggota Terpilih"}</span>
-                      <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Pengirim</span>
-                    </div>
-                  ) : (
+                  <div className="relative">
                     <select
                       value={fromMember}
                       onChange={(e) => {
@@ -675,28 +668,32 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
                         setFromAccount(""); // Reset account when member changes
                       }}
                       required
-                      className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
+                      className="w-full px-5 py-4 pr-12 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none cursor-pointer"
                     >
-                      <option value="">Pilih Anggota Pengirim</option>
-                      {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      <option value="" disabled className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Anggota Pengirim</option>
+                      {members.map(m => <option key={m.id} value={m.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{m.name}</option>)}
                     </select>
-                  )}
+                    <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Sumber Dana</label>
-                  <select
-                    value={fromAccount}
-                    onChange={(e) => setFromAccount(e.target.value)}
-                    required
-                    disabled={!fromMember}
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50"
-                  >
-                    <option value="">Pilih Sumber Dana</option>
-                    {accounts.filter(a => a.memberId === fromMember).map(a => (
-                      <option key={a.id} value={a.id}>{a.name} - Rp {a.balance.toLocaleString('id-ID')}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={fromAccount}
+                      onChange={(e) => setFromAccount(e.target.value)}
+                      required
+                      disabled={!fromMember}
+                      className="w-full px-5 py-4 pr-12 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50 cursor-pointer"
+                    >
+                      <option value="" className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Sumber Dana</option>
+                      {accounts.filter(a => a.memberId === fromMember).map(a => (
+                        <option key={a.id} value={a.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{a.name} - Rp {a.balance.toLocaleString('id-ID')}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
@@ -711,34 +708,40 @@ export default function AccountsClient({ initialAccounts, initialTransferHistory
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Pilih Anggota</label>
-                  <select
-                    value={toMember}
-                    onChange={(e) => {
-                      setToMember(e.target.value);
-                      setToAccount(""); // Reset account when member changes
-                    }}
-                    required
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none"
-                  >
-                    <option value="">Pilih Anggota Penerima</option>
-                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={toMember}
+                      onChange={(e) => {
+                        setToMember(e.target.value);
+                        setToAccount(""); // Reset account when member changes
+                      }}
+                      required
+                      className="w-full px-5 py-4 pr-12 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Anggota Penerima</option>
+                      {members.map(m => <option key={m.id} value={m.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{m.name}</option>)}
+                    </select>
+                    <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">Rekening Tujuan</label>
-                  <select
-                    value={toAccount}
-                    onChange={(e) => setToAccount(e.target.value)}
-                    required
-                    disabled={!toMember}
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50"
-                  >
-                    <option value="">Pilih Rekening Tujuan</option>
-                    {accounts.filter(a => a.memberId === toMember).map(a => (
-                      <option key={a.id} value={a.id}>{a.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={toAccount}
+                      onChange={(e) => setToAccount(e.target.value)}
+                      required
+                      disabled={!toMember}
+                      className="w-full px-5 py-4 pr-12 bg-gray-50 dark:bg-[#13111C] border border-gray-100 dark:border-gray-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold text-gray-800 dark:text-white appearance-none disabled:opacity-50 cursor-pointer"
+                    >
+                      <option value="" className="bg-white dark:bg-[#1E1E2D] text-gray-400">Pilih Rekening Tujuan</option>
+                      {accounts.filter(a => a.memberId === toMember).map(a => (
+                        <option key={a.id} value={a.id} className="bg-white dark:bg-[#1E1E2D] text-gray-900 dark:text-white font-bold">{a.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-5 h-5 text-gray-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
