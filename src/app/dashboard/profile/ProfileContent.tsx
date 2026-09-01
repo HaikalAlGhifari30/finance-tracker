@@ -48,6 +48,7 @@ export default function ProfileContent({ user }: { user: any }) {
   };
 
   const handleLogout = async () => {
+    localStorage.removeItem("pwa_session_active");
     await authClient.signOut();
     window.location.replace("/");
   };

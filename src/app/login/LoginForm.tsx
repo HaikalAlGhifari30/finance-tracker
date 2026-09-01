@@ -76,7 +76,7 @@ export default function LoginForm({ initialMode = false }: { initialMode?: boole
         const { data, error } = await authClient.signIn.email({
           email,
           password,
-          rememberMe: false,
+          rememberMe: true,
         });
 
         if (error) {

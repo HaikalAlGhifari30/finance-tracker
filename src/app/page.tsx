@@ -16,8 +16,8 @@ export default function RootPage() {
     navigatingRef.current = true;
 
     try {
-      // Check if this is a fresh start after PWA was closed
-      const isSessionActive = sessionStorage.getItem("pwa_session_active");
+      // Check if session is active in localStorage (persistent across browser restarts)
+      const isSessionActive = localStorage.getItem("pwa_session_active");
 
       let targetPath = "/welcome";
       if (isSessionActive) {

@@ -14,6 +14,14 @@ export const auth = betterAuth({
             verification: schema.verification
         }
     }),
+    session: {
+        expiresIn: 60 * 60 * 24 * 30, // Sesi berlaku 30 hari agar user tidak perlu berulang kali login
+        updateAge: 60 * 60 * 24 * 7, // Hanya update updatedAt di DB Neon 7 hari sekali (bukan tiap hari/request)
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60 // Cache sesi di cookie selama 5 menit untuk menghemat query DB ke Neon
+        }
+    },
     emailAndPassword: {
         enabled: true
     },

@@ -29,10 +29,10 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
     }
   }, []);
 
-  // Set session active flag in sessionStorage upon mounting dashboard layout
+  // Set session active flag in localStorage upon mounting dashboard layout
   useEffect(() => {
     if (user) {
-      sessionStorage.setItem("pwa_session_active", "true");
+      localStorage.setItem("pwa_session_active", "true");
     }
   }, [user]);
 
@@ -68,6 +68,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
   }, [pathname]);
 
   const handleLogout = async () => {
+    localStorage.removeItem("pwa_session_active");
     await authClient.signOut();
     window.location.replace("/");
   };
