@@ -200,23 +200,22 @@ export async function getAccounts(memberId?: string) {
       conditions.push(eq(accounts.memberId, memberId));
     }
     
-    const userAccounts = await db.select().from(accounts).where(and(...conditions)).execute();
+    const [userAccounts, userTransactions] = await Promise.all([
+      db.select().from(accounts).where(and(...conditions)).execute(),
+      db.select({
+        accountId: transactions.accountId,
+        destinationAccountId: transactions.destinationAccountId,
+        type: transactions.type,
+        amount: transactions.amount,
+      })
+      .from(transactions)
+      .where(eq(transactions.userId, session.user.id))
+      .execute()
+    ]);
     
-    // For each account, calculate balance
-    const accountsWithBalance = await Promise.all(userAccounts.map(async (acc) => {
-      // Fetch all transactions for this account
-      const accountTransactions = await db.select()
-        .from(transactions)
-        .where(
-          or(
-            eq(transactions.accountId, acc.id),
-            eq(transactions.destinationAccountId, acc.id)
-          )
-        )
-        .execute();
-
+    const accountsWithBalance = userAccounts.map((acc) => {
       let balance = 0;
-      accountTransactions.forEach(t => {
+      userTransactions.forEach(t => {
         const amount = Number(t.amount);
         if (t.type === 'INCOME' && t.accountId === acc.id) {
           balance += amount;
@@ -240,7 +239,7 @@ export async function getAccounts(memberId?: string) {
         ...acc,
         balance
       };
-    }));
+    });
 
     return accountsWithBalance;
   } catch (error) {

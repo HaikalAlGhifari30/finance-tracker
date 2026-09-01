@@ -229,7 +229,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
                     <div className="hidden md:block w-1 h-1 bg-slate-700 rounded-full" />
                   </div>
                 ))}
-                <p className="text-amber-500/80 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Tabungan Bersama: {renderBalance(totalSavingsPool)}</p>
+                <p className="text-amber-500/80 text-[8px] md:text-[9px] font-black uppercase tracking-widest">Total Tabungan: {renderBalance(totalSavingsPool)}</p>
               </div>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
@@ -481,7 +481,7 @@ export default function DashboardClientPage({ initialActivities, user, mainGoal,
               >
                  <div className="flex-1 min-w-0">
                    <div className="flex justify-between items-center gap-1">
-                     <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest truncate">Tabungan Bersama</p>
+                     <p className="text-amber-500/80 text-[8px] font-black uppercase tracking-widest truncate">Total Tabungan</p>
                      <span className="text-[8px] text-amber-500/60 group-hover:text-amber-400 transition-colors shrink-0">Detail →</span>
                    </div>
                    <p className="text-xs font-bold mt-0.5 text-amber-100 truncate">{renderBalance(totalSavingsPool)}</p>

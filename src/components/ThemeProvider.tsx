@@ -6,6 +6,7 @@ type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: string;
+  isDark: boolean;
   setTheme: (theme: Theme) => void;
 }
 
@@ -13,17 +14,17 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setThemeState] = useState<string>('system');
+  const [isDark, setIsDark] = useState<boolean>(true);
 
-  const updateMetaThemeColor = (isDark: boolean) => {
+  const updateMetaThemeColor = (dark: boolean) => {
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
       metaThemeColor.setAttribute('name', 'theme-color');
       document.head.appendChild(metaThemeColor);
     }
-    metaThemeColor.setAttribute('content', isDark ? '#13111C' : '#F8F9FD');
+    metaThemeColor.setAttribute('content', dark ? '#13111C' : '#F8F9FD');
     
-    // Also update Apple status bar style dynamically if needed, though black-translucent is usually enough
     let metaAppleStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     if (!metaAppleStatus) {
       metaAppleStatus = document.createElement('meta');
@@ -49,16 +50,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     
     const applyTheme = (t: Theme) => {
       const d = document.documentElement;
-      const isDark = t === 'dark' || (t === 'system' && mediaQuery.matches);
-      d.classList.toggle('dark', isDark);
-      updateMetaThemeColor(isDark);
+      const activeDark = t === 'dark' || (t === 'system' && mediaQuery.matches);
+      d.classList.toggle('dark', activeDark);
+      setIsDark(activeDark);
+      updateMetaThemeColor(activeDark);
     };
 
     const handleChange = () => {
-      const current = localStorage.getItem('theme') as Theme || 'system';
-      if (current === 'system') {
-        applyTheme('system');
-      }
+      const current = (localStorage.getItem('theme') as Theme) || 'system';
+      applyTheme(current);
     };
 
     applyTheme(savedTheme);
@@ -68,17 +68,17 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setTheme = (t: Theme) => {
     const d = document.documentElement;
-    const isDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    d.classList.toggle('dark', isDark);
-    updateMetaThemeColor(isDark);
+    const activeDark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    d.classList.toggle('dark', activeDark);
+    setIsDark(activeDark);
+    updateMetaThemeColor(activeDark);
     localStorage.setItem('theme', t);
-    // Set cookie for server-side theme detection
     document.cookie = `theme=${t}; path=/; max-age=31536000; SameSite=Lax`;
     setThemeState(t);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, isDark, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -87,7 +87,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    return { theme: 'system', setTheme: () => {} };
+    return { theme: 'system', isDark: true, setTheme: () => {} };
   }
   return context;
 };

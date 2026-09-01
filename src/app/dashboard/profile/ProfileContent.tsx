@@ -11,7 +11,7 @@ import { useTheme } from "@/components/ThemeProvider";
 
 export default function ProfileContent({ user }: { user: any }) {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
+  const { theme, isDark, setTheme } = useTheme();
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(user.name || "");
   const [image, setImage] = useState(user.image || "");
@@ -277,19 +277,19 @@ export default function ProfileContent({ user }: { user: any }) {
         <div className="w-full space-y-3 md:hidden">
           {/* Mode Switcher */}
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="w-full p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors text-left cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 dark:bg-emerald-500/10 dark:text-emerald-400">
-                {theme === "dark" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-amber-500" />}
+                {isDark ? <Moon className="w-5 h-5 text-emerald-400" /> : <Sun className="w-5 h-5 text-amber-500" />}
               </div>
               <div>
                 <p className="text-xs md:text-sm font-bold text-gray-800 dark:text-gray-100">
                   Mode Tampilan
                 </p>
                 <p className="text-[11px] text-gray-400 font-medium">
-                  {theme === "dark" ? "Mode Gelap (Dark)" : "Mode Terang (Light)"}
+                  {isDark ? "Mode Gelap (Dark)" : "Mode Terang (Light)"}
                 </p>
               </div>
             </div>
@@ -297,10 +297,10 @@ export default function ProfileContent({ user }: { user: any }) {
             <div className="w-12 h-6 bg-gray-300 dark:bg-emerald-600 rounded-full relative transition-colors p-0.5">
               <div
                 className={`w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 flex items-center justify-center ${
-                  theme === "dark" ? "translate-x-[24px]" : "translate-x-0"
+                  isDark ? "translate-x-[24px]" : "translate-x-0"
                 }`}
               >
-                {theme === "dark" ? (
+                {isDark ? (
                   <Moon className="w-3 h-3 text-emerald-600" />
                 ) : (
                   <Sun className="w-3 h-3 text-amber-500" />

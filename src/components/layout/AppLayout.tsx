@@ -121,6 +121,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             <Link
               key={item.href}
               href={item.href}
+              prefetch={true}
               title={!mobile && !isSidebarOpen ? item.label : undefined}
               className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-3.5 py-2.5' : 'px-0 py-2.5 justify-center w-10 h-10 mx-auto'} ${
                 isActive 
@@ -149,6 +150,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   title={!mobile && !isSidebarOpen ? item.label : undefined}
                   className={`flex items-center gap-3 rounded-2xl transition-all font-medium whitespace-nowrap ${ (mobile || isSidebarOpen) ? 'px-3.5 py-2.5' : 'px-0 py-2.5 justify-center w-10 h-10 mx-auto'} ${
                     isActive 
@@ -312,6 +314,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
           <div className="bg-white dark:bg-[#1E1E2D] border-t border-gray-100 dark:border-gray-800/80 shadow-[0_-8px_30px_rgb(0,0,0,0.06)] rounded-t-[24px] px-3 pt-2.5 pb-[max(env(safe-area-inset-bottom),10px)] flex items-center justify-between">
             <Link 
               href="/dashboard/accounts" 
+              prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 py-1.5 mx-0.5 rounded-full transition-all active:scale-95 ${
                 pathname === '/dashboard/accounts' 
                   ? 'text-emerald-600 dark:text-emerald-400 font-black' 
@@ -324,6 +327,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
             <Link 
               href="/dashboard/income" 
+              prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 py-1.5 mx-0.5 rounded-full transition-all active:scale-95 ${
                 pathname === '/dashboard/income' 
                   ? 'text-blue-600 dark:text-blue-400 font-black' 
@@ -335,7 +339,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             </Link>
             
             <div className="flex-1 flex justify-center items-center min-h-[44px]">
-              <Link href="/dashboard" className="-translate-y-4 w-14 h-14 rounded-[18px] bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white flex flex-col items-center justify-center shadow-lg shadow-emerald-500/30 dark:shadow-emerald-950/30 active:scale-95 transition-all ring-4 ring-white dark:ring-[#1E1E2D]">
+              <Link href="/dashboard" prefetch={true} className="-translate-y-4 w-14 h-14 rounded-[18px] bg-gradient-to-tr from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 text-white flex flex-col items-center justify-center shadow-lg shadow-emerald-500/30 dark:shadow-emerald-950/30 active:scale-95 transition-all ring-4 ring-white dark:ring-[#1E1E2D]">
                 <Home className="w-6 h-6 stroke-[2.5px]" />
                 <span className="text-[7px] font-black uppercase tracking-wider mt-0.5">Home</span>
               </Link>
@@ -343,6 +347,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
 
             <Link 
               href="/dashboard/expenses" 
+              prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 py-1.5 mx-0.5 rounded-full transition-all active:scale-95 ${
                 pathname === '/dashboard/expenses' 
                   ? 'text-rose-600 dark:text-rose-400 font-black' 
@@ -355,6 +360,7 @@ export function AppLayout({ children, user }: { children: React.ReactNode, user?
             
             <Link 
               href="/dashboard/budget" 
+              prefetch={true}
               className={`flex flex-col items-center justify-center flex-1 py-1.5 mx-0.5 rounded-full transition-all active:scale-95 ${
                 pathname === '/dashboard/budget' 
                   ? 'text-indigo-600 dark:text-indigo-400 font-black' 
