@@ -23,31 +23,11 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  const members = await getMembers();
-
-  // 1. Fetch Accounts with Balances
-  const accounts = await getAccounts();
-  const liquidAssets = accounts.reduce((acc, curr) => acc + curr.balance, 0);
-
-  // 2. Fetch all user transactions for calculations
-  const allUserTransactions = await db.select()
-    .from(transactions)
-    .where(eq(transactions.userId, userId))
-    .execute();
-
-  // 3. Calculate Total Savings Pool (SAVING - WITHDRAWAL)
-  const totalSavingsPool = allUserTransactions.reduce((sum, t) => {
-    const amount = Number(t.amount);
-    if (t.type === 'SAVING') return sum + amount;
-    if (t.type === 'WITHDRAWAL') return sum - amount;
-    return sum;
-  }, 0);
-
-  const totalAssets = liquidAssets + totalSavingsPool;
-
-  // 4. Recent Activities
-  const recentActivities = await db
-    .select({
+  const [members, accounts, allUserTransactions, recentActivities, [goalData]] = await Promise.all([
+    getMembers(),
+    getAccounts(),
+    db.select().from(transactions).where(eq(transactions.userId, userId)).execute(),
+    db.select({
       id: transactions.id,
       amount: transactions.amount,
       description: transactions.description,
@@ -66,15 +46,21 @@ export default async function DashboardPage() {
     .where(eq(transactions.userId, userId))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
     .limit(500)
-    .execute();
+    .execute(),
+    db.select().from(goals).where(and(eq(goals.userId, userId), eq(goals.isMain, true))).limit(1).execute()
+  ]);
 
-  // 5. Fetch Main Goal
-  const [goalData] = await db
-    .select()
-    .from(goals)
-    .where(and(eq(goals.userId, userId), eq(goals.isMain, true)))
-    .limit(1)
-    .execute();
+  const liquidAssets = accounts.reduce((acc, curr) => acc + curr.balance, 0);
+
+  // 2. Calculate Total Savings Pool (SAVING - WITHDRAWAL)
+  const totalSavingsPool = allUserTransactions.reduce((sum, t) => {
+    const amount = Number(t.amount);
+    if (t.type === 'SAVING') return sum + amount;
+    if (t.type === 'WITHDRAWAL') return sum - amount;
+    return sum;
+  }, 0);
+
+  const totalAssets = liquidAssets + totalSavingsPool;
 
   let mainGoal = null;
   if (goalData) {

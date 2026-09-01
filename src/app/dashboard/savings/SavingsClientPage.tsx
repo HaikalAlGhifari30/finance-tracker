@@ -275,10 +275,10 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                     </div>
                                 </div>
                             )}
-                            <div className="flex justify-between items-start mb-4 md:mb-6">
-                                <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                        <h4 className="font-black text-lg md:text-xl text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors truncate max-w-[100px] md:max-w-[150px]">{goal.name}</h4>
+                            <div className="flex justify-between items-start mb-4 md:mb-6 gap-3">
+                                <div className="space-y-1 min-w-0 flex-1 text-left">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h4 className="font-black text-lg md:text-xl text-gray-900 dark:text-white group-hover:text-amber-500 transition-colors leading-snug">{goal.name}</h4>
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -288,7 +288,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                                     else toast.success(isMain ? "Berhasil menghapus goals utama" : `"${goal.name}" dipilih sebagai goals utama!`);
                                                 });
                                             }}
-                                            className={`p-1.5 md:p-2 rounded-xl transition-all ${isMain ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/30' : 'text-gray-300 hover:text-amber-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                                            className={`p-1.5 md:p-2 rounded-xl transition-all shrink-0 ${isMain ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/30' : 'text-gray-300 hover:text-amber-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                                             title={isMain ? "Hapus dari Utama" : "Set sebagai Utama"}
                                         >
                                             <Star className={`w-3.5 h-3.5 md:w-4 h-4 ${isMain ? 'fill-amber-500' : ''}`} />
@@ -296,7 +296,7 @@ export default function SavingsClientPage({ totalSavingsPool, unallocatedSavings
                                     </div>
                                     <p className="text-[9px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest">Target: Rp {targetAmount.toLocaleString("id-ID")}</p>
                                 </div>
-                                <div className="flex gap-1.5 md:gap-2">
+                                <div className="flex gap-1.5 md:gap-2 shrink-0">
                                     <div className={`p-2 md:p-3 rounded-2xl transition-all ${progress >= 100 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-gray-50 dark:bg-gray-800 text-gray-400'}`}>
                                         <Trophy className="w-4 h-4 md:w-5 md:h-5" />
                                     </div>

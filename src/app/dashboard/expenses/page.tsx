@@ -17,8 +17,8 @@ export default async function ExpensesListPage() {
 
   const userId = session.user.id;
 
-  const list = await db
-    .select({
+  const [list, rawCategories, userGoals, userAccounts, members, allSavingsRelated] = await Promise.all([
+    db.select({
       id: transactions.id,
       amount: transactions.amount,
       description: transactions.description,
@@ -37,49 +37,13 @@ export default async function ExpensesListPage() {
     .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "EXPENSE")))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
-    .execute();
+    .execute(),
 
-  let userCategories = await db
-    .select()
-    .from(categories)
-    .where(and(eq(categories.userId, userId), eq(categories.type, "EXPENSE")))
-    .execute();
-
-  const userGoals = await db
-    .select()
-    .from(goals)
-    .where(eq(goals.userId, userId))
-    .execute();
-
-  const userAccounts = await getAccounts();
-  const members = await getMembers();
-
-  // Seed default categories if none exist for this type
-  if (userCategories.length === 0) {
-    const defaultCategoryNames = [
-      "Makan", "Kosan", "Listrik", "Jajan", "Kuota", 
-      "Hiburan", "Transportasi", "Tak Terduga", "Transfer Keluarga", "Tabungan"
-    ];
-    
-    const seedData = defaultCategoryNames.map(name => ({
-      id: crypto.randomUUID(),
-      name,
-      userId: userId,
-      type: "EXPENSE"
-    }));
-
-    await db.insert(categories).values(seedData).execute();
-    
-    userCategories = await db
-      .select()
-      .from(categories)
-      .where(and(eq(categories.userId, userId), eq(categories.type, "EXPENSE")))
-      .execute();
-  }
-
-  // Calculate total savings pool
-  const allSavingsRelated = await db
-    .select({
+    db.select().from(categories).where(and(eq(categories.userId, userId), eq(categories.type, "EXPENSE"))).execute(),
+    db.select().from(goals).where(eq(goals.userId, userId)).execute(),
+    getAccounts(),
+    getMembers(),
+    db.select({
       type: transactions.type,
       amount: transactions.amount,
       accountId: transactions.accountId
@@ -91,7 +55,10 @@ export default async function ExpensesListPage() {
         sql`${transactions.type} IN ('SAVING', 'WITHDRAWAL') OR (${transactions.type} = 'EXPENSE' AND ${transactions.accountId} IS NULL)`
       )
     )
-    .execute();
+    .execute()
+  ]);
+
+  let userCategories = rawCategories;
 
   const totalSavings = allSavingsRelated.reduce((acc, t) => {
     const amt = Number(t.amount);

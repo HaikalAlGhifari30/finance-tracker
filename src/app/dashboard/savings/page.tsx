@@ -18,18 +18,12 @@ export default async function SavingsPage() {
 
   const userId = session.user.id;
 
-  // 1. Fetch Goals
-  const goalsData = await db
-    .select()
-    .from(goals)
-    .where(eq(goals.userId, userId))
-    .execute();
-
-  // 2. Fetch all user transactions for calculations
-  const allUserTransactions = await db.select()
-    .from(transactions)
-    .where(eq(transactions.userId, userId))
-    .execute();
+  const [goalsData, allUserTransactions, membersData, userAccounts] = await Promise.all([
+    db.select().from(goals).where(eq(goals.userId, userId)).execute(),
+    db.select().from(transactions).where(eq(transactions.userId, userId)).execute(),
+    getMembers(),
+    getAccounts()
+  ]);
 
   // 3. Map goals with their specific balances calculated in JS
   const userGoals = goalsData.map(goal => {
@@ -79,10 +73,6 @@ export default async function SavingsPage() {
   // 5. Calculate Unallocated Savings (Total - All Allocated)
   const totalAllocated = userGoals.reduce((sum, g) => sum + g.balance, 0);
   const unallocatedSavings = totalSavingsPool - totalAllocated;
-
-  // 6. Fetch Members and Accounts
-  const membersData = await getMembers();
-  const userAccounts = await getAccounts();
 
   // 7. Fetch Savings Transaction History
   const history = allUserTransactions

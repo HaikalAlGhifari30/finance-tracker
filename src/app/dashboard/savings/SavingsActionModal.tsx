@@ -181,9 +181,10 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
         </div>
         <div className="px-5 md:px-10 py-3.5 md:py-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/30">
           <div className="flex items-center gap-3 md:gap-5">
-            <div className={`p-2.5 md:p-4 rounded-[16px] md:rounded-[24px] transition-all duration-500 shadow-lg ${mode === 'SAVING' ? 'bg-amber-500 text-white shadow-amber-500/20' :
-              mode === 'WITHDRAWAL' ? 'bg-blue-600 text-white shadow-blue-500/20' :
-                'bg-emerald-600 text-white shadow-emerald-500/20'
+            <div className={`p-2.5 md:p-4 rounded-[16px] md:rounded-[24px] transition-all duration-500 shadow-lg ${
+              mode === 'WITHDRAWAL' 
+                ? 'bg-blue-600 text-white shadow-blue-500/20' 
+                : 'bg-amber-500 text-white shadow-amber-500/20'
               }`}>
               {mode === 'SAVING' ? <ArrowUpCircle className="w-4 h-4 md:w-6 md:h-6" /> :
                 mode === 'WITHDRAWAL' ? <ArrowDownCircle className="w-4 h-4 md:w-6 md:h-6" /> :
@@ -209,8 +210,8 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
               <label className="text-[10px] md:text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">Jumlah Nominal (Rp)</label>
               <div className="relative group">
                 <div className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
-                  <Banknote className={`hidden sm:block w-7 h-7 text-gray-300 transition-colors ${mode === 'SAVING' ? 'group-hover:text-amber-400' : 'group-hover:text-blue-400'}`} />
-                  <span className={`font-black text-base md:text-2xl group-focus-within:opacity-100 transition-colors ${mode === 'SAVING' ? 'text-amber-500' : 'text-blue-500'}`}>Rp</span>
+                  <Banknote className={`hidden sm:block w-7 h-7 text-gray-300 transition-colors ${mode === 'WITHDRAWAL' ? 'group-hover:text-blue-400' : 'group-hover:text-amber-400'}`} />
+                  <span className={`font-black text-base md:text-2xl group-focus-within:opacity-100 transition-colors ${mode === 'WITHDRAWAL' ? 'text-blue-500' : 'text-amber-500'}`}>Rp</span>
                 </div>
                 <input
                   type="text"
@@ -219,7 +220,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                   value={amount}
                   onChange={handleAmountChange}
                   placeholder="0"
-                  className={`w-full pl-14 sm:pl-24 pr-4 md:pr-8 py-3 md:py-5 rounded-[18px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-xl md:text-3xl shadow-inner ${mode === 'SAVING' ? 'text-amber-600 focus:border-amber-500/50' : 'text-blue-600 focus:border-blue-500/50'}`}
+                  className={`w-full pl-14 sm:pl-24 pr-4 md:pr-8 py-3 md:py-5 rounded-[18px] md:rounded-[32px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none transition-all font-black text-xl md:text-3xl shadow-inner ${mode === 'WITHDRAWAL' ? 'text-blue-600 focus:border-blue-500/50' : 'text-amber-600 focus:border-amber-500/50'}`}
                 />
               </div>
             </div>
@@ -254,15 +255,15 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       value={goalId}
                       required
                       onChange={(e) => setGoalId(e.target.value)}
-                      className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                      className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                     >
                       <option value="" disabled>Pilih Target Goal</option>
                       {goals.map(goal => (
                         <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
                       ))}
                     </select>
-                    <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                    <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500" />
                   </div>
                 </div>
               ) : (
@@ -298,7 +299,7 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                       <select
                         value={goalId}
                         onChange={(e) => setGoalId(e.target.value)}
-                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-emerald-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
+                        className="w-full pl-12 pr-8 py-4 md:py-5 rounded-[20px] md:rounded-[24px] border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500/50 transition-all appearance-none cursor-pointer font-bold text-xs md:text-sm"
                       >
                         <option value="">
                           {mode === 'SAVING' ? "Tabungan Umum (Tanpa Alokasi)" : `Tabungan Umum (Pindahkan Balik)`}
@@ -307,8 +308,8 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
                           <option key={goal.id} value={goal.id}>{goal.name} (Saldo: Rp {Number(goal.balance).toLocaleString('id-ID')})</option>
                         ))}
                       </select>
-                      <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500" />
-                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
+                      <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500" />
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500" />
                     </div>
                   </div>
                 </>
@@ -388,7 +389,11 @@ export default function SavingsActionModal({ isOpen, onClose, mode, accounts, go
             <button
               type="submit"
               disabled={isPending}
-              className="flex-[1.5] bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 md:py-5 rounded-[16px] md:rounded-[28px] shadow-xl shadow-emerald-500/30 disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em]"
+              className={`flex-[1.5] text-white font-black py-3 md:py-5 rounded-[16px] md:rounded-[28px] shadow-xl disabled:opacity-70 transition-all active:scale-95 flex items-center justify-center text-[10px] md:text-[11px] uppercase tracking-[0.2em] ${
+                mode === 'WITHDRAWAL' 
+                  ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30' 
+                  : 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30'
+              }`}
             >
               {isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "Konfirmasi Transaksi"}
             </button>

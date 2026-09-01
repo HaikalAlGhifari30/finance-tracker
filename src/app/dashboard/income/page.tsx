@@ -16,8 +16,8 @@ export default async function IncomePage() {
 
   const userId = session.user.id;
 
-  const incomeList = await db
-    .select({
+  const [incomeList, rawCategories, userAccounts, members] = await Promise.all([
+    db.select({
       id: transactions.id,
       amount: transactions.amount,
       description: transactions.description,
@@ -36,41 +36,14 @@ export default async function IncomePage() {
     .leftJoin(membersTable, eq(transactions.memberId, membersTable.id))
     .where(and(eq(transactions.userId, userId), eq(transactions.type, "INCOME")))
     .orderBy(desc(transactions.date), desc(transactions.createdAt))
-    .execute();
+    .execute(),
 
-  let userCategories = await db
-    .select()
-    .from(categories)
-    .where(and(eq(categories.userId, userId), eq(categories.type, "INCOME")))
-    .execute();
+    db.select().from(categories).where(and(eq(categories.userId, userId), eq(categories.type, "INCOME"))).execute(),
+    db.select().from(accounts).where(eq(accounts.userId, userId)).execute(),
+    getMembers()
+  ]);
 
-  // Seed default categories if none exist for INCOME
-  if (userCategories.length === 0) {
-    const defaultCategoryNames = ["Gaji", "Bonus", "Investasi", "Penjualan", "Lainnya"];
-    
-    const seedData = defaultCategoryNames.map(name => ({
-      id: crypto.randomUUID(),
-      name,
-      userId: userId,
-      type: "INCOME"
-    }));
-
-    await db.insert(categories).values(seedData).execute();
-    
-    userCategories = await db
-      .select()
-      .from(categories)
-      .where(and(eq(categories.userId, userId), eq(categories.type, "INCOME")))
-      .execute();
-  }
-
-  const userAccounts = await db
-    .select()
-    .from(accounts)
-    .where(eq(accounts.userId, userId))
-    .execute();
-
-  const members = await getMembers();
+  let userCategories = rawCategories;
 
   return (
     <IncomeClientPage 

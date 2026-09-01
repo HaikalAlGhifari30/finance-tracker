@@ -20,14 +20,11 @@ export default async function BudgetPage() {
   const currentMonth = (now.getMonth() + 1).toString();
   const currentYear = now.getFullYear().toString();
 
-  const allCategories = await db
-    .select()
-    .from(categories)
-    .where(eq(categories.userId, session.user.id))
-    .execute();
-
-  const members = await getMembers();
-  const accounts = await getAccounts();
+  const [allCategories, members, accounts] = await Promise.all([
+    db.select().from(categories).where(eq(categories.userId, session.user.id)).execute(),
+    getMembers(),
+    getAccounts()
+  ]);
 
   return (
     <BudgetClientPage 

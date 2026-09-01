@@ -15,21 +15,22 @@ export default async function AccountsPage() {
 
   if (!session?.user) redirect("/");
 
-  const accounts = await getAccounts();
-  const members = await getMembers();
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
-  
-  const transferResult = await getTransferHistory({ 
-    month: currentMonth, 
-    year: currentYear, 
-    viewMode: "monthly",
-    page: 1,
-    limit: 10 
-  });
-  
-  const userCategories = await db.select().from(categories).where(eq(categories.userId, session.user.id)).execute();
+
+  const [accounts, members, transferResult, userCategories] = await Promise.all([
+    getAccounts(),
+    getMembers(),
+    getTransferHistory({ 
+      month: currentMonth, 
+      year: currentYear, 
+      viewMode: "monthly",
+      page: 1,
+      limit: 10 
+    }),
+    db.select().from(categories).where(eq(categories.userId, session.user.id)).execute()
+  ]);
 
   return (
     <AccountsClient 
